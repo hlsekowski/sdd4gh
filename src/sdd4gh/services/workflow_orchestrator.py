@@ -9,18 +9,18 @@ external systems (GitHub, model) in tests.
 
 from __future__ import annotations
 
-from qnagym.contracts.task_model import (
+from sdd4gh.contracts.task_model import (
     TASK_KIND_ISSUE_EVALUATION,
     ExecutionState,
 )
-from qnagym.services.effect_log import EffectAdapter
-from qnagym.services.execution_state import ExecutionStateService
-from qnagym.services.issue_evaluation import (
+from sdd4gh.services.effect_log import EffectAdapter
+from sdd4gh.services.execution_state import ExecutionStateService
+from sdd4gh.services.issue_evaluation import (
     IssueEvaluationTask,
     IssueEvaluator,
 )
-from qnagym.services.task_queue import create_task
-from qnagym.services.task_runner import run_once
+from sdd4gh.services.task_queue import create_task
+from sdd4gh.services.task_runner import run_once
 
 
 class WorkflowOrchestratorError(Exception):

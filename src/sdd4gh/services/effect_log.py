@@ -11,8 +11,8 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from qnagym.contracts.task_model import ExecutionState
-from qnagym.services.execution_state import ExecutionStateService
+from sdd4gh.contracts.task_model import ExecutionState
+from sdd4gh.services.execution_state import ExecutionStateService
 
 
 class EffectAdapter(Protocol):

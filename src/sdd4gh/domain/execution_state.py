@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from qnagym.contracts.task_model import ExecutionState
+from sdd4gh.contracts.task_model import ExecutionState
 
 
 class ExecutionStateError(Exception):

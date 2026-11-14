@@ -7,7 +7,7 @@ Covers:
 - Incomplete delivery handoff to PR Process
 """
 
-from qnagym.contracts.sdd_process import (
+from sdd4gh.contracts.sdd_process import (
     SDD_RESULT_INCOMPLETE,
     SDD_RESULT_SUCCESSFUL,
     SDD_TASK_STATE_COMPLETED,
@@ -16,7 +16,7 @@ from qnagym.contracts.sdd_process import (
     SDDTaskIdentity,
     SDDTaskInput,
 )
-from qnagym.services.sdd_process import deliver_task
+from sdd4gh.services.sdd_process import deliver_task
 
 
 def _make_task(

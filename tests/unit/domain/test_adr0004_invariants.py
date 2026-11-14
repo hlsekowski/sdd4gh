@@ -13,7 +13,7 @@ Covers the invariants from ADR 0004 §3 and §7:
 - Obsolete tasks
 """
 
-from qnagym.contracts.task_model import (
+from sdd4gh.contracts.task_model import (
     PRIORITY_SHORT,
     TASK_STATE_COMPLETED,
     TASK_STATE_FAILED,
@@ -24,14 +24,14 @@ from qnagym.contracts.task_model import (
     Task,
     TaskIdentity,
 )
-from qnagym.domain.execution_state import (
+from sdd4gh.domain.execution_state import (
     deserialize_state,
     is_corrupt,
     merge_states,
     serialize_state,
     validate_state,
 )
-from qnagym.domain.task_queue import (
+from sdd4gh.domain.task_queue import (
     claim_task,
     coalesce,
     is_claim_valid,
@@ -41,7 +41,7 @@ from qnagym.domain.task_queue import (
     renew_claim,
     task_key_for_identity,
 )
-from qnagym.services.execution_state import ExecutionStateService
+from sdd4gh.services.execution_state import ExecutionStateService
 
 
 def _identity(kind="issue_evaluation", work_item="42", target="t", revision="r", generation=0):
@@ -325,7 +325,7 @@ class TestWorkspaceIsolation:
     """ADR 0004 §7: Isolated workspaces for concurrent tasks."""
 
     def test_workspace_isolation(self, tmp_path):
-        from qnagym.services.git_workspace import GitWorkspace
+        from sdd4gh.services.git_workspace import GitWorkspace
 
         ws1 = GitWorkspace(tmp_path / "ws1")
         ws1.init()

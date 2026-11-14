@@ -1,6 +1,6 @@
 """Unit tests for the event processing domain logic."""
 
-from qnagym.contracts.event_process import (
+from sdd4gh.contracts.event_process import (
     EVENT_STATE_DEDUPLICATED,
     EVENT_STATE_PENDING,
     EVENT_STATE_PROCESSED,
@@ -8,7 +8,7 @@ from qnagym.contracts.event_process import (
     EventProcessingState,
     ProcessedEvent,
 )
-from qnagym.domain.event_process import (
+from sdd4gh.domain.event_process import (
     handle_interruption,
     is_duplicate_event,
     is_interruption_reason,

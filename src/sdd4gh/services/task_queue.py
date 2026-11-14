@@ -6,7 +6,7 @@ creation, claiming, and scheduling; performs no GitHub or model I/O.
 
 from __future__ import annotations
 
-from qnagym.contracts.task_model import (
+from sdd4gh.contracts.task_model import (
     PRIORITY_SHORT,
     TASK_STATE_QUEUED,
     Claim,
@@ -14,7 +14,7 @@ from qnagym.contracts.task_model import (
     Task,
     TaskIdentity,
 )
-from qnagym.domain.task_queue import (
+from sdd4gh.domain.task_queue import (
     claim_task,
     coalesce,
     is_duplicate,

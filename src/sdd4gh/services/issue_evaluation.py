@@ -10,7 +10,7 @@ create a branch.
 
 from __future__ import annotations
 
-from qnagym.contracts.issue_process import (
+from sdd4gh.contracts.issue_process import (
     ACTION_ACCEPT_AND_SEAL,
     ACTION_REQUEST_CLARIFICATION,
     Issue,
@@ -18,11 +18,11 @@ from qnagym.contracts.issue_process import (
     IssueEvaluation,
     IssueIdentity,
 )
-from qnagym.contracts.task_model import Task
-from qnagym.domain.issue_process import decide_issue
-from qnagym.services.effect_log import EffectAdapter, EffectLog
-from qnagym.services.execution_state import ExecutionStateService
-from qnagym.services.pr_creation import PRCreation
+from sdd4gh.contracts.task_model import Task
+from sdd4gh.domain.issue_process import decide_issue
+from sdd4gh.services.effect_log import EffectAdapter, EffectLog
+from sdd4gh.services.execution_state import ExecutionStateService
+from sdd4gh.services.pr_creation import PRCreation
 
 
 class IssueEvaluationError(Exception):

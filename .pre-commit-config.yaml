@@ -20,7 +20,7 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies: ["openai>=1.40"]
-        files: ^src/qnagym/.*\.py$
+        files: ^src/sdd4gh/.*\.py$
 
   - repo: local
     hooks:
@@ -42,13 +42,13 @@ repos:
         always_run: true
         description: "Secret scanning with gitleaks"
 
-      - id: verify-cli-entrypoint
-        name: Verify CLI entrypoint works
-        entry: qnagym --help
+      - id: verify-package-imports
+        name: Verify package imports
+        entry: python -c "import sdd4gh"
         language: system
         pass_filenames: false
         always_run: true
-        description: "Verify the qnagym CLI entrypoint is correctly installed"
+        description: "Verify the sdd4gh package imports cleanly"
 
       - id: check-traceability
         name: Check traceability

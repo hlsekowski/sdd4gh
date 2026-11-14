@@ -6,14 +6,14 @@ evaluation, sealing, and handoff to SDD; performs no GitHub I/O.
 
 from __future__ import annotations
 
-from qnagym.contracts.issue_process import (
+from sdd4gh.contracts.issue_process import (
     ACTION_ACCEPT_AND_SEAL,
     Issue,
     IssueDecision,
     IssueEvaluation,
     IssueIdentity,
 )
-from qnagym.domain.issue_process import (
+from sdd4gh.domain.issue_process import (
     decide_issue,
     evaluate_issue,
 )

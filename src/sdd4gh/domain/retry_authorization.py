@@ -7,8 +7,8 @@ marker detection; performs no GitHub I/O.
 
 from __future__ import annotations
 
-from qnagym.contracts.pr_process import WORKFLOW_COMMENT_MARKER
-from qnagym.contracts.retry_authorization import (
+from sdd4gh.contracts.pr_process import WORKFLOW_COMMENT_MARKER
+from sdd4gh.contracts.retry_authorization import (
     RETRY_REQUEST_PREFIX,
     AuthorizationConfig,
     FeedbackSource,

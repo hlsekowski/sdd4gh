@@ -2,10 +2,10 @@
 
 import tempfile
 
-from qnagym.contracts.task_model import ExecutionState
-from qnagym.services.effect_log import EffectAdapterError
-from qnagym.services.execution_state import ExecutionStateService
-from qnagym.services.pr_creation import PRCreation, PRCreationError
+from sdd4gh.contracts.task_model import ExecutionState
+from sdd4gh.services.effect_log import EffectAdapterError
+from sdd4gh.services.execution_state import ExecutionStateService
+from sdd4gh.services.pr_creation import PRCreation, PRCreationError
 
 
 class FakeAdapter:

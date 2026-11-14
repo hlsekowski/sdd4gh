@@ -9,12 +9,12 @@ MAX_CORRECTION_ATTEMPTS_PER_BATCH. Does not push a fix.
 
 from __future__ import annotations
 
-from qnagym.contracts.pr_process import CheckResult
-from qnagym.domain.pr_checks import (
+from sdd4gh.contracts.pr_process import CheckResult
+from sdd4gh.domain.pr_checks import (
     CorrectionBatch,
     decide_check_action,
 )
-from qnagym.services.github_observation import GitHubTransport
+from sdd4gh.services.github_observation import GitHubTransport
 
 
 class PRCheckObservationError(Exception):
@@ -88,6 +88,6 @@ class PRCheckObservation:
             True when no check is failing.
         """
         check_runs = self._fetch_check_runs()
-        from qnagym.services.pr_checks import all_checks_clear
+        from sdd4gh.services.pr_checks import all_checks_clear
 
         return all_checks_clear(check_runs)

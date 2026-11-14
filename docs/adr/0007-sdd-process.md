@@ -76,7 +76,7 @@ SDD works on the development branch supplied in its input:
 
 - For the initial issue handoff, the Issue Process creates and links the development branch before handing work to SDD (ADR 0005).
 - For subsequent PR work, SDD updates the branch associated with the existing PR.
-- SDD does not commit directly to `main`, in accordance with development rule D6 in [`docs/rules.md`](../rules.md).
+- SDD does not commit directly to `main`, in accordance with development rule D6 in [`docs/rules.md`](https://github.com/hlsekowski/qnagym/blob/main/docs/rules.md).
 - The initial successful SDD handoff creates a linked PR. Subsequent SDD handoffs update the existing PR; they do not create a replacement PR for each feedback or correction cycle.
 
 ### 6. Verification boundary
@@ -179,14 +179,14 @@ Prompts, model selection, tool invocation details, task persistence, retry mecha
 
 ## Related
 
-- [ADR 0001: Spec-Driven Development](0001-spec-driven-development.md)
-- [ADR 0002: Architecture Dependency Model](0002-architecture-dependency-model.md)
+- [ADR 0001: Spec-Driven Development](https://github.com/hlsekowski/qnagym/blob/main/docs/adr/0001-spec-driven-development.md)
+- [ADR 0002: Architecture Dependency Model](https://github.com/hlsekowski/qnagym/blob/main/docs/adr/0002-architecture-dependency-model.md)
 - [ADR 0003: Local AI-Driven Development Workflow](0003-local-development-workflow.md)
 - [ADR 0004: Worker and Task Execution Model](0004-worker-task-model.md)
 - [ADR 0005: Issue Process](0005-issue-process.md)
 - [ADR 0006: PR Process](0006-pr-process.md)
-- [Project constitution](../constitution.md)
-- [Rule catalogue](../rules.md)
+- [Project constitution](https://github.com/hlsekowski/qnagym/blob/main/docs/constitution.md)
+- [Rule catalogue](https://github.com/hlsekowski/qnagym/blob/main/docs/rules.md)
 - [Workflow hub](../workflow.md)
 - [Testing standards](../testing.md)
-- [Specification traceability](../spec/traceability.md)
+- [Specification traceability](https://github.com/hlsekowski/qnagym/blob/main/docs/spec/traceability.md)

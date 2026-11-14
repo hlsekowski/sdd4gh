@@ -2,7 +2,7 @@
 
 import pytest
 
-from qnagym.domain.pr_lifecycle import (
+from sdd4gh.domain.pr_lifecycle import (
     EVENT_CHECKS_PASS_CLEAR,
     EVENT_CHECKS_PASS_PENDING,
     EVENT_CHECKS_PENDING,
@@ -17,7 +17,7 @@ from qnagym.domain.pr_lifecycle import (
     EVENT_PR_REOPENED,
     PRLifecycle,
 )
-from qnagym.services.pr_lifecycle import (
+from sdd4gh.services.pr_lifecycle import (
     PRLifecycleError,
     apply_event,
     complete_post_merge_step,

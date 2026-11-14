@@ -1,7 +1,7 @@
 """Unit tests for the PR check observation service."""
 
-from qnagym.domain.pr_checks import CorrectionBatch
-from qnagym.services.pr_check_observation import PRCheckObservation
+from sdd4gh.domain.pr_checks import CorrectionBatch
+from sdd4gh.services.pr_check_observation import PRCheckObservation
 
 
 class FakeTransport:

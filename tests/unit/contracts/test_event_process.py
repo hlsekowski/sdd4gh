@@ -1,6 +1,6 @@
 """Unit tests for event processing contracts."""
 
-from qnagym.contracts.event_process import (
+from sdd4gh.contracts.event_process import (
     EVENT_STATE_DEDUPLICATED,
     EVENT_STATE_INTERRUPTED,
     EVENT_STATE_PENDING,

@@ -327,5 +327,5 @@ No orchestration framework, queue implementation, container runtime, workflow en
 
 - [ADR 0003: Local AI-driven development workflow](0003-local-development-workflow.md)
 - [ADR 0008: Workflow runtime and model-routing selection](0008-workflow-runtime-and-model-routing.md) — Proposed; umbrella decision record referencing per-technology ADRs 0009–0012
-- [Project constitution](../constitution.md)
+- [Project constitution](https://github.com/hlsekowski/qnagym/blob/main/docs/constitution.md)
 - [Backlog: multi-worker runtime (#9)](https://github.com/hlsekowski/qnagym/issues/9)

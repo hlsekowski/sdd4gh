@@ -6,7 +6,7 @@ tracks post-merge completion; performs no I/O.
 
 from __future__ import annotations
 
-from qnagym.domain.pr_lifecycle import (
+from sdd4gh.domain.pr_lifecycle import (
     POST_MERGE_STEPS,
     LifecycleError,
     PRLifecycle,

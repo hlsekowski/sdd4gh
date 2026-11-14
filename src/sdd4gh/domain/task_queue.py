@@ -7,7 +7,7 @@ no I/O.
 
 from __future__ import annotations
 
-from qnagym.contracts.task_model import (
+from sdd4gh.contracts.task_model import (
     PRIORITY_SHORT,
     TASK_STATE_COMPLETED,
     TASK_STATE_FAILED,

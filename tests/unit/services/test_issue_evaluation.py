@@ -2,21 +2,21 @@
 
 import tempfile
 
-from qnagym.contracts.issue_process import (
+from sdd4gh.contracts.issue_process import (
     EVALUATION_FAIL,
     EVALUATION_PASS,
     Issue,
     IssueEvaluation,
 )
-from qnagym.contracts.task_model import (
+from sdd4gh.contracts.task_model import (
     TASK_STATE_QUEUED,
     ExecutionState,
     Task,
     TaskIdentity,
 )
-from qnagym.services.effect_log import EffectAdapter, EffectAdapterError
-from qnagym.services.execution_state import ExecutionStateService
-from qnagym.services.issue_evaluation import (
+from sdd4gh.services.effect_log import EffectAdapter, EffectAdapterError
+from sdd4gh.services.execution_state import ExecutionStateService
+from sdd4gh.services.issue_evaluation import (
     IssueEvaluationTask,
     IssueEvaluator,
 )

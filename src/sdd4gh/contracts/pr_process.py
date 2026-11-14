@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import Any
 
-from qnagym.contracts.constants import (
+from sdd4gh.contracts.constants import (
     EVALUATION_RESULTS,
     WORKFLOW_COMMENT_MARKER,
 )

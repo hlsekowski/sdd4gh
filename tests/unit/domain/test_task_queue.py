@@ -1,6 +1,6 @@
 """Unit tests for the task queue domain logic."""
 
-from qnagym.contracts.task_model import (
+from sdd4gh.contracts.task_model import (
     PRIORITY_LONG,
     PRIORITY_SHORT,
     TASK_STATE_COMPLETED,
@@ -13,7 +13,7 @@ from qnagym.contracts.task_model import (
     Task,
     TaskIdentity,
 )
-from qnagym.domain.task_queue import (
+from sdd4gh.domain.task_queue import (
     claim_task,
     coalesce,
     is_claim_valid,

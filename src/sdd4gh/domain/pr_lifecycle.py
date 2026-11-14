@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from qnagym.contracts.pr_process import PR_LIFECYCLE_STATES
+from sdd4gh.contracts.pr_process import PR_LIFECYCLE_STATES
 
 # Events that drive transitions.
 EVENT_CHECKS_PENDING = "ChecksPending"

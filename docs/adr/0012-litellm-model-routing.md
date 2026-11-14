@@ -60,6 +60,6 @@ The LiteLLM team confirmed that PyPI versions 1.82.7 and 1.82.8 were compromised
 - [ADR 0003: Local AI-Driven Development Workflow](0003-local-development-workflow.md) — local-first and zero-cost constraints
 - [ADR 0004: Worker and Task Execution Model](0004-worker-task-model.md) — worker/task invariants and runtime neutrality
 - [ADR 0008: Workflow runtime and model-routing selection](0008-workflow-runtime-and-model-routing.md) — umbrella decision record
-- [AI provider policy](../ai_provider_policy.md) — model configuration, privacy, and zero-cost provider constraints
+- [AI provider policy](https://github.com/hlsekowski/qnagym/blob/main/docs/ai_provider_policy.md) — model configuration, privacy, and zero-cost provider constraints
 - [#101: PR introducing LiteLLM](https://github.com/hlsekowski/qnagym/pull/101) — introduced LiteLLM Proxy with Auto Routing into ADR 0008; no prior issue scoped LiteLLM
-- [Project constitution](../constitution.md) and [rule catalog](../rules.md) — constraints for technology selection
+- [Project constitution](https://github.com/hlsekowski/qnagym/blob/main/docs/constitution.md) and [rule catalog](https://github.com/hlsekowski/qnagym/blob/main/docs/rules.md) — constraints for technology selection

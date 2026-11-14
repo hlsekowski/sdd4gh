@@ -2,9 +2,9 @@
 
 import pytest
 
-from qnagym.contracts.constants import WORKFLOW_COMMENT_MARKER
-from qnagym.contracts.pr_process import PRMessage
-from qnagym.services.pr_notifications import (
+from sdd4gh.contracts.constants import WORKFLOW_COMMENT_MARKER
+from sdd4gh.contracts.pr_process import PRMessage
+from sdd4gh.services.pr_notifications import (
     PRNotificationError,
     is_own_comment,
     notify,

@@ -2,8 +2,8 @@
 
 import pytest
 
-from qnagym.contracts.pr_process import EvaluationResult, FeedbackEvent
-from qnagym.domain.pr_feedback import (
+from sdd4gh.contracts.pr_process import EvaluationResult, FeedbackEvent
+from sdd4gh.domain.pr_feedback import (
     ACTION_CLARIFY,
     ACTION_EXPLAIN_CONFLICT,
     ACTION_IGNORE,
@@ -13,7 +13,7 @@ from qnagym.domain.pr_feedback import (
     evaluate_feedback,
     is_monitored,
 )
-from qnagym.services.pr_feedback import PRFeedbackError, evaluate_pr_feedback
+from sdd4gh.services.pr_feedback import PRFeedbackError, evaluate_pr_feedback
 from tests.http import model_client
 
 EVENT = FeedbackEvent(event_type="Review", author="owner", body="fix the typo", comment_id="c1")

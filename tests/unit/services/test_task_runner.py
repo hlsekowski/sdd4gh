@@ -3,7 +3,7 @@
 import tempfile
 import time
 
-from qnagym.contracts.task_model import (
+from sdd4gh.contracts.task_model import (
     TASK_STATE_COMPLETED,
     TASK_STATE_FAILED,
     TASK_STATE_QUEUED,
@@ -12,9 +12,9 @@ from qnagym.contracts.task_model import (
     Task,
     TaskIdentity,
 )
-from qnagym.domain.task_queue import claim_task
-from qnagym.services.execution_state import ExecutionStateService
-from qnagym.services.task_runner import (
+from sdd4gh.domain.task_queue import claim_task
+from sdd4gh.services.execution_state import ExecutionStateService
+from sdd4gh.services.task_runner import (
     TaskRunnerError,
     run_once,
     run_once_with_retry,

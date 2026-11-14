@@ -1,7 +1,7 @@
 """Unit tests for the issue process domain logic."""
 
-from qnagym.contracts.constants import CONFIDENCE_SHOW_BELOW
-from qnagym.contracts.issue_process import (
+from sdd4gh.contracts.constants import CONFIDENCE_SHOW_BELOW
+from sdd4gh.contracts.issue_process import (
     ACTION_ACCEPT_AND_SEAL,
     ACTION_EXCLUDE_REOPENED,
     ACTION_NONE,
@@ -16,7 +16,7 @@ from qnagym.contracts.issue_process import (
     IssueEvaluation,
     IssueIdentity,
 )
-from qnagym.domain.issue_process import (
+from sdd4gh.domain.issue_process import (
     check_ambiguous_links,
     create_decision_record,
     decide_issue,
@@ -249,7 +249,7 @@ class TestEvaluateIssueWithCriteria:
             input_revision="abc123",
             input_type="description",
         )
-        from qnagym.contracts.issue_process import IssueEvaluation
+        from sdd4gh.contracts.issue_process import IssueEvaluation
 
         restored = IssueEvaluation.from_dict(evaluation.to_dict())
         assert restored == evaluation
@@ -295,7 +295,7 @@ class TestCreateDecisionRecord:
             gate_passed=False,
             created_at=200.0,
         )
-        from qnagym.contracts.issue_process import DecisionRecord
+        from sdd4gh.contracts.issue_process import DecisionRecord
 
         restored = DecisionRecord.from_dict(record.to_dict())
         assert restored == record

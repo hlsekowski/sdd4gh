@@ -3,15 +3,15 @@
 import tempfile
 from collections.abc import Mapping
 
-from qnagym.contracts.event_process import (
+from sdd4gh.contracts.event_process import (
     EVENT_TYPE_CHECK_RESULT,
     EVENT_TYPE_DESCRIPTION_EDIT,
     EVENT_TYPE_FEEDBACK,
     EVENT_TYPE_ISSUE_CLOSED,
 )
-from qnagym.contracts.task_model import ExecutionState
-from qnagym.services.execution_state import ExecutionStateService
-from qnagym.services.github_observation import (
+from sdd4gh.contracts.task_model import ExecutionState
+from sdd4gh.services.execution_state import ExecutionStateService
+from sdd4gh.services.github_observation import (
     GitHubObservation,
     GitHubObservationError,
     GitHubTransport,

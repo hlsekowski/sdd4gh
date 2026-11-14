@@ -1,0 +1,188 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v3
+      - name: Run ruff check
+        run: ruff check .
+      - name: Run ruff format check
+        run: ruff format --check .
+
+  typecheck:
+    name: Type-check (mypy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          pip install mypy
+      - name: Run mypy
+        run: mypy src/sdd4gh
+
+  test:
+    name: Tests (pytest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run pytest
+        run: pytest --cov=sdd4gh --cov-report=term-missing --cov-fail-under=80
+
+  security:
+    name: Security (gitleaks + bandit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Required for gitleaks
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install bandit
+        run: pip install bandit
+      - name: Run bandit
+        run: bandit -r src/sdd4gh -f json -o bandit-report.json || true
+      - name: Upload bandit report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bandit-report
+          path: bandit-report.json
+
+  dependencies:
+    name: Dependencies (pip-audit + license check)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          pip install pip-audit pip-licenses
+      - name: Run pip-audit (warn only for dev deps)
+        run: pip-audit --desc --format=json || echo "::warning::pip-audit found vulnerabilities (expected in dev environment)"
+      - name: Check licenses
+        run: pip-licenses --format=json --output-file=licenses.json
+      - name: Upload licenses report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: licenses-report
+          path: licenses.json
+
+  traceability:
+    name: Traceability check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Run traceability check
+        run: python scripts/check_traceability.py
+
+  doc-defaults:
+    name: Doc defaults check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Run doc defaults check
+        run: python scripts/check_doc_defaults.py
+
+  doc-links:
+    name: Doc links check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Run doc links check
+        run: python scripts/check_doc_links.py
+
+  doc-structure:
+    name: Doc structure check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Run doc structure check
+        run: python scripts/check_doc_structure.py
+
+  pre-commit:
+    name: Pre-commit hooks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          pip install pre-commit
+      - name: Install gitleaks
+        run: |
+          # Extract into a temp dir: the release tarball contains a README.md
+          # that would otherwise overwrite the repository's own README.md.
+          tmpdir="$(mktemp -d)"
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.24.0/gitleaks_8.24.0_linux_x64.tar.gz | tar -xz -C "$tmpdir"
+          sudo mv "$tmpdir/gitleaks" /usr/local/bin/
+          rm -rf "$tmpdir"
+      - name: Run pre-commit (skip pip-audit, run in dependencies job)
+        run: pre-commit run --all-files --hook-stage pre-commit
+
+  # Summary job that depends on all checks
+  ci-summary:
+    name: CI Summary
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, test, security, dependencies, traceability, doc-defaults, doc-links, doc-structure, pre-commit]
+    if: always()
+    steps:
+      - name: Check all jobs passed
+        run: |
+          if [[ "${{ needs.lint.result }}" != "success" ]] ||
+             [[ "${{ needs.typecheck.result }}" != "success" ]] ||
+             [[ "${{ needs.test.result }}" != "success" ]] ||
+             [[ "${{ needs.security.result }}" != "success" ]] ||
+             [[ "${{ needs.dependencies.result }}" != "success" ]] ||
+             [[ "${{ needs.traceability.result }}" != "success" ]] ||
+             [[ "${{ needs.doc-defaults.result }}" != "success" ]] ||
+             [[ "${{ needs.doc-links.result }}" != "success" ]] ||
+             [[ "${{ needs.doc-structure.result }}" != "success" ]] ||
+             [[ "${{ needs.pre-commit.result }}" != "success" ]]; then
+            echo "❌ Some CI checks failed"
+            exit 1
+          fi
+          echo "✅ All CI checks passed"

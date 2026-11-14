@@ -8,8 +8,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from qnagym.contracts.constants import CONFIDENCE_SHOW_BELOW
-from qnagym.contracts.pr_process import EvaluationResult, FeedbackEvent
+from sdd4gh.contracts.constants import CONFIDENCE_SHOW_BELOW
+from sdd4gh.contracts.pr_process import EvaluationResult, FeedbackEvent
 
 # Actions the evaluation can produce, in the order ADR 0006 §1 decides them.
 ACTION_IGNORE = "Ignore"

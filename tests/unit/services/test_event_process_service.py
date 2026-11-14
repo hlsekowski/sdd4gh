@@ -1,6 +1,6 @@
 """Unit tests for the event process service."""
 
-from qnagym.services.event_process import (
+from sdd4gh.services.event_process import (
     check_notification,
     create_event_processing_state,
     get_ordered_events,

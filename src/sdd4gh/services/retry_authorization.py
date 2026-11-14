@@ -7,13 +7,13 @@ performs no GitHub I/O.
 
 from __future__ import annotations
 
-from qnagym.contracts.retry_authorization import (
+from sdd4gh.contracts.retry_authorization import (
     AuthorizationConfig,
     AuthorizedAccount,
     FeedbackSource,
     RetryRequest,
 )
-from qnagym.domain.retry_authorization import (
+from sdd4gh.domain.retry_authorization import (
     can_account_trigger_retry,
     classify_feedback_source,
     is_account_authorized,

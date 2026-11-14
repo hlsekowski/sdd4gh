@@ -1,6 +1,6 @@
 """Unit tests for task execution model contracts."""
 
-from qnagym.contracts.task_model import (
+from sdd4gh.contracts.task_model import (
     PRIORITY_CLASSES,
     PRIORITY_LONG,
     PRIORITY_SHORT,

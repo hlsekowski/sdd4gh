@@ -6,8 +6,8 @@ author and surface; performs no I/O.
 
 from __future__ import annotations
 
-from qnagym.contracts.pr_process import FeedbackEvent
-from qnagym.domain.pr_trust import (
+from sdd4gh.contracts.pr_process import FeedbackEvent
+from sdd4gh.domain.pr_trust import (
     FEEDBACK,
     INTAKE,
     RETRY,

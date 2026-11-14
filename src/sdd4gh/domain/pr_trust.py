@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from qnagym.contracts.pr_process import WORKFLOW_COMMENT_MARKER
+from sdd4gh.contracts.pr_process import WORKFLOW_COMMENT_MARKER
 
 # Input surfaces the trust boundary gates.
 INTAKE = "intake"

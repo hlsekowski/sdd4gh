@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from qnagym.contracts.pr_process import (
+from sdd4gh.contracts.pr_process import (
     CORRECTION_ATTEMPT_STEPS,
     MAX_CORRECTION_ATTEMPTS_PER_BATCH,
     NON_FAILURE_CHECK_STATUSES,

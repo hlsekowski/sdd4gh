@@ -47,4 +47,4 @@ This architectural neutrality does not authorize paid infrastructure, additional
 - [ADR 0008: Workflow runtime and model-routing selection](0008-workflow-runtime-and-model-routing.md) — umbrella decision record
 - [#9: Introduce k8s as worker runtime](https://github.com/hlsekowski/qnagym/issues/9) — local multi-worker Kubernetes experiment
 - [#55: Applicability audit](https://github.com/hlsekowski/qnagym/issues/55) — records the owner's initial plan
-- [Project constitution](../constitution.md) and [rule catalog](../rules.md) — constraints for technology selection
+- [Project constitution](https://github.com/hlsekowski/qnagym/blob/main/docs/constitution.md) and [rule catalog](https://github.com/hlsekowski/qnagym/blob/main/docs/rules.md) — constraints for technology selection

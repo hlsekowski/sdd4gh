@@ -106,9 +106,9 @@ This ADR does not select the database, claim-store implementation, local-cluster
 - [ADR 0010: OpenCode coding-agent execution](0010-opencode-coding-agent.md) — OpenCode decision
 - [ADR 0011: Kubernetes worker hosting](0011-kubernetes-worker-hosting.md) — Kubernetes decision
 - [ADR 0012: LiteLLM model routing for workflow-agent calls](0012-litellm-model-routing.md) — LiteLLM decision
-- [AI provider policy](../ai_provider_policy.md) — model configuration, privacy, and zero-cost provider constraints
+- [AI provider policy](https://github.com/hlsekowski/qnagym/blob/main/docs/ai_provider_policy.md) — model configuration, privacy, and zero-cost provider constraints
 - [#9: Introduce k8s as worker runtime](https://github.com/hlsekowski/qnagym/issues/9) — local multi-worker Kubernetes experiment
 - [#98: Introduce LangGraph as the first workflow runtime](https://github.com/hlsekowski/qnagym/issues/98) — prior decision to start with LangGraph
 - [#55: Applicability audit](https://github.com/hlsekowski/qnagym/issues/55) — records the owner's initial LangGraph/OpenCode/Kubernetes plan
 - [#101: PR introducing LiteLLM](https://github.com/hlsekowski/qnagym/pull/101) — introduced LiteLLM Proxy with Auto Routing into ADR 0008; no prior issue scoped LiteLLM
-- [Project constitution](../constitution.md) and [rule catalog](../rules.md) — constraints for technology selection
+- [Project constitution](https://github.com/hlsekowski/qnagym/blob/main/docs/constitution.md) and [rule catalog](https://github.com/hlsekowski/qnagym/blob/main/docs/rules.md) — constraints for technology selection

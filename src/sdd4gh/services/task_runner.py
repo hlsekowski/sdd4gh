@@ -9,16 +9,16 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from qnagym.contracts.task_model import (
+from sdd4gh.contracts.task_model import (
     ExecutionState,
     Task,
 )
-from qnagym.domain.task_queue import (
+from sdd4gh.domain.task_queue import (
     claim_task,
     task_key_for_identity,
 )
-from qnagym.services.execution_state import ExecutionStateService
-from qnagym.services.task_queue import next_eligible_task
+from sdd4gh.services.execution_state import ExecutionStateService
+from sdd4gh.services.task_queue import next_eligible_task
 
 
 class TaskRunnerError(Exception):
@@ -90,7 +90,7 @@ def _takeover_expired(
 
     Returns None if no such task exists.
     """
-    from qnagym.contracts.task_model import TASK_STATE_RUNNING
+    from sdd4gh.contracts.task_model import TASK_STATE_RUNNING
 
     for task in state.tasks.values():
         if task.state != TASK_STATE_RUNNING:

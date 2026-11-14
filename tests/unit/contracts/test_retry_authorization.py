@@ -1,6 +1,6 @@
 """Unit tests for retry authorization contracts."""
 
-from qnagym.contracts.retry_authorization import (
+from sdd4gh.contracts.retry_authorization import (
     ACCOUNT_TYPE_AUTOMATED_REVIEWER,
     ACCOUNT_TYPE_COLLABORATOR,
     ACCOUNT_TYPE_OWNER,

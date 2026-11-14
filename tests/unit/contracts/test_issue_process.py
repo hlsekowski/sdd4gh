@@ -1,6 +1,6 @@
 """Unit tests for issue process contracts."""
 
-from qnagym.contracts.issue_process import (
+from sdd4gh.contracts.issue_process import (
     EVALUATION_FAIL,
     EVALUATION_INCONSISTENT,
     EVALUATION_PASS,

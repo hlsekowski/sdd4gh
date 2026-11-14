@@ -12,6 +12,25 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
+
+def _this_repo_blob_prefix() -> str:
+    """Blob-URL prefix for this repository, derived from its git remote."""
+    try:
+        url = subprocess.run(
+            ["git", "remote", "get-url", "origin"],
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=REPO_ROOT,
+        ).stdout.strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return ""
+    slug = re.sub(r"\.git$", "", url)
+    slug = re.sub(r"^git@github\.com:", "https://github.com/", slug)
+    slug = re.sub(r"^https://github\.com/", "https://github.com/", slug)
+    return f"{slug}/blob/"
+
+
 # Documentation roots to check.
 DOC_ROOTS = (Path("README.md"), Path("AGENTS.md"), Path("docs"))
 
@@ -19,9 +38,14 @@ DOC_ROOTS = (Path("README.md"), Path("AGENTS.md"), Path("docs"))
 KNOWN_ROOTS = ("src", "tests", "scripts", "docs", "data", "example", ".github")
 
 # Absolute blob/<branch> URLs to this repository are branch-dependent; use
-# relative links. Issue and pull-request URLs have no relative equivalent and
-# are allowed.
-REPO_BLOB_PREFIX = "https://github.com/hlsekowski/qnagym/blob/"
+# relative links. URLs to other repositories (for example the qnagym docs
+# this framework was extracted from) have no relative equivalent and are
+# allowed.
+REPO_BLOB_PREFIX = _this_repo_blob_prefix()
+
+# ADRs that live in another repository (qnagym) and are referenced by
+# number from this framework's docs.
+EXTERNAL_ADR_REFS = ("ADR 0001", "ADR 0002")
 
 # Paths intentionally excluded from checking.
 ALLOWLIST: set[str] = set()
@@ -134,7 +158,16 @@ def check_file(path: Path, repo_root: Path | None = None) -> list[str]:
         if anchor and anchor not in heading_slugs(resolved):
             errors.append(f"{path}:{line}: anchor #{anchor} not found in {file_part}")
 
+    # Backticks that form a markdown link label are validated as links above;
+    # only bare backticked strings name a repository path.
+    link_label_spans = [m.span(1) for m in MARKDOWN_LINK.finditer(text)]
+
+    def inside_link_label(pos: int) -> bool:
+        return any(start <= pos < end for start, end in link_label_spans)
+
     for match in BACKTICK_PATH.finditer(text):
+        if inside_link_label(match.start(1)):
+            continue
         candidate = match.group(1)
         if not looks_like_repo_path(candidate):
             continue
@@ -143,6 +176,12 @@ def check_file(path: Path, repo_root: Path | None = None) -> list[str]:
             errors.append(f"{path}:{line}: path does not exist: {candidate}")
 
     return errors
+
+
+# ADRs owned by another repository. This framework was extracted from
+# qnagym, whose product-architecture ADRs (0001, 0002) remain there; a
+# textual reference to them is valid when it links across repositories.
+EXTERNAL_ADRS = {int(m.group(1)) for m in re.finditer(r"ADR (\d{4})", " ".join(EXTERNAL_ADR_REFS))}
 
 
 def check_adr_references(files: list[Path]) -> list[str]:
@@ -157,9 +196,11 @@ def check_adr_references(files: list[Path]) -> list[str]:
     for path in files:
         text = path.read_text()
         for match in re.finditer(r"ADR (\d{4})", text):
-            if int(match.group(1)) not in existing:
-                line = text[: match.start()].count("\n") + 1
-                errors.append(f"{path}:{line}: ADR {match.group(1)} has no file in docs/adr/")
+            number = int(match.group(1))
+            if number in existing or number in EXTERNAL_ADRS:
+                continue
+            line = text[: match.start()].count("\n") + 1
+            errors.append(f"{path}:{line}: ADR {match.group(1)} has no file in docs/adr/")
     return errors
 
 

@@ -101,7 +101,7 @@ Handoff arrows are subject to the decision gate below. The closure arrow does no
 
 Consistency, transparency, and clarity apply to every AI judgment.
 
-Every judgment authorizing an effect requires model confidence **strictly above the decision-gate threshold** (see [`CONFIDENCE_SHOW_BELOW`](../../src/qnagym/contracts/constants.py)). This includes acceptance, development, scope changes, closure, and other state-changing actions. Confidence at exactly the threshold does not pass.
+Every judgment authorizing an effect requires model confidence **strictly above the decision-gate threshold** (see [`CONFIDENCE_SHOW_BELOW`](../../src/sdd4gh/contracts/constants.py)). This includes acceptance, development, scope changes, closure, and other state-changing actions. Confidence at exactly the threshold does not pass.
 
 Confidence alone is insufficient: requirements must also be clear and consistent with the constitution and other applicable non-negotiable repository rules. Deterministic checks and verification remain required.
 
@@ -303,12 +303,12 @@ No orchestration framework, coding agent, model, or polling mechanism is selecte
 
 ## Related
 
-- [ADR 0001: Spec-driven development](0001-spec-driven-development.md)
-- [ADR 0002: Architecture dependency model](0002-architecture-dependency-model.md)
+- [ADR 0001: Spec-driven development](https://github.com/hlsekowski/qnagym/blob/main/docs/adr/0001-spec-driven-development.md)
+- [ADR 0002: Architecture dependency model](https://github.com/hlsekowski/qnagym/blob/main/docs/adr/0002-architecture-dependency-model.md)
 - [ADR 0004: Worker and Task Execution Model](0004-worker-task-model.md) — how the three processes above are executed as tasks
 - [ADR 0005: Issue Process](0005-issue-process.md) — elaborates §4 (intake, sealing, reopening)
 - [ADR 0006: PR Process](0006-pr-process.md) — §6–§10 elevated here; current normative source for PR behaviour
 - [ADR 0007: SDD Process](0007-sdd-process.md) — specializes §5 (the development cycle and its handoffs)
-- [Project constitution](../constitution.md)
-- [Specification index](../spec.md)
+- [Project constitution](https://github.com/hlsekowski/qnagym/blob/main/docs/constitution.md)
+- [Specification index](https://github.com/hlsekowski/qnagym/blob/main/docs/spec.md)
 - [Workflow hub](../workflow.md) — the executable step list this ADR's model describes

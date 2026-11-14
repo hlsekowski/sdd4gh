@@ -13,8 +13,8 @@ import os
 import tempfile
 from pathlib import Path
 
-from qnagym.contracts.task_model import ExecutionState
-from qnagym.domain.execution_state import (
+from sdd4gh.contracts.task_model import ExecutionState
+from sdd4gh.domain.execution_state import (
     ExecutionStateError,
     deserialize_state,
     serialize_state,

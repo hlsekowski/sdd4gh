@@ -1,13 +1,13 @@
 """Unit tests for the SDD Process domain logic."""
 
-from qnagym.contracts.sdd_process import (
+from sdd4gh.contracts.sdd_process import (
     SDD_RESULT_INCOMPLETE,
     SDD_RESULT_SUCCESSFUL,
     SDDTask,
     SDDTaskIdentity,
     SDDTaskInput,
 )
-from qnagym.domain.sdd_process import (
+from sdd4gh.domain.sdd_process import (
     determine_result,
     is_ready_for_delivery,
     next_development_step,

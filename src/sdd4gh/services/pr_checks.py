@@ -6,8 +6,8 @@ tracks the correction-attempt budget; performs no GitHub I/O.
 
 from __future__ import annotations
 
-from qnagym.contracts.pr_process import CheckResult
-from qnagym.domain.pr_checks import (
+from sdd4gh.contracts.pr_process import CheckResult
+from sdd4gh.domain.pr_checks import (
     ACTION_AWAIT,
     ACTION_CORRECT,
     ACTION_EXHAUSTED,

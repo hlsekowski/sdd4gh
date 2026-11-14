@@ -7,7 +7,7 @@ performs no GitHub I/O.
 
 from __future__ import annotations
 
-from qnagym.contracts.sdd_process import (
+from sdd4gh.contracts.sdd_process import (
     SDD_RESULT_INCOMPLETE,
     SDD_RESULT_SUCCESSFUL,
     SDD_TASK_STATE_ANALYZING,

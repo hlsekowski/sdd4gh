@@ -10,23 +10,23 @@ Each step has the form `when <trigger> → <action> → next: <one doc>`.
 
 ### 1. Branch
 
-**when** starting any change → create a dedicated branch from `main` → next: [`docs/spec.md`](spec.md)
+**when** starting any change → create a dedicated branch from `main` → next: [`docs/spec.md`](https://github.com/hlsekowski/qnagym/blob/main/docs/spec.md)
 
 ```bash
 git checkout -b <type>/<short-description>
 ```
 
-Branch types: `feat/...`, `fix/...`, `chore/...`, `docs/...`. Rule D6 in [`docs/rules.md`](rules.md) requires a dedicated branch for every modification; no direct commits to `main`.
+Branch types: `feat/...`, `fix/...`, `chore/...`, `docs/...`. Rule D6 in [`docs/rules.md`](https://github.com/hlsekowski/qnagym/blob/main/docs/rules.md) requires a dedicated branch for every modification; no direct commits to `main`.
 
 ### 2. Spec
 
-**when** the change affects product behaviour or a data shape → update the spec contract that covers the task → next: [`docs/spec/traceability.md`](spec/traceability.md)
+**when** the change affects product behaviour or a data shape → update the spec contract that covers the task → next: [`docs/spec/traceability.md`](https://github.com/hlsekowski/qnagym/blob/main/docs/spec/traceability.md)
 
 Modify the relevant `docs/spec/*.md` contract section. Constitution principle C5 ("Spec before code") requires the spec to exist before implementation.
 
 ### 3. Contract
 
-**when** a data shape changed → update `src/qnagym/contracts/*.py` → next: [`docs/testing.md`](testing.md)
+**when** a data shape changed → update `src/sdd4gh/contracts/*.py` → next: [`docs/testing.md`](testing.md)
 
 ### 4. Tests
 
@@ -63,7 +63,7 @@ Every change type runs the full list above. The table states what each type must
 | `chore/` — tooling, CI, dependencies | `check_doc_structure.py` if a checker changed; a failing test case for any new check |
 | `docs/` — documentation only | `check_doc_links.py` and `check_doc_structure.py`; no code change, so `pytest` and `mypy` still run but are not the point |
 
-A change that alters a data shape also updates `src/qnagym/contracts/` and its contract tests, per [`docs/testing.md`](testing.md).
+A change that alters a data shape also updates `src/sdd4gh/contracts/` and its contract tests, per [`docs/testing.md`](testing.md).
 
 ### 7. Open a PR
 
@@ -89,7 +89,7 @@ Correction attempts are capped per batch by `MAX_CORRECTION_ATTEMPTS_PER_BATCH`;
 
 **when** all checks pass → squash merge → next: [`docs/adr/0006-pr-process.md`](adr/0006-pr-process.md)
 
-Never push directly to `main`. No workflow merges a PR automatically — rule D7 in [`docs/rules.md`](rules.md).
+Never push directly to `main`. No workflow merges a PR automatically — rule D7 in [`docs/rules.md`](https://github.com/hlsekowski/qnagym/blob/main/docs/rules.md).
 
 ### 10. Delete the branch
 
@@ -106,7 +106,7 @@ git checkout main && git pull
 ## Related
 
 - [`docs/development.md`](development.md) — environment setup, tooling and the development-only model list
-- [`docs/spec/traceability.md`](spec/traceability.md) — how to map a spec section to code and tests
+- [`docs/spec/traceability.md`](https://github.com/hlsekowski/qnagym/blob/main/docs/spec/traceability.md) — how to map a spec section to code and tests
 - [`docs/adr/0003-local-development-workflow.md`](adr/0003-local-development-workflow.md) — the decision record for this workflow
 - [`docs/adr/0006-pr-process.md`](adr/0006-pr-process.md) — PR feedback evaluation, check monitoring and lifecycle
 - [`docs/adr/0007-sdd-process.md`](adr/0007-sdd-process.md) — the SDD process this workflow executes

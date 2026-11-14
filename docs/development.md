@@ -26,7 +26,7 @@ See [`docs/testing.md`](testing.md) for complete testing standards (organization
 
 ## Local validation
 
-Run every check before opening a PR. The full list lives in [`AGENTS.md`](../AGENTS.md)'s Commands block:
+Run every check before opening a PR. The full list lives in [`AGENTS.md`](https://github.com/hlsekowski/qnagym/blob/main/AGENTS.md)'s Commands block:
 
 ```bash
 pytest                      # tests (mocked HTTP, no live model)
@@ -52,14 +52,14 @@ Not for end users. Used to write and review these docs and for local agent tooli
 
 | Model | Endpoint | Use |
 |---|---|---|
-| `qwen3.5:4b` | See [`DEFAULT_BASE_URL`](../src/qnagym/contracts/constants.py) (Ollama) | Local model for VS Code Copilot integration; fast, low resource. Used for development only; **not used to run qnagym**. |
+| `qwen3.5:4b` | See [`DEFAULT_BASE_URL`](../src/sdd4gh/contracts/constants.py) (Ollama) | Local model for VS Code Copilot integration; fast, low resource. Used for development only; **not used to run qnagym**. |
 | `nemotron-3.5-super-vl-120b-a12b` | `https://build.nvidia.com/nvidia/nemotron-3.5-super-vl-120b-a12b` | **Recommended** for documentation review: handles larger codebases reliably. Free-tier cloud alternative for development. |
 
-Standard-use models are listed in [`docs/spec/prompts.md`](spec/prompts.md).
+Standard-use models are listed in [`docs/spec/prompts.md`](https://github.com/hlsekowski/qnagym/blob/main/docs/spec/prompts.md).
 
 ## AI / Provider Policy
 
-See [`docs/ai_provider_policy.md`](ai_provider_policy.md) for complete standards on:
+See [`docs/ai_provider_policy.md`](https://github.com/hlsekowski/qnagym/blob/main/docs/ai_provider_policy.md) for complete standards on:
 - Provider configuration (single config source, precedence, validation)
 - Standard-use vs development-only models
 - Model pinning, reproducibility (temperature, seed)

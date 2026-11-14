@@ -1,9 +1,9 @@
 """Unit tests for the issue process service."""
 
-from qnagym.contracts.issue_process import (
+from sdd4gh.contracts.issue_process import (
     IssueEvaluation,
 )
-from qnagym.services.issue_process import (
+from sdd4gh.services.issue_process import (
     accept_and_seal,
     create_issue,
     evaluate_and_decide,

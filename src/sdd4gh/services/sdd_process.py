@@ -7,8 +7,8 @@ GitHub I/O.
 
 from __future__ import annotations
 
-from qnagym.contracts.sdd_process import SDDResult, SDDTask, SDDTaskIdentity, SDDTaskInput
-from qnagym.domain.sdd_process import (
+from sdd4gh.contracts.sdd_process import SDDResult, SDDTask, SDDTaskIdentity, SDDTaskInput
+from sdd4gh.domain.sdd_process import (
     determine_result,
     next_development_step,
 )

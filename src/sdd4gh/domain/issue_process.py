@@ -6,8 +6,8 @@ decision gate, sealing, and reopening logic; performs no GitHub I/O.
 
 from __future__ import annotations
 
-from qnagym.contracts.constants import CONFIDENCE_SHOW_BELOW
-from qnagym.contracts.issue_process import (
+from sdd4gh.contracts.constants import CONFIDENCE_SHOW_BELOW
+from sdd4gh.contracts.issue_process import (
     ACTION_ACCEPT_AND_SEAL,
     ACTION_EXCLUDE_REOPENED,
     ACTION_NONE,

@@ -6,13 +6,13 @@ returns the action the PR Process should take.
 
 from __future__ import annotations
 
-from qnagym.contracts.pr_process import (
+from sdd4gh.contracts.ports import ModelClientProtocol
+from sdd4gh.contracts.pr_process import (
     FeedbackEvent,
     build_pr_feedback_messages,
     parse_pr_feedback_response,
 )
-from qnagym.contracts.types import ModelClientProtocol
-from qnagym.domain.pr_feedback import FeedbackDecision, evaluate_feedback
+from sdd4gh.domain.pr_feedback import FeedbackDecision, evaluate_feedback
 
 
 class PRFeedbackError(Exception):

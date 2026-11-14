@@ -308,21 +308,21 @@ All scenarios verified with stub tasks that call no model:
 
 | File | Purpose |
 |---|---|
-| `src/qnagym/contracts/task_model.py` | Task, TaskIdentity, ExecutionAttempt, Claim, ExecutionState data shapes |
-| `src/qnagym/contracts/constants.py` | Task kinds, states, priorities, correction batch config |
-| `src/qnagym/domain/task_queue.py` | Task creation, eligibility, ordering, claiming, coalescing |
-| `src/qnagym/domain/execution_state.py` | Serialization, validation, corruption detection, merging |
-| `src/qnagym/services/execution_state.py` | Atomic file persistence |
-| `src/qnagym/services/task_runner.py` | Single task execution: claim, run, record, save |
-| `src/qnagym/services/task_queue.py` | Task queue orchestration |
-| `src/qnagym/services/github_observation.py` | Read-only GitHub observation |
-| `src/qnagym/services/effect_log.py` | Safe effect intent/outcome logging |
-| `src/qnagym/services/pr_creation.py` | Push + open PR as safe effect |
-| `src/qnagym/services/git_workspace.py` | Isolated git workspace |
-| `src/qnagym/services/pr_check_observation.py` | PR check result observation |
-| `src/qnagym/services/issue_evaluation.py` | Issue evaluation task |
-| `src/qnagym/domain/pr_checks.py` | Check classification and correction batch |
-| `src/qnagym/services/pr_checks.py` | PR check monitoring service |
+| `src/sdd4gh/contracts/task_model.py` | Task, TaskIdentity, ExecutionAttempt, Claim, ExecutionState data shapes |
+| `src/sdd4gh/contracts/constants.py` | Task kinds, states, priorities, correction batch config |
+| `src/sdd4gh/domain/task_queue.py` | Task creation, eligibility, ordering, claiming, coalescing |
+| `src/sdd4gh/domain/execution_state.py` | Serialization, validation, corruption detection, merging |
+| `src/sdd4gh/services/execution_state.py` | Atomic file persistence |
+| `src/sdd4gh/services/task_runner.py` | Single task execution: claim, run, record, save |
+| `src/sdd4gh/services/task_queue.py` | Task queue orchestration |
+| `src/sdd4gh/services/github_observation.py` | Read-only GitHub observation |
+| `src/sdd4gh/services/effect_log.py` | Safe effect intent/outcome logging |
+| `src/sdd4gh/services/pr_creation.py` | Push + open PR as safe effect |
+| `src/sdd4gh/services/git_workspace.py` | Isolated git workspace |
+| `src/sdd4gh/services/pr_check_observation.py` | PR check result observation |
+| `src/sdd4gh/services/issue_evaluation.py` | Issue evaluation task |
+| `src/sdd4gh/domain/pr_checks.py` | Check classification and correction batch |
+| `src/sdd4gh/services/pr_checks.py` | PR check monitoring service |
 
 ## Test plan
 
@@ -333,7 +333,7 @@ Each follow-up item has corresponding unit tests:
 3. Claims: `tests/unit/services/test_task_runner.py` — claim conflict, expiry, takeover, fencing
 4. Safe effects: `tests/unit/services/test_effect_log.py`, `tests/unit/services/test_pr_creation.py` — intent/outcome, idempotent dispatch
 5. Observation: `tests/unit/services/test_github_observation.py`, `tests/unit/services/test_pr_check_observation.py` — pagination, watermark, deduplication, infrastructure failure
-6. Withdrawal: `tests/unit/domain/test_flow.py` — withdrawal checks before effects
+6. Withdrawal: [`tests/unit/domain/test_flow.py`](https://github.com/hlsekowski/qnagym/blob/main/tests/unit/domain/test_flow.py) — withdrawal checks before effects (owned by qnagym)
 7. Workspace: `tests/unit/services/test_git_workspace.py` — branch naming, fast-forward, conflict detection
 8. Infrastructure failure: `tests/unit/services/test_pr_check_observation.py` — cancelled/skipped/infrastructure-failed don't consume attempts
 9. Attempt accounting: `tests/unit/services/test_pr_checks.py` — correction batch counting, retry interaction
@@ -350,5 +350,5 @@ Each follow-up item has corresponding unit tests:
 - [ADR 0004: Worker and Task Execution Model](../adr/0004-worker-task-model.md)
 - [ADR 0003: Local AI-Driven Development Workflow](../adr/0003-local-development-workflow.md)
 - [ADR 0006: PR Process](../adr/0006-pr-process.md)
-- [Project constitution](../constitution.md)
-- [Rule catalog](../rules.md)
+- [Project constitution](https://github.com/hlsekowski/qnagym/blob/main/docs/constitution.md)
+- [Rule catalog](https://github.com/hlsekowski/qnagym/blob/main/docs/rules.md)

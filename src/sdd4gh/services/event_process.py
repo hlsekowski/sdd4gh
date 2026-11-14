@@ -9,14 +9,14 @@ from __future__ import annotations
 
 from typing import Any
 
-from qnagym.contracts.event_process import (
+from sdd4gh.contracts.event_process import (
     EventIdentity,
     EventProcessingState,
     InterruptionRecord,
     NotificationConfig,
     ProcessedEvent,
 )
-from qnagym.domain.event_process import (
+from sdd4gh.domain.event_process import (
     ACTION_DEDUPLICATE,
     ACTION_PROCESS,
     handle_interruption,

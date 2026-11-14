@@ -1,6 +1,6 @@
 """Unit tests for the model routing service."""
 
-from qnagym.services.model_routing import (
+from sdd4gh.services.model_routing import (
     ModelRouter,
     ModelRoutingError,
 )

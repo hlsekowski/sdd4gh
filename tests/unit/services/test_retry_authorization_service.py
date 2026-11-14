@@ -1,11 +1,11 @@
 """Unit tests for the retry authorization service."""
 
-from qnagym.contracts.retry_authorization import (
+from sdd4gh.contracts.retry_authorization import (
     AuthorizationConfig,
     AuthorizedAccount,
     FeedbackSource,
 )
-from qnagym.services import retry_authorization as ras
+from sdd4gh.services import retry_authorization as ras
 
 
 class TestCreateAuthorizationConfig:

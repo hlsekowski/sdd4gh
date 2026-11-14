@@ -2,16 +2,16 @@
 
 import tempfile
 
-from qnagym.contracts.issue_process import (
+from sdd4gh.contracts.issue_process import (
     EVALUATION_FAIL,
     EVALUATION_PASS,
     Issue,
     IssueEvaluation,
 )
-from qnagym.contracts.task_model import ExecutionState
-from qnagym.services.execution_state import ExecutionStateService
-from qnagym.services.issue_evaluation import IssueEvaluator
-from qnagym.services.workflow_orchestrator import WorkflowOrchestrator
+from sdd4gh.contracts.task_model import ExecutionState
+from sdd4gh.services.execution_state import ExecutionStateService
+from sdd4gh.services.issue_evaluation import IssueEvaluator
+from sdd4gh.services.workflow_orchestrator import WorkflowOrchestrator
 
 
 class FakeEvaluator(IssueEvaluator):

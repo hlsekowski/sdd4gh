@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from qnagym.contracts.event_process import (
+from sdd4gh.contracts.event_process import (
     EVENT_STATE_DEDUPLICATED,
     EVENT_STATE_PENDING,
     EVENT_STATE_PROCESSED,

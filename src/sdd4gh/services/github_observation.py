@@ -17,8 +17,8 @@ import urllib.request
 from collections.abc import Mapping
 from typing import Any
 
-from qnagym.contracts.constants import WORKFLOW_COMMENT_MARKER
-from qnagym.contracts.event_process import (
+from sdd4gh.contracts.constants import WORKFLOW_COMMENT_MARKER
+from sdd4gh.contracts.event_process import (
     EVENT_TYPE_CHECK_RESULT,
     EVENT_TYPE_DESCRIPTION_EDIT,
     EVENT_TYPE_FEEDBACK,
@@ -26,8 +26,8 @@ from qnagym.contracts.event_process import (
     EventIdentity,
     ProcessedEvent,
 )
-from qnagym.contracts.task_model import ExecutionState
-from qnagym.services.execution_state import ExecutionStateService
+from sdd4gh.contracts.task_model import ExecutionState
+from sdd4gh.services.execution_state import ExecutionStateService
 
 logger = logging.getLogger(__name__)
 

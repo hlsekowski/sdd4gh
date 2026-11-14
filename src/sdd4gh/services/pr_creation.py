@@ -7,13 +7,13 @@ idempotency. Never calls merge (rule D7).
 
 from __future__ import annotations
 
-from qnagym.contracts.task_model import ExecutionState
-from qnagym.services.effect_log import (
+from sdd4gh.contracts.task_model import ExecutionState
+from sdd4gh.services.effect_log import (
     EffectAdapter,
     EffectAdapterError,
     EffectLogError,
 )
-from qnagym.services.execution_state import ExecutionStateService
+from sdd4gh.services.execution_state import ExecutionStateService
 
 
 class PRCreationError(Exception):

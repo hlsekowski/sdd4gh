@@ -135,8 +135,8 @@ No orchestration framework, model, or polling mechanism is selected by this ADR.
 
 ## Related
 
-- [ADR 0001: Spec-driven development](../adr/0001-spec-driven-development.md)
+- [ADR 0001: Spec-driven development](https://github.com/hlsekowski/qnagym/blob/main/docs/adr/0001-spec-driven-development.md)
 - [ADR 0003: Local AI-driven development workflow](../adr/0003-local-development-workflow.md) — authoritative policy for intake and sealing (§4)
-- [Project constitution](../constitution.md) — C2 (400-line limit)
-- [Rule catalogue](../rules.md) — A2 ("verify before writing"), exception process (`exception` label)
+- [Project constitution](https://github.com/hlsekowski/qnagym/blob/main/docs/constitution.md) — C2 (400-line limit)
+- [Rule catalogue](https://github.com/hlsekowski/qnagym/blob/main/docs/rules.md) — A2 ("verify before writing"), exception process (`exception` label)
 - [Workflow hub](../workflow.md) — branch naming convention

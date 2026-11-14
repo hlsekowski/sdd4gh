@@ -2,8 +2,8 @@
 
 import pytest
 
-from qnagym.contracts.pr_process import CheckResult
-from qnagym.domain.pr_checks import (
+from sdd4gh.contracts.pr_process import CheckResult
+from sdd4gh.domain.pr_checks import (
     ACTION_AWAIT,
     ACTION_CORRECT,
     ACTION_EXHAUSTED,
@@ -12,7 +12,7 @@ from qnagym.domain.pr_checks import (
     classify_check,
     decide_check_action,
 )
-from qnagym.services.pr_checks import (
+from sdd4gh.services.pr_checks import (
     all_checks_clear,
     monitor_check,
     record_correction,

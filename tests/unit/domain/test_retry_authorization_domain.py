@@ -1,11 +1,11 @@
 """Unit tests for the retry authorization domain logic."""
 
-from qnagym.contracts.retry_authorization import (
+from sdd4gh.contracts.retry_authorization import (
     AuthorizationConfig,
     AuthorizedAccount,
     FeedbackSource,
 )
-from qnagym.domain.retry_authorization import (
+from sdd4gh.domain.retry_authorization import (
     can_account_trigger_retry,
     classify_feedback_source,
     is_account_authorized,

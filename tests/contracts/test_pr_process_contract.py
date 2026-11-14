@@ -1,7 +1,7 @@
 """Contract tests for the PR Process."""
 
-from qnagym.contracts.constants import CONFIDENCE_SHOW_BELOW
-from qnagym.contracts.pr_process import (
+from sdd4gh.contracts.constants import CONFIDENCE_SHOW_BELOW
+from sdd4gh.contracts.pr_process import (
     CHECK_STATUSES,
     CORRECTION_ATTEMPT_STEPS,
     EVALUATION_RESULTS,

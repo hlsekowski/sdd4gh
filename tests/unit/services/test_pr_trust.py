@@ -2,10 +2,10 @@
 
 import pytest
 
-from qnagym.contracts.constants import WORKFLOW_COMMENT_MARKER
-from qnagym.contracts.pr_process import FeedbackEvent
-from qnagym.domain.pr_trust import TrustPolicy, is_processable, is_workflow_authored
-from qnagym.services.pr_trust import (
+from sdd4gh.contracts.constants import WORKFLOW_COMMENT_MARKER
+from sdd4gh.contracts.pr_process import FeedbackEvent
+from sdd4gh.domain.pr_trust import TrustPolicy, is_processable, is_workflow_authored
+from sdd4gh.services.pr_trust import (
     FEEDBACK,
     INTAKE,
     RETRY,

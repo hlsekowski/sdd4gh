@@ -1,13 +1,13 @@
 """Unit tests for the task queue service."""
 
-from qnagym.contracts.task_model import (
+from sdd4gh.contracts.task_model import (
     PRIORITY_LONG,
     PRIORITY_SHORT,
     TASK_STATE_QUEUED,
     ExecutionState,
     TaskIdentity,
 )
-from qnagym.services.task_queue import (
+from sdd4gh.services.task_queue import (
     claim_next_task,
     create_task,
     next_eligible_task,

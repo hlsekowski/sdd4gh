@@ -6,8 +6,8 @@ performs no I/O.
 
 from __future__ import annotations
 
-from qnagym.contracts.pr_process import PRMessage
-from qnagym.domain.pr_notifications import (
+from sdd4gh.contracts.pr_process import PRMessage
+from sdd4gh.domain.pr_notifications import (
     RoutedMessage,
     build_notification,
     is_workflow_comment,

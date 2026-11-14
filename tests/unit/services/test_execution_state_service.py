@@ -2,12 +2,12 @@
 
 import tempfile
 
-from qnagym.contracts.task_model import (
+from sdd4gh.contracts.task_model import (
     ExecutionState,
     Task,
     TaskIdentity,
 )
-from qnagym.services.execution_state import (
+from sdd4gh.services.execution_state import (
     ExecutionStateService,
     ExecutionStateServiceError,
 )
