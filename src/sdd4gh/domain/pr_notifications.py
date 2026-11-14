@@ -8,8 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from qnagym.contracts.constants import WORKFLOW_COMMENT_MARKER
-from qnagym.contracts.pr_process import PRMessage
+from qnagym.contracts.pr_process import WORKFLOW_COMMENT_MARKER, PRMessage
 
 # Message kinds and the surface each routes to (ADR 0006 §4).
 ROUTING: dict[str, str] = {

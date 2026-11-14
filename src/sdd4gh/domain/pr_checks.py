@@ -8,12 +8,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from qnagym.contracts.constants import (
+from qnagym.contracts.pr_process import (
     CORRECTION_ATTEMPT_STEPS,
     MAX_CORRECTION_ATTEMPTS_PER_BATCH,
     NON_FAILURE_CHECK_STATUSES,
+    CheckResult,
 )
-from qnagym.contracts.pr_process import CheckResult
 
 # Actions the monitoring loop can produce.
 ACTION_AWAIT = "Await"
