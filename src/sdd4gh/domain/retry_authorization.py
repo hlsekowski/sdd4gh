@@ -7,7 +7,7 @@ marker detection; performs no GitHub I/O.
 
 from __future__ import annotations
 
-from sdd4gh.contracts.pr_process import WORKFLOW_COMMENT_MARKER
+from sdd4gh.contracts.constants import is_workflow_comment as is_workflow_comment
 from sdd4gh.contracts.retry_authorization import (
     RETRY_REQUEST_PREFIX,
     AuthorizationConfig,
@@ -44,15 +44,6 @@ def parse_retry_request(comment_body: str) -> RetryRequest:
         reason=reason,
         raw_comment=comment_body,
     )
-
-
-def is_workflow_comment(body: str) -> bool:
-    """Check whether a comment body was authored by the workflow.
-
-    Marker-prefixed comments are excluded from feedback and retry
-    detection (ADR 0006 §5).
-    """
-    return body.startswith(WORKFLOW_COMMENT_MARKER)
 
 
 def classify_feedback_source(

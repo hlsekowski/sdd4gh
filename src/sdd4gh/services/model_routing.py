@@ -5,7 +5,7 @@ docs/adr/0008-workflow-runtime-and-model-routing.md.
 
 Routes workflow-agent model calls through LiteLLM Proxy with Auto Routing.
 LiteLLM runs as a separately operated local gateway, not as a Python SDK
-dependency in qnagym. Existing clients continue using the OpenAI-compatible
+dependency in the framework. Existing clients continue using the OpenAI-compatible
 API, which preserves constitution C4 and rule NC3's dependency boundary.
 
 Workflow-agent calls use LiteLLM router aliases and allowlists. Until a

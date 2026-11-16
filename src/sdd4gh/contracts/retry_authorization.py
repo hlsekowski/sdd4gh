@@ -10,9 +10,15 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
-# --- Workflow comment marker (ADR 0006 §5, ADR 0003 follow-up item 6) ---
+from sdd4gh.contracts.constants import (
+    LEGACY_WORKFLOW_COMMENT_MARKERS,
+    WORKFLOW_COMMENT_MARKER,
+)
 
-WORKFLOW_COMMENT_MARKER = "<!-- qnagym-workflow -->"
+__all__ = [
+    "WORKFLOW_COMMENT_MARKER",
+    "LEGACY_WORKFLOW_COMMENT_MARKERS",
+]
 
 # --- Retry request syntax ---
 

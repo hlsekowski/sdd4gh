@@ -17,7 +17,7 @@ import urllib.request
 from collections.abc import Mapping
 from typing import Any
 
-from sdd4gh.contracts.constants import WORKFLOW_COMMENT_MARKER
+from sdd4gh.contracts.constants import is_workflow_comment
 from sdd4gh.contracts.event_process import (
     EVENT_TYPE_CHECK_RESULT,
     EVENT_TYPE_DESCRIPTION_EDIT,
@@ -174,7 +174,7 @@ class GitHubObservation:
             return None
 
         body = comment.get("body", "")
-        if body.startswith(WORKFLOW_COMMENT_MARKER):
+        if is_workflow_comment(body):
             # Workflow-authored comments are data, not instructions (D8).
             self._mark_processed(state, event_type, source_id)
             return None

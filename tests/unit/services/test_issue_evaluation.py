@@ -124,7 +124,7 @@ class TestGatePass:
         assert adapter.pushed == ["feat/issue-title"]
         assert len(adapter.prs) == 1
         assert "Closes #158" in adapter.prs[0]["body"]
-        assert adapter.prs[0]["body"].startswith("<!-- qnagym-workflow -->")
+        assert adapter.prs[0]["body"].startswith("<!-- sdd4gh-workflow -->")
 
     def test_gate_pass_no_second_marker(self):
         service = _service()
@@ -138,7 +138,7 @@ class TestGatePass:
 
         # Only one workflow marker in the PR body
         body = adapter.prs[0]["body"]
-        assert body.count("<!-- qnagym-workflow -->") == 1
+        assert body.count("<!-- sdd4gh-workflow -->") == 1
 
 
 class TestGateFail:
@@ -154,7 +154,7 @@ class TestGateFail:
 
         assert "clarify" in outcome.lower()
         assert len(adapter.posted) == 1
-        assert adapter.posted[0].startswith("<!-- qnagym-workflow -->")
+        assert adapter.posted[0].startswith("<!-- sdd4gh-workflow -->")
         assert adapter.pushed == []
         assert adapter.prs == []
 
@@ -185,4 +185,4 @@ class TestNoModelCalls:
 
         # FakeEvaluator is deterministic; no model involved
         assert evaluator.called == 1
-        assert adapter.prs[0]["body"].startswith("<!-- qnagym-workflow -->")
+        assert adapter.prs[0]["body"].startswith("<!-- sdd4gh-workflow -->")

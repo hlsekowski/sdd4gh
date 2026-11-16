@@ -17,13 +17,13 @@ from sdd4gh.contracts.issue_process import (
 
 class TestIssueIdentity:
     def test_identity_roundtrip(self):
-        identity = IssueIdentity(number=42, repository="hlsekowski/qnagym")
+        identity = IssueIdentity(number=42, repository="hlsekowski/example")
         assert IssueIdentity.from_dict(identity.to_dict()) == identity
 
 
 class TestIssue:
     def test_issue_roundtrip(self):
-        identity = IssueIdentity(number=42, repository="hlsekowski/qnagym")
+        identity = IssueIdentity(number=42, repository="hlsekowski/example")
         issue = Issue(
             identity=identity,
             title="Test issue",

@@ -19,11 +19,8 @@ sdd4gh follows Spec-Driven Development per [ADR 0001](0001-spec-driven-developme
 | **2b** | **Services** | `src/sdd4gh/services/` | Orchestration and I/O (task runner, effect log, GitHub observation, model routing) — depends on 1 and 2a |
 | **3** | **Verification** | `tests/` | Contract tests, unit tests, ADR-invariant tests |
 
-This is a simplification of qnagym's five-level model
-([ADR 0002](https://github.com/hlsekowski/qnagym/blob/main/docs/adr/0002-architecture-dependency-model.md)),
-which separates types, validation and constants into sub-levels 1a/1b/1c because
-qnagym's business contracts need that granularity. sdd4gh has no business
-contracts, so the three sub-levels collapse into one `contracts/` layer.
+The framework has no business contracts, so the types, validation and constants
+sub-levels a product repository needs collapse into a single `contracts/` layer.
 
 ## Decision
 
@@ -54,8 +51,8 @@ Two contract modules are imported by more than one layer. They stay in
 
 | Module | Importers | Why it is a contract |
 |---|---|---|
-| `contracts/constants.py` | `contracts/pr_process`, `domain/issue_process`, `domain/pr_feedback`, `services/github_observation` | `CONFIDENCE_SHOW_BELOW`, `EVALUATION_RESULTS`, `WORKFLOW_COMMENT_MARKER` are closed vocabularies shared across the framework boundary and consumed by qnagym |
-| `contracts/ports.py` | `services/pr_feedback` | `ModelClientProtocol` is the injection port for an OpenAI-compatible client; qnagym implements it |
+| `contracts/constants.py` | `contracts/pr_process`, `domain/issue_process`, `domain/pr_feedback`, `services/github_observation` | `CONFIDENCE_SHOW_BELOW`, `EVALUATION_RESULTS`, `WORKFLOW_COMMENT_MARKER` are closed vocabularies published for a consuming application |
+| `contracts/ports.py` | `services/pr_feedback` | `ModelClientProtocol` is the injection port for an OpenAI-compatible client; the application supplies the implementation |
 
 `contracts/ports.py` is named `ports`, not `types`, because a module named
 `types` shadows the standard library module and mypy rejects it.
@@ -273,7 +270,7 @@ not by a mechanical check. Each row states how it is actually verified.
 ## No-Cost AI Rules (Framework-Specific)
 
 In addition to the standard architecture, sdd4gh enforces these no-cost AI rules.
-They are the subset of qnagym's NC1–NC8 that binds a library with no
+They are the subset of no-cost AI rules that binds a library with no
 configuration surface of its own.
 
 | Rule | Description | Enforcement |
@@ -291,4 +288,3 @@ These rules are derived from Constitution S5 and S6.
 - [ADR 0001](0001-spec-driven-development.md) — the spec-first decision
 - [`docs/constitution.md`](../constitution.md) — principles S1–S8
 - [`AGENTS.md`](../../AGENTS.md) — agent instructions and routing
-- qnagym's [ADR 0002](https://github.com/hlsekowski/qnagym/blob/main/docs/adr/0002-architecture-dependency-model.md) — the five-level model this simplifies

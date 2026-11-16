@@ -275,8 +275,8 @@ class TestCommentMapping:
                 [
                     {
                         "id": 42,
-                        "body": "<!-- qnagym-workflow -->\n**What happened:** ...",
-                        "user": {"login": "qnagym"},
+                        "body": "<!-- sdd4gh-workflow -->\n**What happened:** ...",
+                        "user": {"login": "someone"},
                         "updated_at": "2024-01-01T00:00:00Z",
                     }
                 ]

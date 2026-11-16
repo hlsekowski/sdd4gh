@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from sdd4gh.contracts.constants import is_workflow_comment as is_workflow_comment
 from sdd4gh.contracts.pr_process import WORKFLOW_COMMENT_MARKER, PRMessage
 
 # Message kinds and the surface each routes to (ADR 0006 §4).
@@ -30,7 +31,7 @@ class RoutedMessage:
     @property
     def is_workflow_authored(self) -> bool:
         """True when the body carries the workflow marker."""
-        return self.body.startswith(WORKFLOW_COMMENT_MARKER)
+        return is_workflow_comment(self.body)
 
 
 def route_message(kind: str) -> str:
@@ -70,15 +71,6 @@ def build_notification(message: PRMessage) -> RoutedMessage:
     to is derived from ``ROUTING``.
     """
     return RoutedMessage(target=route_message(message.target), body=render_message(message))
-
-
-def is_workflow_comment(body: str) -> bool:
-    """True when a comment body was authored by the workflow.
-
-    Marker-prefixed comments are excluded from feedback and retry
-    detection (ADR 0006 §5), so the workflow never reacts to itself.
-    """
-    return body.startswith(WORKFLOW_COMMENT_MARKER)
 
 
 def validate_kind(kind: str) -> None:

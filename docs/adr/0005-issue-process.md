@@ -2,7 +2,7 @@
 
 > **Purpose:** The decision on issue intake, evaluation, acceptance, sealing and reopening.
 > **Read when:** changing how issues are evaluated, sealed or reopened.
-> **Owns:** issue-process policies: triggers, evaluation, outcomes, retry, edits after sealing and withdrawal. These policies are retained here as the decision record; the Issue Process is implemented ([#39](https://github.com/hlsekowski/qnagym/issues/39)).
+> **Owns:** issue-process policies: triggers, evaluation, outcomes, retry, edits after sealing and withdrawal. These policies are retained here as the decision record; the Issue Process is implemented (#39).
 
 ## Status
 
@@ -137,6 +137,6 @@ No orchestration framework, model, or polling mechanism is selected by this ADR.
 
 - [ADR 0001: Spec-driven development](0001-spec-driven-development.md)
 - [ADR 0003: Local AI-driven development workflow](../adr/0003-local-development-workflow.md) — authoritative policy for intake and sealing (§4)
-- [Project constitution](https://github.com/hlsekowski/qnagym/blob/main/docs/constitution.md) — C2 (400-line limit)
-- [Rule catalogue](https://github.com/hlsekowski/qnagym/blob/main/docs/rules.md) — A2 ("verify before writing"), exception process (`exception` label)
+- [Project constitution](../constitution.md) — C2 (400-line limit)
+- Rule catalogue — A2 ("verify before writing"), exception process (`exception` label)
 - [Workflow hub](../workflow.md) — branch naming convention

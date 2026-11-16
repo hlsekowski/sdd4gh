@@ -2,10 +2,9 @@
 
 Always-on SDD sentinel for GitHub: from issue to merged PR.
 
-Spec-driven development framework extracted from
-[qnagym](https://github.com/hlsekowski/qnagym). It owns the Issue, SDD and
-PR process contracts, the worker/task model, and the workflow
-orchestration. No third-party runtime dependencies — standard library only.
+Spec-driven development framework. It owns the Issue, SDD and PR process
+contracts, the worker/task model, and the workflow orchestration. No
+third-party runtime dependencies — standard library only.
 
 ## Install
 
@@ -32,8 +31,8 @@ from sdd4gh.services.workflow_orchestrator import WorkflowOrchestrator
 ## Shared symbols
 
 `CONFIDENCE_SHOW_BELOW`, `EVALUATION_RESULTS`, `WORKFLOW_COMMENT_MARKER`
-and `ModelClientProtocol` are owned here and imported by qnagym, so the
-framework stays installable on its own.
+and `ModelClientProtocol` are published here for a consuming application to
+import, so both sides agree on one definition.
 
 ## Checks
 

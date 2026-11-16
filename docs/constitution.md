@@ -6,10 +6,10 @@
 
 Non-negotiable principles for sdd4gh. The architecture decisions live in [`docs/adr/`](adr/).
 
-sdd4gh is a library, not a product. It inherits the spec-first discipline and the
-dependency model from qnagym's [constitution](https://github.com/hlsekowski/qnagym/blob/main/docs/constitution.md)
-and [ADR 0002](https://github.com/hlsekowski/qnagym/blob/main/docs/adr/0002-architecture-dependency-model.md);
-the principles below are the ones that bind this repository specifically.
+sdd4gh is a library, not a product. The principles below are the ones that bind
+this repository specifically; the spec-first discipline and the dependency model
+they rest on are recorded in [ADR 0001](adr/0001-spec-driven-development.md) and
+[ADR 0002](adr/0002-architecture-dependency-model.md).
 
 | ID | Principle | Description | Severity | Enforcement |
 |----|-----------|-------------|----------|-------------|

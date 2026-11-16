@@ -10,20 +10,13 @@ Accepted
 
 ## Context
 
-sdd4gh is the spec-driven development framework extracted from
-[qnagym](https://github.com/hlsekowski/qnagym). It owns the Issue, SDD and PR
+sdd4gh is a spec-driven development framework. It owns the Issue, SDD and PR
 process contracts, the worker/task model, and the workflow orchestration.
 
-The framework was written against qnagym's SDD discipline from the start: every
-module in `src/sdd4gh/` mirrors a decision recorded in `docs/adr/`, and every
-decision names the code and tests that implement it. Extracting the framework
-into its own repository would break that discipline if the decisions did not
-come with it.
-
-This ADR records the adoption of SDD for sdd4gh on its own terms. It is adapted
-from qnagym's
-[ADR 0001](https://github.com/hlsekowski/qnagym/blob/main/docs/adr/0001-spec-driven-development.md);
-the decision is the same, the artifacts are this repository's.
+Every module in `src/sdd4gh/` mirrors a decision recorded in `docs/adr/`, and
+every decision names the code and tests that implement it. This ADR records the
+adoption of SDD for this repository on its own terms: the decision is the one the
+framework was built against, and the artifacts are this repository's.
 
 ## Decision
 
@@ -38,12 +31,10 @@ Adopt spec-driven development (SDD) as the framework's architectural decision:
 
 - Every code change starts from a decision record (constitution S2).
 - A change with no covering ADR is either a bug fix inside an existing decision, or a new ADR.
-- The ADR set is the specification. There is no separate `docs/spec/` tree here; qnagym owns the product spec.
-- Cross-repository decisions (qnagym's constitution, its ADR 0001 and 0002) are linked by absolute URL, because a relative link cannot leave the repository.
+- The ADR set is the specification. There is no separate `docs/spec/` tree here.
 
 ## Alternatives Considered
 
-- **Keep the decisions in qnagym and treat sdd4gh as unversioned code.** Rejected: the framework's ADRs 0003–0007 already cite ADR 0001 and 0002 as their basis, so the citations would dangle.
 - **Write a fresh, unrelated decision set.** Rejected: it would discard the rationale that ADRs 0003–0007 depend on, and invite two competing methodologies (see ADR 0003).
 
 ## Related Files
@@ -52,4 +43,3 @@ Adopt spec-driven development (SDD) as the framework's architectural decision:
 - [`docs/constitution.md`](../constitution.md) — principles S1–S8
 - [ADR 0002](0002-architecture-dependency-model.md) — the layering decision this one implies
 - [ADR 0003](0003-local-development-workflow.md) — the workflow model and its decision gate
-- qnagym's [ADR 0001](https://github.com/hlsekowski/qnagym/blob/main/docs/adr/0001-spec-driven-development.md) — the decision this adapts

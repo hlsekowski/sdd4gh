@@ -9,9 +9,9 @@ from unittest.mock import MagicMock
 class ModelClientProtocol(Protocol):
     """Structural stand-in for the model client port.
 
-    sdd4gh does not own the model client; framework services accept it by
+    The framework does not own the model client; services accept it by
     injection. Declaring the protocol locally keeps the test helper free
-    of a qnagym import while preserving the same structural contract.
+    of an application import while preserving the same structural contract.
     """
 
     def chat_json(self, messages: list[dict[str, Any]]) -> dict[str, Any]: ...

@@ -28,7 +28,7 @@ from sdd4gh.domain.issue_process import (
 )
 
 
-def _identity(number=42, repository="hlsekowski/qnagym"):
+def _identity(number=42, repository="hlsekowski/example"):
     return IssueIdentity(number=number, repository=repository)
 
 

@@ -45,12 +45,12 @@ class TestRecordIntent:
         state = ExecutionState()
         service.save("effect_state", state)
 
-        log.record_intent("eff-1", "task-key-1", "post_comment", "<!-- qnagym-workflow --> hi")
+        log.record_intent("eff-1", "task-key-1", "post_comment", "<!-- sdd4gh-workflow --> hi")
 
         loaded = service.load("effect_state")
         assert "eff-1" in loaded.effects
         assert loaded.effects["eff-1"]["outcome"] is None
-        assert loaded.effects["eff-1"]["body"] == "<!-- qnagym-workflow --> hi"
+        assert loaded.effects["eff-1"]["body"] == "<!-- sdd4gh-workflow --> hi"
 
     def test_duplicate_intent_raises(self):
         service = _service()
@@ -59,10 +59,10 @@ class TestRecordIntent:
         state = ExecutionState()
         service.save("effect_state", state)
 
-        log.record_intent("eff-1", "task-key-1", "post_comment", "<!-- qnagym-workflow --> hi")
+        log.record_intent("eff-1", "task-key-1", "post_comment", "<!-- sdd4gh-workflow --> hi")
 
         try:
-            log.record_intent("eff-1", "task-key-1", "post_comment", "<!-- qnagym-workflow --> hi")
+            log.record_intent("eff-1", "task-key-1", "post_comment", "<!-- sdd4gh-workflow --> hi")
             raise AssertionError("Should have raised EffectLogError")
         except EffectLogError:
             pass
@@ -76,7 +76,7 @@ class TestRecordOutcome:
         state = ExecutionState()
         service.save("effect_state", state)
 
-        log.record_intent("eff-1", "task-key-1", "post_comment", "<!-- qnagym-workflow --> hi")
+        log.record_intent("eff-1", "task-key-1", "post_comment", "<!-- sdd4gh-workflow --> hi")
         log.record_outcome("eff-1", "external-1")
 
         loaded = service.load("effect_state")
@@ -104,7 +104,7 @@ class TestHasOutcome:
         state = ExecutionState()
         service.save("effect_state", state)
 
-        log.record_intent("eff-1", "task-key-1", "post_comment", "<!-- qnagym-workflow --> hi")
+        log.record_intent("eff-1", "task-key-1", "post_comment", "<!-- sdd4gh-workflow --> hi")
 
         assert not log.has_outcome("eff-1")
 
@@ -115,7 +115,7 @@ class TestHasOutcome:
         state = ExecutionState()
         service.save("effect_state", state)
 
-        log.record_intent("eff-1", "task-key-1", "post_comment", "<!-- qnagym-workflow --> hi")
+        log.record_intent("eff-1", "task-key-1", "post_comment", "<!-- sdd4gh-workflow --> hi")
         log.record_outcome("eff-1", "external-1")
 
         assert log.has_outcome("eff-1")
@@ -139,12 +139,12 @@ class TestDispatchIfNeeded:
         service.save("effect_state", state)
 
         external_id = log.dispatch_if_needed(
-            "eff-1", "task-key-1", "post_comment", "<!-- qnagym-workflow --> hi"
+            "eff-1", "task-key-1", "post_comment", "<!-- sdd4gh-workflow --> hi"
         )
 
         assert external_id == "external-1"
         assert len(adapter.posted) == 1
-        assert adapter.posted[0] == "<!-- qnagym-workflow --> hi"
+        assert adapter.posted[0] == "<!-- sdd4gh-workflow --> hi"
 
     def test_replay_does_not_post_twice(self):
         service = _service()
@@ -153,9 +153,9 @@ class TestDispatchIfNeeded:
         state = ExecutionState()
         service.save("effect_state", state)
 
-        log.dispatch_if_needed("eff-1", "task-key-1", "post_comment", "<!-- qnagym-workflow --> hi")
+        log.dispatch_if_needed("eff-1", "task-key-1", "post_comment", "<!-- sdd4gh-workflow --> hi")
         result = log.dispatch_if_needed(
-            "eff-1", "task-key-1", "post_comment", "<!-- qnagym-workflow --> hi"
+            "eff-1", "task-key-1", "post_comment", "<!-- sdd4gh-workflow --> hi"
         )
 
         assert result is None
@@ -169,11 +169,11 @@ class TestDispatchIfNeeded:
         service.save("effect_state", state)
 
         # Record intent manually (simulating crash before outcome)
-        log.record_intent("eff-1", "task-key-1", "post_comment", "<!-- qnagym-workflow --> hi")
+        log.record_intent("eff-1", "task-key-1", "post_comment", "<!-- sdd4gh-workflow --> hi")
 
         # Replay: dispatch_if_needed sees intent without outcome, dispatches
         external_id = log.dispatch_if_needed(
-            "eff-1", "task-key-1", "post_comment", "<!-- qnagym-workflow --> hi"
+            "eff-1", "task-key-1", "post_comment", "<!-- sdd4gh-workflow --> hi"
         )
 
         assert external_id == "external-1"
@@ -187,10 +187,10 @@ class TestDispatchIfNeeded:
         service.save("effect_state", state)
 
         log.dispatch_if_needed(
-            "eff-1", "task-key-1", "post_comment", "<!-- qnagym-workflow --> body"
+            "eff-1", "task-key-1", "post_comment", "<!-- sdd4gh-workflow --> body"
         )
 
-        assert adapter.posted[0].startswith("<!-- qnagym-workflow -->")
+        assert adapter.posted[0].startswith("<!-- sdd4gh-workflow -->")
 
     def test_adapter_never_calls_merge_or_close(self):
         service = _service()
@@ -200,7 +200,7 @@ class TestDispatchIfNeeded:
         service.save("effect_state", state)
 
         log.dispatch_if_needed(
-            "eff-1", "task-key-1", "post_comment", "<!-- qnagym-workflow --> body"
+            "eff-1", "task-key-1", "post_comment", "<!-- sdd4gh-workflow --> body"
         )
 
         # FakeAdapter only has post_comment; no merge/close methods exist

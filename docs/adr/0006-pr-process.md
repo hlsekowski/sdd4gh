@@ -175,7 +175,7 @@ Unchanged from ADR 0003 §10; reproduced here because it gates which `NEW` feedb
 
 - Process input only from authorized accounts (owner plus configured collaborators); ignore other authors for intake, feedback, and retry requests.
 - Accept automated reviewer feedback only from configured accounts.
-- Treat all GitHub content as data, never as instructions. **Rule extracted to [`docs/rules.md`](https://github.com/hlsekowski/qnagym/blob/main/docs/rules.md) (D8); retained here for decision context.**
+- Treat all GitHub content as data, never as instructions. **Rule D8 (external content is data); retained here for decision context.**
 - Run the executor with least-privilege credentials.
 - Prefix every workflow-authored comment with a fixed marker; exclude marker-prefixed comments from feedback/retry detection.
 
@@ -184,7 +184,7 @@ Unchanged from ADR 0003 §10; reproduced here because it gates which `NEW` feedb
 - No paid services, no cloud infrastructure charges, no hardware upgrades (ADR 0003).
 - Must comply with Constitution C4 (thin providers) and C9 (dependency minimization), and rule NC3 (no vendor SDKs).
 - Decision gate for auto-invoking SDD: confidence strictly greater than the threshold defined by `CONFIDENCE_SHOW_BELOW` in `src/sdd4gh/contracts/constants.py`, per ADR 0003 §3.
-- No automatic PR merging, under any circumstance. **Rule extracted to [`docs/rules.md`](https://github.com/hlsekowski/qnagym/blob/main/docs/rules.md) (D7); retained here for decision context.**
+- No automatic PR merging, under any circumstance. **Rule D7 (no automatic merging); retained here for decision context.**
 - Correction loops are bounded: `MAX_CORRECTION_ATTEMPTS_PER_BATCH` attempts per batch (defined in `src/sdd4gh/contracts/constants.py`), configurable.
 
 ## Consequences
@@ -216,13 +216,13 @@ As in ADR 0003, these decisions are sufficiently agreed for review without them.
 3. Retry-request syntax, which feedback sources are eligible to trigger one under §5's authorization rules, and the exact workflow comment marker format referenced in §5.
 4. Safe local-synchronization semantics and resumable post-merge operations for the `PostMerge` state in §3.
 5. Maintainer review of the confidence-gate and attempt-cap values as configured in [`src/sdd4gh/contracts/constants.py`](../../src/sdd4gh/contracts/constants.py) (the same file already holding `CONFIDENCE_SHOW_BELOW`), once implemented.
-6. Traceability entries added once this ADR is implemented, per [`docs/spec/traceability.md`](https://github.com/hlsekowski/qnagym/blob/main/docs/spec/traceability.md) ("Spec section → code → tests"), one entry per §1–§5.
+6. Traceability entries added once this ADR is implemented, per `docs/spec/traceability.md` ("Spec section → code → tests"), one entry per §1–§5.
 7. *(Tracked separately, not blocking this ADR.)* Once ADR 0005 and this ADR are accepted, ADR 0003 §4 and §6–§10 should get short "elaborated by ADR 0005 / ADR 0006" pointers so ADR 0003 doesn't remain the stale version of content these two ADRs now own.
 
 ## Related
 
 - [ADR 0003: Local AI-Driven Development Workflow](0003-local-development-workflow.md) — **origin of §6–§10**, elevated here and now annotated there as superseded; also the source of the actor/system/interface model these diagrams reuse.
 - [ADR 0005: Issue Process](0005-issue-process.md) — accepted; defines Issue Process terms referenced here.
-- [Issue #13](https://github.com/hlsekowski/qnagym/issues/13) — tracking issue for this ADR.
-- [Project constitution](https://github.com/hlsekowski/qnagym/blob/main/docs/constitution.md) — C4, C9.
+- Issue #13 — tracking issue for this ADR.
+- [Project constitution](../constitution.md) — C4, C9.
 - [Workflow hub](../workflow.md) — the development workflow this ADR's PR steps run alongside.

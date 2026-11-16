@@ -189,7 +189,7 @@ Withdrawal is evaluated before every externally visible effect. If withdrawal is
 
 ### Isolation
 
-Each task runs in a temporary, disposable working directory (`tempfile.mkdtemp(prefix="qnagym-workspace-")`). Concurrent tasks of different work items operate without interference.
+Each task runs in a temporary, disposable working directory (`tempfile.mkdtemp(prefix="sdd4gh-workspace-")`). Concurrent tasks of different work items operate without interference.
 
 ### Branch naming
 
@@ -333,7 +333,7 @@ Each follow-up item has corresponding unit tests:
 3. Claims: `tests/unit/services/test_task_runner.py` — claim conflict, expiry, takeover, fencing
 4. Safe effects: `tests/unit/services/test_effect_log.py`, `tests/unit/services/test_pr_creation.py` — intent/outcome, idempotent dispatch
 5. Observation: `tests/unit/services/test_github_observation.py`, `tests/unit/services/test_pr_check_observation.py` — pagination, watermark, deduplication, infrastructure failure
-6. Withdrawal: [`tests/unit/domain/test_flow.py`](https://github.com/hlsekowski/qnagym/blob/main/tests/unit/domain/test_flow.py) — withdrawal checks before effects (owned by qnagym)
+6. Withdrawal: withdrawal checks before effects
 7. Workspace: `tests/unit/services/test_git_workspace.py` — branch naming, fast-forward, conflict detection
 8. Infrastructure failure: `tests/unit/services/test_pr_check_observation.py` — cancelled/skipped/infrastructure-failed don't consume attempts
 9. Attempt accounting: `tests/unit/services/test_pr_checks.py` — correction batch counting, retry interaction
@@ -350,5 +350,5 @@ Each follow-up item has corresponding unit tests:
 - [ADR 0004: Worker and Task Execution Model](../adr/0004-worker-task-model.md)
 - [ADR 0003: Local AI-Driven Development Workflow](../adr/0003-local-development-workflow.md)
 - [ADR 0006: PR Process](../adr/0006-pr-process.md)
-- [Project constitution](https://github.com/hlsekowski/qnagym/blob/main/docs/constitution.md)
-- [Rule catalog](https://github.com/hlsekowski/qnagym/blob/main/docs/rules.md)
+- [Project constitution](../constitution.md)
+- Rule catalog

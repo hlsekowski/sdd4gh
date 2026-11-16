@@ -1,8 +1,7 @@
-"""Shared constants (immutable values used across the framework boundary).
+"""Shared constants (immutable values published by the framework).
 
-These symbols are consumed by both sdd4gh and qnagym. sdd4gh owns them
-because the framework must be installable without qnagym; qnagym imports
-them from here rather than duplicating the values (rules A1, A3).
+These symbols are the closed vocabularies a consuming application imports
+rather than duplicating, so both sides agree on one definition.
 """
 
 from __future__ import annotations
@@ -18,10 +17,28 @@ EVALUATION_RESULTS = frozenset(
 
 # Prefix every workflow-authored comment carries, so its own comments are
 # excluded from feedback and retry detection (ADR 0006 §5).
-WORKFLOW_COMMENT_MARKER = "<!-- qnagym-workflow -->"
+WORKFLOW_COMMENT_MARKER = "<!-- sdd4gh-workflow -->"
+
+# Markers written before the framework was named sdd4gh. Detection accepts
+# them so comments already posted are not re-processed as user feedback.
+# Remove once no such comment can remain on a tracked work item.
+LEGACY_WORKFLOW_COMMENT_MARKERS = ("<!-- qnagym-workflow -->",)
+
+
+def is_workflow_comment(body: str) -> bool:
+    """True when a comment body was authored by the workflow.
+
+    Accepts the legacy markers so comments posted before the framework was
+    named sdd4gh are still recognised and excluded from feedback and retry
+    detection (ADR 0006 §5).
+    """
+    return body.startswith((WORKFLOW_COMMENT_MARKER, *LEGACY_WORKFLOW_COMMENT_MARKERS))
+
 
 __all__ = [
     "CONFIDENCE_SHOW_BELOW",
     "EVALUATION_RESULTS",
     "WORKFLOW_COMMENT_MARKER",
+    "LEGACY_WORKFLOW_COMMENT_MARKERS",
+    "is_workflow_comment",
 ]

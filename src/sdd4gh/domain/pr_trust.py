@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from sdd4gh.contracts.pr_process import WORKFLOW_COMMENT_MARKER
+from sdd4gh.contracts.constants import is_workflow_comment
 
 # Input surfaces the trust boundary gates.
 INTAKE = "intake"
@@ -52,7 +52,7 @@ def is_workflow_authored(body: str) -> bool:
     Marker-prefixed comments are excluded from feedback and retry
     detection, so the workflow never reacts to its own output.
     """
-    return body.startswith(WORKFLOW_COMMENT_MARKER)
+    return is_workflow_comment(body)
 
 
 def is_processable(body: str) -> bool:

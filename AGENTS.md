@@ -1,6 +1,6 @@
 # Agent instructions
 
-sdd4gh is the spec-driven development framework extracted from qnagym. It owns the Issue, SDD and PR process contracts, the worker/task model and the workflow orchestration. The product spec for the consuming CLI lives in qnagym.
+sdd4gh is a spec-driven development framework. It owns the Issue, SDD and PR process contracts, the worker/task model and the workflow orchestration.
 
 ## Commands
 

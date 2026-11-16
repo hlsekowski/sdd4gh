@@ -1,10 +1,10 @@
 # Testing Standards
 
-> **Purpose:** The conventions every test in qnagym must follow: organization, mocking, coverage, naming and failure paths.
+> **Purpose:** The conventions every test in sdd4gh must follow: organization, mocking, coverage, naming and failure paths.
 > **Read when:** writing or reviewing a test, or deciding where a new test belongs.
 > **Owns:** test organization, categories, mocking standards, coverage requirements, naming conventions and assertion style.
 
-This document defines the testing standards for qnagym. All tests must follow these conventions.
+This document defines the testing standards for sdd4gh. All tests must follow these conventions.
 
 ## Test Organization
 
@@ -95,7 +95,7 @@ Use `freezegun` or mock `datetime` for time-dependent tests.
 
 Run coverage:
 ```bash
-pytest --cov=qnagym --cov-report=term-missing --cov-fail-under=80
+pytest --cov=sdd4gh --cov-report=term-missing --cov-fail-under=80
 ```
 
 ## Failure Path Testing
@@ -163,7 +163,7 @@ Tests run in CI on every PR:
 3. **Add spec reference**: Header comment `# Verifies docs/spec/<file>.md#<section>`
 4. **Write test**: Follow naming, mocking, assertion standards
 5. **Run locally**: `pytest tests/<path>/test_<name>.py -v`
-6. **Verify coverage**: `pytest --cov=qnagym --cov-report=term-missing`
+6. **Verify coverage**: `pytest --cov=sdd4gh --cov-report=term-missing`
 
 ## Example: Adding a Unit Test for `questions.py`
 
@@ -172,7 +172,7 @@ Tests run in CI on every PR:
 # Verifies docs/spec/questions.md#question-count-formula
 
 import pytest
-from qnagym.domain.questions import calculate_question_count
+from sdd4gh.domain.issue_process import decide_issue
 
 
 class TestQuestionCount:

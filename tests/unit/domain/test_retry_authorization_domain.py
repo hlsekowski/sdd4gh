@@ -61,7 +61,7 @@ class TestParseRetryRequest:
 
 class TestIsWorkflowComment:
     def test_workflow_comment_detected(self):
-        assert is_workflow_comment("<!-- qnagym-workflow --> some body")
+        assert is_workflow_comment("<!-- sdd4gh-workflow --> some body")
 
     def test_regular_comment_not_workflow(self):
         assert not is_workflow_comment("just a regular comment")

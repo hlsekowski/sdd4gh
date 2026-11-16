@@ -10,9 +10,9 @@ Accepted
 
 ## Context
 
-ADR 0004 defines the worker/task execution model but deliberately selects no runtime technology. Its §9 requires a separate decision for each runtime technology when introduced. The current backlog item is [#9](https://github.com/hlsekowski/qnagym/issues/9).
+ADR 0004 defines the worker/task execution model but deliberately selects no runtime technology. Its §9 requires a separate decision for each runtime technology when introduced. The current backlog item is #9.
 
-The project owner identified Kubernetes as part of the initial plan in the [#55 decision log](https://github.com/hlsekowski/qnagym/issues/55), with the qualifier that the plan "is not written in stone." Issue #9 scopes Kubernetes work to a local cluster and explicitly excludes cloud deployment. #9 is closed; the multi-worker experiment is not done and has no open issue.
+The project owner identified Kubernetes as part of the initial plan in the #55 decision log, with the qualifier that the plan "is not written in stone." Issue #9 scopes Kubernetes work to a local cluster and explicitly excludes cloud deployment. #9 is closed; the multi-worker experiment is not done and has no open issue.
 
 ADR 0008 previously bundled LangGraph, OpenCode, Kubernetes, and LiteLLM into a single decision record. This ADR separates the Kubernetes decision as required by ADR 0004 §9.
 
@@ -45,6 +45,6 @@ This architectural neutrality does not authorize paid infrastructure, additional
 - [ADR 0003: Local AI-Driven Development Workflow](0003-local-development-workflow.md) — local-first and zero-cost constraints
 - [ADR 0004: Worker and Task Execution Model](0004-worker-task-model.md) — worker/task invariants and runtime neutrality
 - [ADR 0008: Workflow runtime and model-routing selection](0008-workflow-runtime-and-model-routing.md) — umbrella decision record
-- [#9: Introduce k8s as worker runtime](https://github.com/hlsekowski/qnagym/issues/9) — local multi-worker Kubernetes experiment
-- [#55: Applicability audit](https://github.com/hlsekowski/qnagym/issues/55) — records the owner's initial plan
-- [Project constitution](https://github.com/hlsekowski/qnagym/blob/main/docs/constitution.md) and [rule catalog](https://github.com/hlsekowski/qnagym/blob/main/docs/rules.md) — constraints for technology selection
+- #9: Introduce k8s as worker runtime — local multi-worker Kubernetes experiment
+- #55: Applicability audit — records the owner's initial plan
+- [Project constitution](../constitution.md) and rule catalog — constraints for technology selection

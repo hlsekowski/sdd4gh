@@ -10,6 +10,7 @@ create a branch.
 
 from __future__ import annotations
 
+from sdd4gh.contracts.constants import WORKFLOW_COMMENT_MARKER
 from sdd4gh.contracts.issue_process import (
     ACTION_ACCEPT_AND_SEAL,
     ACTION_REQUEST_CLARIFICATION,
@@ -126,7 +127,7 @@ class IssueEvaluationTask:
 
         # Build PR body with workflow marker
         body = (
-            "<!-- qnagym-workflow -->\n"
+            f"{WORKFLOW_COMMENT_MARKER}\n"
             f"**What happened:** Issue #{issue.identity.number} evaluated and accepted\n"
             f"**Evidence:** {evaluation.reason}\n"
             f"**Decision:** accept and seal\n"
@@ -161,7 +162,7 @@ class IssueEvaluationTask:
         effect_id = f"issue_eval:{self._task_key(task)}:clarify"
 
         body = (
-            "<!-- qnagym-workflow -->\n"
+            f"{WORKFLOW_COMMENT_MARKER}\n"
             f"**What happened:** Issue #{issue.identity.number} evaluation did not pass\n"
             f"**Evidence:** {evaluation.reason}\n"
             f"**Decision:** request clarification\n"

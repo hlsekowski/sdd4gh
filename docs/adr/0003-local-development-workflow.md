@@ -309,6 +309,6 @@ No orchestration framework, coding agent, model, or polling mechanism is selecte
 - [ADR 0005: Issue Process](0005-issue-process.md) — elaborates §4 (intake, sealing, reopening)
 - [ADR 0006: PR Process](0006-pr-process.md) — §6–§10 elevated here; current normative source for PR behaviour
 - [ADR 0007: SDD Process](0007-sdd-process.md) — specializes §5 (the development cycle and its handoffs)
-- [Project constitution](https://github.com/hlsekowski/qnagym/blob/main/docs/constitution.md)
-- [Specification index](https://github.com/hlsekowski/qnagym/blob/main/docs/spec.md)
+- [Project constitution](../constitution.md)
+- Specification index
 - [Workflow hub](../workflow.md) — the executable step list this ADR's model describes

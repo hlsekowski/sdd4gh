@@ -38,9 +38,8 @@ DOC_ROOTS = (Path("README.md"), Path("AGENTS.md"), Path("docs"))
 KNOWN_ROOTS = ("src", "tests", "scripts", "docs", "data", "example", ".github")
 
 # Absolute blob/<branch> URLs to this repository are branch-dependent; use
-# relative links. URLs to other repositories (for example the qnagym docs
-# this framework was extracted from) have no relative equivalent and are
-# allowed.
+# relative links. URLs to other repositories have no relative equivalent
+# and are allowed.
 REPO_BLOB_PREFIX = _this_repo_blob_prefix()
 
 # Paths intentionally excluded from checking.
@@ -174,9 +173,6 @@ def check_file(path: Path, repo_root: Path | None = None) -> list[str]:
     return errors
 
 
-# ADRs owned by another repository. This framework was extracted from
-# qnagym, whose product-architecture ADRs (0001, 0002) remain there; a
-# textual reference to them is valid when it links across repositories.
 def check_adr_references(files: list[Path]) -> list[str]:
     """Textual 'ADR NNNN' references must map to an existing ADR file."""
     errors: list[str] = []

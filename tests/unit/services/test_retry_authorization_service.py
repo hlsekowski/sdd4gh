@@ -42,7 +42,7 @@ class TestParseCommentForRetry:
 
 class TestCheckCommentIsWorkflowAuthored:
     def test_workflow_comment(self):
-        assert ras.check_comment_is_workflow_authored("<!-- qnagym-workflow --> body")
+        assert ras.check_comment_is_workflow_authored("<!-- sdd4gh-workflow --> body")
 
     def test_regular_comment(self):
         assert not ras.check_comment_is_workflow_authored("hello")

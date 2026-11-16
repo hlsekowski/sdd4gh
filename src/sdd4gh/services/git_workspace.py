@@ -27,7 +27,7 @@ class GitWorkspace:
 
     def __init__(self, repo_path: str | Path | None = None):
         if repo_path is None:
-            self.repo_path = Path(tempfile.mkdtemp(prefix="qnagym-workspace-"))
+            self.repo_path = Path(tempfile.mkdtemp(prefix="sdd4gh-workspace-"))
         else:
             self.repo_path = Path(repo_path)
         self.repo_path.mkdir(parents=True, exist_ok=True)
@@ -51,11 +51,11 @@ class GitWorkspace:
     def init(self, initial_branch: str = "main") -> None:
         """Initialize a new git repo with an initial commit on the given branch."""
         self._run(["init", "--initial-branch", initial_branch])
-        self._run(["config", "user.email", "qnagym@local"])
-        self._run(["config", "user.name", "qnagym"])
+        self._run(["config", "user.email", "sdd4gh@local"])
+        self._run(["config", "user.name", "sdd4gh"])
         # Create an initial commit so the branch exists
         readme = self.repo_path / "README.md"
-        readme.write_text("# qnagym workspace\n")
+        readme.write_text("# sdd4gh workspace\n")
         self._run(["add", "README.md"])
         self._run(["commit", "-m", "initial commit"])
         self._initialized = True

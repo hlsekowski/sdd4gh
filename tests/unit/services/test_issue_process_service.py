@@ -14,12 +14,12 @@ class TestCreateIssue:
     def test_create_pending_issue(self):
         issue = create_issue(
             number=42,
-            repository="hlsekowski/qnagym",
+            repository="hlsekowski/example",
             title="Test issue",
             description="description",
         )
         assert issue.identity.number == 42
-        assert issue.identity.repository == "hlsekowski/qnagym"
+        assert issue.identity.repository == "hlsekowski/example"
         assert issue.title == "Test issue"
         assert issue.state == "Pending"
         assert issue.description_hash != ""

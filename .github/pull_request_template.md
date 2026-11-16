@@ -6,7 +6,7 @@ Briefly describe the change and why it's needed.
 
 - [ ] Spec updated (`docs/spec/*.md` or `docs/constitution.md`)
 - [ ] Clarity confirmed (constitution C1: the task was underspecified → stopped and asked, not guessed)
-- [ ] Contract updated (`src/qnagym/contracts/*.py`) if data shape changed
+- [ ] Contract updated (`src/sdd4gh/contracts/*.py`) if data shape changed
 - [ ] Tests added/modified (`tests/contracts/` and `tests/unit/`)
 - [ ] Implementation complete
 - [ ] `pytest` passes locally

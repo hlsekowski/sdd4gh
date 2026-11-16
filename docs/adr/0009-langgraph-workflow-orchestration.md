@@ -12,7 +12,7 @@ Accepted
 
 ADR 0004 defines the worker/task execution model but deliberately selects no runtime technology. Its §9 requires a separate decision for each runtime technology when introduced.
 
-The project owner identified LangGraph as part of the initial plan in the [#55 decision log](https://github.com/hlsekowski/qnagym/issues/55), with the qualifier that the plan "is not written in stone." LangGraph was recorded as a candidate workflow runtime under consideration in [#98](https://github.com/hlsekowski/qnagym/issues/98); #98 selected no runtime.
+The project owner identified LangGraph as part of the initial plan in the #55 decision log, with the qualifier that the plan "is not written in stone." LangGraph was recorded as a candidate workflow runtime under consideration in #98; #98 selected no runtime.
 
 ADR 0008 previously bundled LangGraph, OpenCode, Kubernetes, and LiteLLM into a single decision record. This ADR separates the LangGraph decision as required by ADR 0004 §9.
 
@@ -50,6 +50,6 @@ Until the gate is passed, LangGraph graph logic may be prototyped in application
 - [ADR 0003: Local AI-Driven Development Workflow](0003-local-development-workflow.md) — local-first and zero-cost constraints
 - [ADR 0004: Worker and Task Execution Model](0004-worker-task-model.md) — worker/task invariants and runtime neutrality
 - [ADR 0008: Workflow runtime and model-routing selection](0008-workflow-runtime-and-model-routing.md) — umbrella decision record
-- [#55: Applicability audit](https://github.com/hlsekowski/qnagym/issues/55) — records the owner's initial plan
-- [#98: Introduce LangGraph as the first workflow runtime](https://github.com/hlsekowski/qnagym/issues/98) — prior decision to start with LangGraph
-- [Project constitution](https://github.com/hlsekowski/qnagym/blob/main/docs/constitution.md) and [rule catalog](https://github.com/hlsekowski/qnagym/blob/main/docs/rules.md) — constraints for technology selection
+- #55: Applicability audit — records the owner's initial plan
+- #98: Introduce LangGraph as the first workflow runtime — prior decision to start with LangGraph
+- [Project constitution](../constitution.md) and rule catalog — constraints for technology selection
