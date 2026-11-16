@@ -43,10 +43,6 @@ KNOWN_ROOTS = ("src", "tests", "scripts", "docs", "data", "example", ".github")
 # allowed.
 REPO_BLOB_PREFIX = _this_repo_blob_prefix()
 
-# ADRs that live in another repository (qnagym) and are referenced by
-# number from this framework's docs.
-EXTERNAL_ADR_REFS = ("ADR 0001", "ADR 0002")
-
 # Paths intentionally excluded from checking.
 ALLOWLIST: set[str] = set()
 
@@ -181,9 +177,6 @@ def check_file(path: Path, repo_root: Path | None = None) -> list[str]:
 # ADRs owned by another repository. This framework was extracted from
 # qnagym, whose product-architecture ADRs (0001, 0002) remain there; a
 # textual reference to them is valid when it links across repositories.
-EXTERNAL_ADRS = {int(m.group(1)) for m in re.finditer(r"ADR (\d{4})", " ".join(EXTERNAL_ADR_REFS))}
-
-
 def check_adr_references(files: list[Path]) -> list[str]:
     """Textual 'ADR NNNN' references must map to an existing ADR file."""
     errors: list[str] = []
@@ -196,11 +189,9 @@ def check_adr_references(files: list[Path]) -> list[str]:
     for path in files:
         text = path.read_text()
         for match in re.finditer(r"ADR (\d{4})", text):
-            number = int(match.group(1))
-            if number in existing or number in EXTERNAL_ADRS:
-                continue
-            line = text[: match.start()].count("\n") + 1
-            errors.append(f"{path}:{line}: ADR {match.group(1)} has no file in docs/adr/")
+            if int(match.group(1)) not in existing:
+                line = text[: match.start()].count("\n") + 1
+                errors.append(f"{path}:{line}: ADR {match.group(1)} has no file in docs/adr/")
     return errors
 
 

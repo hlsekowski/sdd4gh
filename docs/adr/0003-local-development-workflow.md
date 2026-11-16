@@ -303,8 +303,8 @@ No orchestration framework, coding agent, model, or polling mechanism is selecte
 
 ## Related
 
-- [ADR 0001: Spec-driven development](https://github.com/hlsekowski/qnagym/blob/main/docs/adr/0001-spec-driven-development.md)
-- [ADR 0002: Architecture dependency model](https://github.com/hlsekowski/qnagym/blob/main/docs/adr/0002-architecture-dependency-model.md)
+- [ADR 0001: Spec-driven development](0001-spec-driven-development.md)
+- [ADR 0002: Architecture dependency model](0002-architecture-dependency-model.md)
 - [ADR 0004: Worker and Task Execution Model](0004-worker-task-model.md) — how the three processes above are executed as tasks
 - [ADR 0005: Issue Process](0005-issue-process.md) — elaborates §4 (intake, sealing, reopening)
 - [ADR 0006: PR Process](0006-pr-process.md) — §6–§10 elevated here; current normative source for PR behaviour

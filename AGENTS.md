@@ -19,12 +19,12 @@ python3 scripts/check_doc_structure.py
 | When | Read |
 |---|---|
 | opening any file under `docs/` for the first time | [`docs/documentation.md`](docs/documentation.md) |
-| changing a process contract or data shape | the ADR in [`docs/adr/`](docs/adr/) |
-| adding or changing a rule or threshold | the ADR that owns it, then [`docs/rules.md`](https://github.com/hlsekowski/qnagym/blob/main/docs/rules.md) |
+| changing a process contract or data shape | the ADR in [`docs/adr/`](docs/adr/), starting with [0002](docs/adr/0002-architecture-dependency-model.md) for layering |
+| adding or changing a rule or threshold | the ADR that owns it, then [`docs/constitution.md`](docs/constitution.md) |
 | starting any change (branch, spec-first order, PR) | [`docs/development.md`](docs/development.md) |
 | implementing an issue end to end | [`docs/procedures/implement-issue.md`](docs/procedures/implement-issue.md) |
 | implementing ADR 0004 follow-up items | [`docs/specs/adr-0004-implementation-spec.md`](docs/specs/adr-0004-implementation-spec.md) |
 | writing or reviewing tests | [`docs/testing.md`](docs/testing.md) |
 | asking why a decision was made | the ADR in [`docs/adr/`](docs/adr/) |
 
-Non-negotiable principles C1–C10 live in qnagym's [`docs/constitution.md`](https://github.com/hlsekowski/qnagym/blob/main/docs/constitution.md) and apply to every change here.
+Non-negotiable principles S1–S8 live in [`docs/constitution.md`](docs/constitution.md) and apply to every change here.

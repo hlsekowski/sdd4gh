@@ -179,8 +179,8 @@ Prompts, model selection, tool invocation details, task persistence, retry mecha
 
 ## Related
 
-- [ADR 0001: Spec-Driven Development](https://github.com/hlsekowski/qnagym/blob/main/docs/adr/0001-spec-driven-development.md)
-- [ADR 0002: Architecture Dependency Model](https://github.com/hlsekowski/qnagym/blob/main/docs/adr/0002-architecture-dependency-model.md)
+- [ADR 0001: Spec-Driven Development](0001-spec-driven-development.md)
+- [ADR 0002: Architecture Dependency Model](0002-architecture-dependency-model.md)
 - [ADR 0003: Local AI-Driven Development Workflow](0003-local-development-workflow.md)
 - [ADR 0004: Worker and Task Execution Model](0004-worker-task-model.md)
 - [ADR 0005: Issue Process](0005-issue-process.md)
