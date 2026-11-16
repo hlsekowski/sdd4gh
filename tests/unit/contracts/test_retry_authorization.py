@@ -1,7 +1,6 @@
 """Unit tests for retry authorization contracts."""
 
 from sdd4gh.contracts.constants import (
-    LEGACY_WORKFLOW_COMMENT_MARKERS,
     WORKFLOW_COMMENT_MARKER,
     is_workflow_comment,
 )
@@ -166,11 +165,6 @@ class TestConstants:
 
     def test_current_marker_is_detected(self):
         assert is_workflow_comment(f"{WORKFLOW_COMMENT_MARKER}\nbody")
-
-    def test_legacy_marker_is_detected(self):
-        """Comments posted before the rename must not be re-processed."""
-        for legacy in LEGACY_WORKFLOW_COMMENT_MARKERS:
-            assert is_workflow_comment(f"{legacy}\nbody")
 
     def test_unmarked_comment_is_not_detected(self):
         assert not is_workflow_comment("please fix the lint failure")

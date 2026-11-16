@@ -22,18 +22,13 @@ WORKFLOW_COMMENT_MARKER = "<!-- sdd4gh-workflow -->"
 
 def is_workflow_comment(body: str) -> bool:
     """True when a comment body was authored by the workflow.
-
-    Accepts the legacy markers so comments posted before the framework was
-    named sdd4gh are still recognised and excluded from feedback and retry
-    detection (ADR 0006 §5).
     """
-    return body.startswith((WORKFLOW_COMMENT_MARKER, *LEGACY_WORKFLOW_COMMENT_MARKERS))
+    return body.startswith((WORKFLOW_COMMENT_MARKER))
 
 
 __all__ = [
     "CONFIDENCE_SHOW_BELOW",
     "EVALUATION_RESULTS",
     "WORKFLOW_COMMENT_MARKER",
-    "LEGACY_WORKFLOW_COMMENT_MARKERS",
     "is_workflow_comment",
 ]

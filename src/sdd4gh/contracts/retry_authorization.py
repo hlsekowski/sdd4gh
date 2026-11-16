@@ -11,13 +11,11 @@ from dataclasses import asdict, dataclass, field
 from typing import Any
 
 from sdd4gh.contracts.constants import (
-    LEGACY_WORKFLOW_COMMENT_MARKERS,
     WORKFLOW_COMMENT_MARKER,
 )
 
 __all__ = [
     "WORKFLOW_COMMENT_MARKER",
-    "LEGACY_WORKFLOW_COMMENT_MARKERS",
 ]
 
 # --- Retry request syntax ---
