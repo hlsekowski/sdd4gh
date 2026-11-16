@@ -1,4 +1,4 @@
-"""Unit tests for issue process contracts."""
+"""Unit tests for issue process contracts (ADR 0005)."""
 
 from sdd4gh.contracts.issue_process import (
     EVALUATION_FAIL,

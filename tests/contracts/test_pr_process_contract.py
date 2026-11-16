@@ -1,4 +1,4 @@
-"""Contract tests for the PR Process."""
+"""Contract tests for the PR Process (ADR 0006)."""
 
 from sdd4gh.contracts.constants import CONFIDENCE_SHOW_BELOW
 from sdd4gh.contracts.pr_process import (

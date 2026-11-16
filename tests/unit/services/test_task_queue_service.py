@@ -1,4 +1,4 @@
-"""Unit tests for the task queue service."""
+"""Unit tests for the task queue service (ADR 0004 §2–§5)."""
 
 from sdd4gh.contracts.task_model import (
     PRIORITY_LONG,

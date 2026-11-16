@@ -1,4 +1,4 @@
-"""Unit tests for the workflow orchestrator service."""
+"""Unit tests for the workflow orchestrator service (ADR 0003, ADR 0004)."""
 
 import tempfile
 

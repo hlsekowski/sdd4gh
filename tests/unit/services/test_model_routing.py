@@ -1,4 +1,4 @@
-"""Unit tests for the model routing service."""
+"""Unit tests for the model routing service (ADR 0008, ADR 0012)."""
 
 from sdd4gh.services.model_routing import (
     ModelRouter,

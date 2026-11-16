@@ -1,4 +1,4 @@
-"""Unit tests for the PR notification service."""
+"""Unit tests for the PR notification service (ADR 0006 §4)."""
 
 import pytest
 

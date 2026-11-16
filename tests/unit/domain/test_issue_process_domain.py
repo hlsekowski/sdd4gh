@@ -1,4 +1,4 @@
-"""Unit tests for the issue process domain logic."""
+"""Unit tests for the issue process domain logic (ADR 0005)."""
 
 from sdd4gh.contracts.constants import CONFIDENCE_SHOW_BELOW
 from sdd4gh.contracts.issue_process import (

@@ -1,4 +1,4 @@
-"""Unit tests for the SDD process service."""
+"""Unit tests for the SDD process service (ADR 0007)."""
 
 from sdd4gh.contracts.sdd_process import (
     SDD_RESULT_INCOMPLETE,
