@@ -19,11 +19,6 @@ EVALUATION_RESULTS = frozenset(
 # excluded from feedback and retry detection (ADR 0006 §5).
 WORKFLOW_COMMENT_MARKER = "<!-- sdd4gh-workflow -->"
 
-# Markers written before the framework was named sdd4gh. Detection accepts
-# them so comments already posted are not re-processed as user feedback.
-# Remove once no such comment can remain on a tracked work item.
-LEGACY_WORKFLOW_COMMENT_MARKERS = ("<!-- qnagym-workflow -->",)
-
 
 def is_workflow_comment(body: str) -> bool:
     """True when a comment body was authored by the workflow.

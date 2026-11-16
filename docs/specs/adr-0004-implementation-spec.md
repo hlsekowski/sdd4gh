@@ -51,7 +51,7 @@ Each `Claim` record includes: task_identity, worker_id, expiry_time, fencing_gen
 
 ### Location
 
-Execution state files live in `data/execution_state/` (configurable via `QNAGYM_DATA_DIR`). One JSON file per named state.
+Execution state files live in `data/execution_state/`. One JSON file per named state.
 
 ### Durability
 
