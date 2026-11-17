@@ -21,8 +21,7 @@ WORKFLOW_COMMENT_MARKER = "<!-- sdd4gh-workflow -->"
 
 
 def is_workflow_comment(body: str) -> bool:
-    """True when a comment body was authored by the workflow.
-    """
+    """True when a comment body was authored by the workflow."""
     return body.startswith((WORKFLOW_COMMENT_MARKER))
 
 
