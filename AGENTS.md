@@ -26,6 +26,7 @@ python3 scripts/check_doc_defaults.py
 | starting any change (branch, spec-first order, PR) | [`docs/development.md`](docs/development.md) |
 | implementing an issue end to end | [`docs/procedures/implement-issue.md`](docs/procedures/implement-issue.md) |
 | implementing ADR 0004 follow-up items | [`docs/specs/adr-0004-implementation-spec.md`](docs/specs/adr-0004-implementation-spec.md) |
+| implementing ADR 0010 (OpenCode coding-agent) | [`docs/specs/adr-0010-implementation-spec.md`](docs/specs/adr-0010-implementation-spec.md) |
 | writing or reviewing tests | [`docs/testing.md`](docs/testing.md) |
 | asking why a decision was made | the ADR in [`docs/adr/`](docs/adr/) |
 
