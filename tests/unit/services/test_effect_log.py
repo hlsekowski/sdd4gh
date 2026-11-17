@@ -1,4 +1,4 @@
-"""Unit tests for the safe effect log service."""
+"""Unit tests for the safe effect log service (ADR 0004 §7)."""
 
 import tempfile
 

@@ -250,6 +250,8 @@ python3 -m mypy src/sdd4gh     # strict; rejects duplicate module names
 pytest --cov=sdd4gh --cov-fail-under=80
 python3 scripts/check_doc_links.py
 python3 scripts/check_doc_structure.py
+python3 scripts/check_traceability.py
+python3 scripts/check_doc_defaults.py
 ```
 
 ### Dependency Rules — Verification Status
@@ -263,9 +265,9 @@ not by a mechanical check. Each row states how it is actually verified.
 | Contracts import nothing from domain or services | Code review. |
 | Domain imports from contracts only | Code review. |
 | Services import from contracts and domain | Code review. |
-| Traceability of ADR → code → test | Code review; the ADR set is small enough to read. |
+| Traceability of ADR → code → test | `scripts/check_traceability.py` — every module and test cites its ADR, every implemented ADR names code and a test, and Context dependencies are linked in Related. |
 
-> **Note:** A mechanical import-graph checker would make these rows enforceable rather than reviewed. That is a separate implementation concern, not a decision recorded here.
+> **Note:** A mechanical import-graph checker would make the remaining rows enforceable rather than reviewed. That is a separate implementation concern, not a decision recorded here.
 
 ## No-Cost AI Rules (Framework-Specific)
 

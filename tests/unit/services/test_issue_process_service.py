@@ -1,4 +1,4 @@
-"""Unit tests for the issue process service."""
+"""Unit tests for the issue process service (ADR 0005)."""
 
 from sdd4gh.contracts.issue_process import (
     IssueEvaluation,

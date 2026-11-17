@@ -1,4 +1,4 @@
-"""Unit tests for the task runner service."""
+"""Unit tests for the task runner service (ADR 0004 §2–§7)."""
 
 import tempfile
 import time

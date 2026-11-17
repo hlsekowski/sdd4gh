@@ -1,4 +1,4 @@
-"""Unit tests for the GitHub observation service."""
+"""Unit tests for the GitHub observation service (ADR 0004 §5)."""
 
 import tempfile
 from collections.abc import Mapping

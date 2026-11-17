@@ -73,7 +73,7 @@ Keep the sealed description unchanged. Update specifications, tests, and code as
 
 ### 2. PR Checks and Bounded Corrections (ADR 0003 §7)
 
-Goal: get required PR checks to a passing state. A failed check triggers an automatic correction attempt with no comment needed; pending or running checks are simply awaited. Corrections are capped at a predefined, configurable maximum of `MAX_CORRECTION_ATTEMPTS_PER_BATCH` attempts per batch (defined in `src/sdd4gh/contracts/constants.py`).
+Goal: get required PR checks to a passing state. A failed check triggers an automatic correction attempt with no comment needed; pending or running checks are simply awaited. Corrections are capped at a predefined, configurable maximum of `MAX_CORRECTION_ATTEMPTS_PER_BATCH` attempts per batch (defined in `src/sdd4gh/contracts/pr_process.py`).
 
 ```mermaid
 flowchart TD
@@ -185,7 +185,7 @@ Unchanged from ADR 0003 §10; reproduced here because it gates which `NEW` feedb
 - Must comply with Constitution C4 (thin providers) and C9 (dependency minimization), and rule NC3 (no vendor SDKs).
 - Decision gate for auto-invoking SDD: confidence strictly greater than the threshold defined by `CONFIDENCE_SHOW_BELOW` in `src/sdd4gh/contracts/constants.py`, per ADR 0003 §3.
 - No automatic PR merging, under any circumstance. **Rule D7 (no automatic merging); retained here for decision context.**
-- Correction loops are bounded: `MAX_CORRECTION_ATTEMPTS_PER_BATCH` attempts per batch (defined in `src/sdd4gh/contracts/constants.py`), configurable.
+- Correction loops are bounded: `MAX_CORRECTION_ATTEMPTS_PER_BATCH` attempts per batch (defined in `src/sdd4gh/contracts/pr_process.py`), configurable.
 
 ## Consequences
 

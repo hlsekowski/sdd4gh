@@ -1,4 +1,4 @@
-"""Unit tests for the PR trust boundary service."""
+"""Unit tests for the PR trust boundary service (ADR 0006 §5)."""
 
 import pytest
 

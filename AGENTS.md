@@ -12,6 +12,8 @@ ruff check . && ruff format --check .   # lint
 python3 -m mypy src/sdd4gh              # type-check
 python3 scripts/check_doc_links.py
 python3 scripts/check_doc_structure.py
+python3 scripts/check_traceability.py
+python3 scripts/check_doc_defaults.py
 ```
 
 ## Routing

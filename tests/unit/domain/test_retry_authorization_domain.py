@@ -1,4 +1,4 @@
-"""Unit tests for the retry authorization domain logic."""
+"""Unit tests for the retry authorization domain logic (ADR 0003 follow-up item 6)."""
 
 from sdd4gh.contracts.retry_authorization import (
     AuthorizationConfig,

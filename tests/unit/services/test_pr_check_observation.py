@@ -1,4 +1,4 @@
-"""Unit tests for the PR check observation service."""
+"""Unit tests for the PR check observation service (ADR 0006 §2)."""
 
 from sdd4gh.domain.pr_checks import CorrectionBatch
 from sdd4gh.services.pr_check_observation import PRCheckObservation

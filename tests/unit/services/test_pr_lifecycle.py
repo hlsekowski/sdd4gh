@@ -1,4 +1,4 @@
-"""Unit tests for the PR lifecycle service."""
+"""Unit tests for the PR lifecycle service (ADR 0006 §3)."""
 
 import pytest
 

@@ -1,6 +1,6 @@
 """Retry authorization service (orchestration).
 
-Mirrors docs/adr/0003 follow-up item 6. Orchestrates retry request
+Mirrors ADR 0003 follow-up item 6. Orchestrates retry request
 parsing, authorization checks, and feedback source eligibility;
 performs no GitHub I/O.
 """
