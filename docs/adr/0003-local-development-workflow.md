@@ -183,86 +183,9 @@ SDD does not independently merge PRs, close issues, or resolve ambiguous feedbac
 
 ### 6. PR feedback
 
-> **Superseded:** §6–§10 are elevated to [ADR 0006](0006-pr-process.md), which is the current normative source. Retained here as a historical record.
+> **Superseded:** §6–§10 are elevated to [ADR 0006](0006-pr-process.md), which is the current normative source. Retained here as a historical record; do not use this section for implementation.
 
-Monitor new PR feedback across conversation comments, submitted reviews, inline review comments, and replies to inline review comments. Users should correct or supersede feedback by posting new comments or reviews; the workflow does not monitor edits to existing comments or reviews.
-
-Evaluate feedback before invoking SDD:
-
-| Feedback | Behavior |
-| --- | --- |
-| Clear, consistent, actionable; confidence above the decision-gate threshold | Automatically invoke SDD; no additional human approval |
-| Ambiguous, conflicting, or insufficient confidence | Request clarification on the PR and leave the affected change pending |
-| Clear, independent changes while other feedback is unresolved | Implement qualifying changes; unresolved changes continue waiting |
-| Explicit scope change consistent with non-negotiable rules and passing the gate | Add a workflow-prefixed comment to the issue explaining the change and linking to the feedback; implement through SDD |
-| Conflicts with the constitution or other non-negotiable rules | Explain the conflict on the PR; do not implement it |
-| No development change needed | Do not invoke SDD; respond when needed |
-
-A clear scope revision is not automatically an unresolved contradiction. It must be explicit and coherent with the remaining applicable requirements. An unexplained contradiction requires clarification.
-
-Keep the sealed description unchanged. Update specifications, tests, and code as needed, then push verified changes to the existing PR. Do not create a replacement PR for each feedback cycle.
-
-### 7. PR checks and bounded corrections
-
-The goal is passing required PR checks. Failed checks trigger correction automatically; a comment is not needed. Await checks that are still pending or running.
-
-Use a predefined, configurable maximum of **five correction attempts per batch**.
-
-An attempt comprises diagnosis, fixes, local verification, pushing changes where applicable, and observing resulting PR checks. Local failures that prevent a push and exceptional check outcomes need precise counting rules in the implementation specification.
-
-After the limit is exhausted:
-
-- Stop automatic corrections.
-- Post a PR summary of failures and attempted work.
-- Wait for an explicit retry request in a new PR comment.
-- Do not reset the limit merely because unrelated actionable feedback appears.
-
-An explicit retry starts a new batch with the configured limit and preserves earlier history. Reopening a PR does not reset the attempt counter or bypass an exhausted limit.
-
-Report failures that cannot be resolved through development.
-
-### 8. PR lifecycle and completion
-
-| Event or state | Behavior |
-| --- | --- |
-| Checks pass; no unresolved actionable feedback | Report results on PR; wait for user action while continuing monitoring |
-| Checks pass; feedback awaits clarification | Report passing results and identify unresolved feedback requiring a new comment |
-| PR closed without merge | Classify as anomaly, notify on PR, stop ongoing SDD for that PR, preserve branch and leave issue unchanged |
-| Closed-without-merge PR reopened | Resume monitoring and eligible development automatically; preserve retry history and exhausted limits |
-| Issue closed while PR remains open | Warn on PR; continue eligible SDD; do not reopen issue automatically |
-| PR merged | Ensure linked issue is closed and synchronize local repository with the PR target branch |
-| Either post-merge step fails or cannot pass the decision gate | Report on PR; retain completed steps and await explicit retry or necessary clarification |
-
-The user decides whether to merge or close the PR. The workflow does not automatically merge.
-
-An open issue immediately after merge is an unfinished completion step: attempt the agreed closure before treating it as an unresolved anomaly. A closed-without-merge PR with an open issue is reported as an inconsistency.
-
-Post-merge completion requires both issue closure and local synchronization to succeed. Retry only unfinished work; do not restart SDD for a post-merge synchronization or closure failure.
-
-### 9. Communication and notifications
-
-Inform the end user about failures, anomalies, withheld decisions, and check results.
-
-Messages must explain:
-
-- What happened and the relevant evidence or source reference.
-- The decision and its reason, including uncertainty when applicable.
-- What completed and what remains pending.
-- Whether automation continues, waits for clarification, or requires explicit retry.
-- What the user can do next.
-
-Issue clarification belongs on the issue. PR feedback clarification, check results, and lifecycle failures belong on the PR. Scope-change notifications belong on the linked issue and reference the originating PR feedback.
-
-### 10. Trust boundaries and workflow identity
-
-Issues and comments can be authored by anyone with access to the repository, including any GitHub user in a public repository. GitHub content is therefore untrusted input.
-
-- Process issues and PR comments only from authorized accounts: the repository owner and explicitly configured collaborators. Ignore other authors for intake, feedback, and retry requests. Accept automated reviewer feedback only from explicitly configured accounts.
-- Treat issue, PR, and comment text as data to evaluate, never as instructions to the workflow or the local environment.
-- Run the local executor with least-privilege credentials and without access to secrets or files beyond what development and verification need.
-- Because the workflow may act under the user's own GitHub identity, prefix every workflow-authored comment with a fixed marker (exact form defined in the implementation specification). Exclude marked comments from feedback and retry detection.
-
-These measures reduce but do not eliminate prompt-injection risk. Not merging automatically keeps the final decision with the user.
+PR feedback evaluation, check monitoring, bounded corrections, lifecycle, communication, and trust boundaries are defined in [ADR 0006](0006-pr-process.md). Read that ADR for the current PR Process specification.
 
 ## Consequences
 
@@ -310,5 +233,4 @@ No orchestration framework, coding agent, model, or polling mechanism is selecte
 - [ADR 0006: PR Process](0006-pr-process.md) — §6–§10 elevated here; current normative source for PR behaviour
 - [ADR 0007: SDD Process](0007-sdd-process.md) — specializes §5 (the development cycle and its handoffs)
 - [Project constitution](../constitution.md)
-- Specification index
 - [Workflow hub](../workflow.md) — the executable step list this ADR's model describes

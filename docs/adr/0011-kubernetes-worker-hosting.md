@@ -47,4 +47,4 @@ This architectural neutrality does not authorize paid infrastructure, additional
 - [ADR 0008: Workflow runtime and model-routing selection](0008-workflow-runtime-and-model-routing.md) — umbrella decision record
 - #9: Introduce k8s as worker runtime — local multi-worker Kubernetes experiment
 - #55: Applicability audit — records the owner's initial plan
-- [Project constitution](../constitution.md) and rule catalog — constraints for technology selection
+- [Project constitution](../constitution.md) — constraints for technology selection

@@ -35,7 +35,7 @@ ADR 0003 §4 is the authoritative policy for intake and sealing. This ADR does n
 Evaluation checks, against observable criteria defined in the implementation specification:
 
 - **Clarity:** a stated goal, at least one verifiable acceptance criterion, a change type, no unresolved questions or internal contradictions, and a scope that plausibly fits one PR within the 400-line limit (constitution C2).
-- **Consistency:** no conflict with the constitution, the rules catalogue, the specification, or the accepted ADRs.
+- **Consistency:** no conflict with the constitution, the rules catalog, the specification, or the accepted ADRs.
 
 Evaluation does not compare the issue with other issues. Issues are independent (ADR 0004 §3).
 
@@ -139,5 +139,4 @@ No orchestration framework, model, or polling mechanism is selected by this ADR.
 - [ADR 0003: Local AI-driven development workflow](../adr/0003-local-development-workflow.md) — authoritative policy for intake and sealing (§4)
 - [ADR 0004: Worker and Task Execution Model](0004-worker-task-model.md) — how this process is executed as tasks on workers
 - [Project constitution](../constitution.md) — C2 (400-line limit)
-- Rule catalogue — A2 ("verify before writing"), exception process (`exception` label)
 - [Workflow hub](../workflow.md) — branch naming convention

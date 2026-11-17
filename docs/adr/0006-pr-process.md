@@ -155,11 +155,7 @@ stateDiagram-v2
 
 The user decides whether to merge or close a PR — the workflow never auto-merges (`HUMAN -.-> PR` in ADR 0003 §2). An issue still open right after `Merged` is treated as an unfinished completion step: the `PostMerge` state attempts the agreed closure before escalating to `PostMergeBlocked`. A `ClosedAnomaly` PR whose linked issue is still open is reported as an inconsistency, not silently left alone. `PostMerge` requires both issue closure and local sync to reach `Done`; retry only covers whichever of the two did not finish.
 
-### 4. Communication and Notifications (ADR 0003 §9)
-
-> The following two sections (Communication and Notifications, Trust Boundaries) are reproduced from ADR 0003 for self-containment, so the routing rules can be read without opening ADR 0003. **ADR 0003 remains authoritative**; if they diverge, ADR 0003 wins.
-
-Unchanged from ADR 0003 §9; reproduced here because it governs every message the diagrams above produce (`CLARIFY`, `EXPLAIN`, `ISSUESCOPE`, `EXHAUSTED`, and every lifecycle report).
+### 4. Communication and Notifications
 
 Routing:
 
@@ -169,9 +165,7 @@ Routing:
 
 Every message must cover: what happened and the evidence for it, the decision made and why (including uncertainty), what's complete versus pending, the current automation state, and what the user needs to do next.
 
-### 5. Trust Boundaries (ADR 0003 §10)
-
-Unchanged from ADR 0003 §10; reproduced here because it gates which `NEW` feedback events and `RETRY` comments the diagrams above act on.
+### 5. Trust Boundaries
 
 - Process input only from authorized accounts (owner plus configured collaborators); ignore other authors for intake, feedback, and retry requests.
 - Accept automated reviewer feedback only from configured accounts.
@@ -200,13 +194,6 @@ Unchanged from ADR 0003 §10; reproduced here because it gates which `NEW` feedb
 - The configurable attempt cap means some fixable failures still require an explicit human retry rather than resolving fully automatically.
 - As with ADR 0003, the confidence threshold is an execution policy, not a measured-correctness guarantee.
 
-## Open items before this ADR can be accepted
-
-These block moving this ADR past Proposed — unlike the follow-up items below, they affect whether the decisions in §1–§5 are even correct, not just how they get implemented.
-
-1. ~~ADR 0005 accepted.~~ ✅ **Done** — ADR 0005 was accepted on 2026-11-08 (PR #15).
-2. ~~Reconcile §1 (scope-change routing to the linked issue) and the `ClosedAnomaly`/`Merged` issue-state language in §3 against ADR 0005's final terms, once ADR 0005 is accepted. Specifically: whether a workflow-prefixed comment remains sufficient evidence of a scope change or ADR 0005 introduces a more structured record, and whether "closing an issue" / reopening a sealed issue keeps the same meaning ADR 0003 §4 implied.~~ ✅ **Done** — Reconciled. ADR 0005 §6 confirms scope changes are handled through the PR feedback path, not by the Issue Process. ADR 0005 §7 confirms closing an issue while a PR is open does not withdraw the work item (PR Process handles it), and the Issue Process never reopens or closes an issue on its own. The workflow-prefixed comment mechanism in §1 and the issue-state language in §3 are consistent with ADR 0005.
-
 ## Follow-up implementation specification
 
 As in ADR 0003, these decisions are sufficiently agreed for review without them. They don't block acceptance; they're implementation-time detail that someone (maintainer or implementer) still needs to pin down. Items 1–4 are carried forward from ADR 0003's own follow-up list (items 3, 4, 6, 7) because they specifically concern §1–§3 above, which ADR 0003 no longer owns once this ADR is accepted.
@@ -216,7 +203,7 @@ As in ADR 0003, these decisions are sufficiently agreed for review without them.
 3. Retry-request syntax, which feedback sources are eligible to trigger one under §5's authorization rules, and the exact workflow comment marker format referenced in §5.
 4. Safe local-synchronization semantics and resumable post-merge operations for the `PostMerge` state in §3.
 5. Maintainer review of the confidence-gate and attempt-cap values as configured in [`src/sdd4gh/contracts/constants.py`](../../src/sdd4gh/contracts/constants.py) (the same file already holding `CONFIDENCE_SHOW_BELOW`), once implemented.
-6. Traceability entries added once this ADR is implemented, per `docs/spec/traceability.md` ("Spec section → code → tests"), one entry per §1–§5.
+6. Traceability entries added once this ADR is implemented, per [`docs/testing.md`](../testing.md) ("Spec section → code → tests"), one entry per §1–§5.
 7. *(Tracked separately, not blocking this ADR.)* Once ADR 0005 and this ADR are accepted, ADR 0003 §4 and §6–§10 should get short "elaborated by ADR 0005 / ADR 0006" pointers so ADR 0003 doesn't remain the stale version of content these two ADRs now own.
 
 ## Related

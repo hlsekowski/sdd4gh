@@ -12,8 +12,8 @@ Briefly describe the change and why it's needed.
 - [ ] `pytest` passes locally
 - [ ] CI passes (lint, typecheck, test, security, dependencies, traceability, doc-defaults, pre-commit)
 - [ ] Security review (no secrets, input validated)
-- [ ] Docs updated (`docs/development.md`, `AGENTS.md`, `docs/rules.md` as applicable)
-- [ ] Traceability updated (`docs/spec/traceability.md`)
+- [ ] Docs updated (`docs/development.md`, `AGENTS.md` as applicable)
+- [ ] Traceability updated (`docs/testing.md`)
 - [ ] Changelog updated (`CHANGELOG.md`)
 - [ ] Dedicated branch used (rule D6); no direct commits to `main`
 

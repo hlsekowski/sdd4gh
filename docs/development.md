@@ -55,7 +55,7 @@ Not for end users. Used to write and review these docs and for local agent tooli
 | `qwen3.5:4b` | `http://127.0.0.1:11434/v1` (Ollama) | Local model for VS Code Copilot integration; fast, low resource. Used for development only; **not used to run the framework**. |
 | `nemotron-3.5-super-vl-120b-a12b` | `https://build.nvidia.com/nvidia/nemotron-3.5-super-vl-120b-a12b` | **Recommended** for documentation review: handles larger codebases reliably. Free-tier cloud alternative for development. |
 
-Standard-use models are listed in `docs/spec/prompts.md`.
+Standard-use models are listed in [`docs/adr/0012-litellm-model-routing.md`](adr/0012-litellm-model-routing.md).
 
 ### OpenCode coding-agent configuration (ADR 0010)
 

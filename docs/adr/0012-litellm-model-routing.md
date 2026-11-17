@@ -62,4 +62,4 @@ The LiteLLM team confirmed that PyPI versions 1.82.7 and 1.82.8 were compromised
 - [ADR 0008: Workflow runtime and model-routing selection](0008-workflow-runtime-and-model-routing.md) — umbrella decision record
 - AI provider policy — model configuration, privacy, and zero-cost provider constraints
 - #101: PR introducing LiteLLM — introduced LiteLLM Proxy with Auto Routing into ADR 0008; no prior issue scoped LiteLLM
-- [Project constitution](../constitution.md) and rule catalog — constraints for technology selection
+- [Project constitution](../constitution.md) — constraints for technology selection
