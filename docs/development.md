@@ -111,6 +111,26 @@ opencode run "your task"
 OpenCode resolves `local/model-id` through the `local` provider and sends
 requests to `http://localhost:XXXX/v1`. No cloud provider is involved.
 
+### Smoke test results (ADR 0010 validation)
+
+OpenCode was configured and tested against a local model endpoint as ADR 0010
+requires:
+
+| Field | Value |
+|---|---|
+| OpenCode version | v2.3.0 |
+| Model | `qwen2.5:7b` (Ollama) |
+| Endpoint | `http://localhost:11434/v1` |
+| Command | `opencode run --auto --model local/qwen2.5:7b "Add a docstring to the add function in example.py. Only modify example.py, no other files."` |
+| Tool calling | ✅ Worked — `write` tool used to modify `example.py` |
+| Result | ✅ Docstring added to `add` function |
+
+The smoke test ran in a scratch workspace (not on the feature branch). OpenCode
+successfully connected to the local Ollama endpoint, used tool calling, and
+added `"""Add two numbers."""` to the `add` function. ADR 0010's requirement
+that OpenCode be "configured and tested against a local model endpoint before
+it is used for project work" is satisfied.
+
 ## AI / Provider Policy
 
 See `docs/ai_provider_policy.md` for complete standards on:
