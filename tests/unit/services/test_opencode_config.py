@@ -130,9 +130,9 @@ class TestOpencodeConfigEndpointsAreLocal:
     def test_no_non_local_base_url(self):
         config = _load_config()
         for url in _extract_urls(config):
-            assert (
-                "localhost" in url or "127.0.0.1" in url or "::1" in url
-            ), f"baseURL is not local: {url}"
+            assert "localhost" in url or "127.0.0.1" in url or "::1" in url, (
+                f"baseURL is not local: {url}"
+            )
 
 
 class TestOpencodeConfigNoCloudProvider:
@@ -152,9 +152,9 @@ class TestOpencodeConfigNoCloudProvider:
         config = _load_config()
         config_text = json.dumps(config)
         for key in CLOUD_API_KEY_NAMES:
-            assert (
-                key.lower() not in config_text.lower()
-            ), f"Cloud API key name found in config: {key}"
+            assert key.lower() not in config_text.lower(), (
+                f"Cloud API key name found in config: {key}"
+            )
 
 
 class TestOpencodeConfigBadConfigFails:
