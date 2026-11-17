@@ -57,6 +57,60 @@ Not for end users. Used to write and review these docs and for local agent tooli
 
 Standard-use models are listed in `docs/spec/prompts.md`.
 
+## OpenCode coding-agent configuration (ADR 0010)
+
+OpenCode is configured as the SDD coding agent via a project-level
+`opencode.json` at the repository root. It connects to a local
+OpenAI-compatible model endpoint; no cloud provider, no paid API key, and
+no non-local default model are configured.
+
+### Prerequisites
+
+- Install OpenCode: `brew install anomalyco/tap/opencode-v2` (or see
+  https://opencode.ai/docs/).
+- Run a local OpenAI-compatible model server (Ollama, llama.cpp, or vLLM)
+  on `http://localhost:XXXX/v1`, where `XXXX` is your server's port.
+
+### Config
+
+The project config (`opencode.json`) defines a single `local` provider
+using the OpenAI-compatible adapter:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "local/model-id",
+  "providers": {
+    "local": {
+      "name": "Local model endpoint",
+      "env": ["LOCAL_API_KEY"],
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": {
+        "baseURL": "http://localhost:XXXX/v1"
+      },
+      "models": {
+        "model-id": {
+          "name": "Local model"
+        }
+      }
+    }
+  }
+}
+```
+
+Replace `XXXX` with your local server's port and `model-id` with your
+model's name. Set `LOCAL_API_KEY` to none or the dummy value `<local>`;
+never commit a real secret.
+
+### Running OpenCode against the local endpoint
+
+```bash
+opencode run "your task"
+```
+
+OpenCode resolves `local/model-id` through the `local` provider and sends
+requests to `http://localhost:XXXX/v1`. No cloud provider is involved.
+
 ## AI / Provider Policy
 
 See `docs/ai_provider_policy.md` for complete standards on:

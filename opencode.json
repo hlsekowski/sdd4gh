@@ -1,0 +1,19 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "local/model-id",
+  "providers": {
+    "local": {
+      "name": "Local model endpoint",
+      "env": ["LOCAL_API_KEY"],
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": {
+        "baseURL": "http://localhost:XXXX/v1"
+      },
+      "models": {
+        "model-id": {
+          "name": "Local model"
+        }
+      }
+    }
+  }
+}
