@@ -67,9 +67,15 @@ def _load_config() -> dict:
 
 
 def _is_loopback_host(host: str) -> bool:
-    """True when host is a loopback/local address."""
+    """True when host is a loopback address.
+
+    0.0.0.0 is deliberately excluded: it is the unspecified/wildcard bind
+    address, not a loopback destination. A client cannot connect to
+    0.0.0.0 as a destination, and accepting it would let a non-loopback
+    endpoint slip through validation.
+    """
     host = host.lower()
-    return host in {"localhost", "127.0.0.1", "::1", "0.0.0.0"} or host.startswith("127.")
+    return host in {"localhost", "127.0.0.1", "::1"} or host.startswith("127.")
 
 
 def _extract_urls(config: dict) -> list[str]:
