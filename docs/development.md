@@ -40,6 +40,34 @@ python3 scripts/check_doc_structure.py
 
 `mypy` is in the `dev` extra, so `pip install -e ".[dev]"` provides every Python check above. `pre-commit` is not; install it separately or use `pre-commit run --all-files`, which provisions its own environments. The `gitleaks` and `cz` (commitlint) hooks are `language: system` and need those binaries on `PATH`.
 
+### Documentation quality policy (DQ1–DQ5)
+
+Markdown documentation is governed by the quality policy in [`docs/documentation.md`](documentation.md):
+
+- **DQ1** — Minimum sufficient information: remove repetition, redundancy, and obsolete content.
+- **DQ2** — Information density: prefer precise, actionable statements and clear headings.
+- **DQ3** — Single source of truth: each rule or decision has one authoritative location.
+- **DQ4** — Audience and context: different standards for AGENTS.md, README, procedures, ADRs, and specs.
+- **DQ5** — Preserve decision integrity: never remove requirements, rationale, or acceptance criteria.
+
+Blocking rules are enforced mechanically by the documentation checkers under `scripts/` and run on every commit through pre-commit and CI. Advisory rules (semantic quality such as unnecessary explanations or duplicated meaning) require human or AI-agent review and are not enforced by pre-commit.
+
+### Pre-commit hooks
+
+Install the Git hook once after cloning:
+
+```bash
+pre-commit install
+```
+
+The hook runs the documentation checkers (`check-doc-links`, `check-doc-structure`, `check-doc-defaults`, `check-traceability`) plus lint, type-check, and secret scanning on every commit. Run manually at any time with:
+
+```bash
+pre-commit run --all-files --hook-stage pre-commit
+```
+
+CI independently enforces the same blocking rules through the `pre-commit` job and the individual `doc-*` jobs in `.github/workflows/ci.yml`.
+
 ## Spec-first change workflow
 
 The spec-first workflow sequence is owned by the workflow hub: [`docs/workflow.md`](workflow.md).
@@ -148,12 +176,7 @@ added `"""Add two numbers."""` to the `add` function.
 
 ## AI / Provider Policy
 
-See `docs/ai_provider_policy.md` for complete standards on:
-- Provider configuration (single config source, precedence, validation)
-- Standard-use vs development-only models
-- Model pinning, reproducibility (temperature, seed)
-- Timeouts, retries, structured output validation
-- Prompt management (versioned, reviewed like code)
-- Privacy & data handling (what leaves local machine)
-- Model drift monitoring
-- Prompt injection mitigations
+Provider configuration, standard-use vs development-only models, model
+pinning, privacy, and zero-cost provider constraints are governed by the
+constitution ([`docs/constitution.md`](constitution.md)) and ADR 0012
+([`docs/adr/0012-litellm-model-routing.md`](adr/0012-litellm-model-routing.md)).
