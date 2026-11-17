@@ -2,7 +2,7 @@
 
 > **Purpose:** The agent development workflow as ordered steps, each with a trigger and exactly one next document.
 > **Read when:** starting any change — creating a branch, updating a spec, opening a PR, or handling PR feedback.
-> **Owns:** the executable step list of the development workflow. Rationale lives in the ADRs; product behaviour lives in `docs/spec/`.
+> **Owns:** the executable step list of the development workflow. Rationale lives in the ADRs; product behaviour is specified by the ADR set in [`docs/adr/`](adr/).
 
 ## Steps
 
@@ -20,9 +20,9 @@ Branch types: `feat/...`, `fix/...`, `chore/...`, `docs/...`. Rule D6 (dedicated
 
 ### 2. Spec
 
-**when** the change affects product behaviour or a data shape → update the spec contract that covers the task → next: `docs/spec/traceability.md`
+**when** the change affects product behaviour or a data shape → update the spec contract that covers the task → next: [`docs/testing.md`](testing.md)
 
-Modify the relevant `docs/spec/*.md` contract section. Constitution principle C5 ("Spec before code") requires the spec to exist before implementation.
+Modify the relevant ADR in [`docs/adr/`](adr/) before code. Constitution principle C5 ("Spec before code") requires the decision to exist before implementation.
 
 ### 3. Contract
 
@@ -106,7 +106,6 @@ git checkout main && git pull
 ## Related
 
 - [`docs/development.md`](development.md) — environment setup, tooling and the development-only model list
-- `docs/spec/traceability.md` — how to map a spec section to code and tests
 - [`docs/adr/0003-local-development-workflow.md`](adr/0003-local-development-workflow.md) — the decision record for this workflow
 - [`docs/adr/0006-pr-process.md`](adr/0006-pr-process.md) — PR feedback evaluation, check monitoring and lifecycle
 - [`docs/adr/0007-sdd-process.md`](adr/0007-sdd-process.md) — the SDD process this workflow executes

@@ -160,7 +160,7 @@ Tests run in CI on every PR:
 
 1. **Identify category**: unit / contract / integration
 2. **Find/create test file**: Follow organization above
-3. **Add spec reference**: Header comment `# Verifies docs/spec/<file>.md#<section>`
+3. **Add spec reference**: Header comment `# Verifies docs/adr/<file>.md#<section>`
 4. **Write test**: Follow naming, mocking, assertion standards
 5. **Run locally**: `pytest tests/<path>/test_<name>.py -v`
 6. **Verify coverage**: `pytest --cov=sdd4gh --cov-report=term-missing`
@@ -169,7 +169,7 @@ Tests run in CI on every PR:
 
 ```python
 # tests/unit/domain/test_questions.py
-# Verifies docs/spec/questions.md#question-count-formula
+# Verifies docs/adr/0005-issue-process.md#question-count-formula
 
 import pytest
 from sdd4gh.domain.issue_process import decide_issue
@@ -193,8 +193,8 @@ class TestQuestionCount:
 
 ## Related Files
 
-- `docs/development.md` — Developer setup and commands
-- `docs/workflow.md` — Development workflow steps
-- `docs/spec/traceability.md` — Spec → code → test mapping
+- [`docs/development.md`](development.md) — Developer setup and commands
+- [`docs/workflow.md`](workflow.md) — Development workflow steps
+- [`docs/adr/`](adr/) — Architecture decisions (the specification)
 - `tests/http.py` — HTTP mocking utilities
 - `pyproject.toml` — pytest configuration

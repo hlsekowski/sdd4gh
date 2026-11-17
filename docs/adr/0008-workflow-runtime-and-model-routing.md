@@ -111,4 +111,4 @@ This ADR does not select the database, claim-store implementation, local-cluster
 - #98: Introduce LangGraph as the first workflow runtime — prior decision to start with LangGraph
 - #55: Applicability audit — records the owner's initial LangGraph/OpenCode/Kubernetes plan
 - #101: PR introducing LiteLLM — introduced LiteLLM Proxy with Auto Routing into ADR 0008; no prior issue scoped LiteLLM
-- [Project constitution](../constitution.md) and rule catalog — constraints for technology selection
+- [Project constitution](../constitution.md) — constraints for technology selection

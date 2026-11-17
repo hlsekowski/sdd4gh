@@ -52,4 +52,4 @@ Until the gate is passed, LangGraph graph logic may be prototyped in application
 - [ADR 0008: Workflow runtime and model-routing selection](0008-workflow-runtime-and-model-routing.md) — umbrella decision record
 - #55: Applicability audit — records the owner's initial plan
 - #98: Introduce LangGraph as the first workflow runtime — prior decision to start with LangGraph
-- [Project constitution](../constitution.md) and rule catalog — constraints for technology selection
+- [Project constitution](../constitution.md) — constraints for technology selection

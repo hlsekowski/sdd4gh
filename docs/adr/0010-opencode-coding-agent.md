@@ -45,4 +45,4 @@ OpenCode can use the LiteLLM OpenAI-compatible endpoint (ADR 0012) without takin
 - [ADR 0008: Workflow runtime and model-routing selection](0008-workflow-runtime-and-model-routing.md) — umbrella decision record
 - [ADR 0012: LiteLLM model routing](0012-litellm-model-routing.md) — model routing for workflow-agent calls
 - #55: Applicability audit — records the owner's initial plan
-- [Project constitution](../constitution.md) and rule catalog — constraints for technology selection
+- [Project constitution](../constitution.md) — constraints for technology selection

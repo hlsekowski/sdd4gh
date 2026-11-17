@@ -56,7 +56,7 @@ SDD treats the supplied issue, PR, feedback, and check information as task conte
 
 ### 3. Initial analysis
 
-Before changing application code, SDD establishes the originating issue and, where applicable, the PR and feedback reference; reads the accepted requirements and identifies the relevant existing specification contract or contracts under `docs/spec/`; examines the corresponding code contracts, implementation and tests to understand current behavior and the impact of the requested change; and identifies the specification, code-contract, test, implementation and traceability changes required to satisfy the accepted request.
+Before changing application code, SDD establishes the originating issue and, where applicable, the PR and feedback reference; reads the accepted requirements and identifies the relevant existing specification contract or contracts under [`docs/adr/`](.); examines the corresponding code contracts, implementation and tests to understand current behavior and the impact of the requested change; and identifies the specification, code-contract, test, implementation and traceability changes required to satisfy the accepted request.
 
 The existing specification contracts are the source of truth for product behavior. Existing implementation or tests do not silently override a conflicting specification. When the accepted request is unclear, conflicts with a non-negotiable repository rule, or cannot be reconciled with the applicable specifications, SDD does not guess; it returns the blocker or uncertainty to the PR Process (§7).
 
@@ -186,7 +186,6 @@ Prompts, model selection, tool invocation details, task persistence, retry mecha
 - [ADR 0005: Issue Process](0005-issue-process.md)
 - [ADR 0006: PR Process](0006-pr-process.md)
 - [Project constitution](../constitution.md)
-- Rule catalogue
 - [Workflow hub](../workflow.md)
 - [Testing standards](../testing.md)
 - Specification traceability
