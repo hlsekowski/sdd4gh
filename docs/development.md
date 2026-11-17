@@ -57,36 +57,45 @@ Not for end users. Used to write and review these docs and for local agent tooli
 
 Standard-use models are listed in `docs/spec/prompts.md`.
 
-## OpenCode coding-agent configuration (ADR 0010)
+### OpenCode coding-agent configuration (ADR 0010)
 
 OpenCode is configured as the SDD coding agent via a project-level
 `opencode.json` at the repository root. It connects to a local
 OpenAI-compatible model endpoint; no cloud provider, no paid API key, and
 no non-local default model are configured.
 
+OpenCode v2 is required. OpenCode v1 uses a different config schema and
+would silently ignore this `opencode.json`.
+
 ### Prerequisites
 
-- Install OpenCode: `brew install anomalyco/tap/opencode-v2` (or see
-  https://opencode.ai/docs/).
+- Install OpenCode v2: see the official install docs at
+  https://opencode.ai/docs/ (for example `brew install anomalyco/tap/opencode-v2` on macOS).
 - Run a local OpenAI-compatible model server (Ollama, llama.cpp, or vLLM)
-  on `http://localhost:XXXX/v1`, where `XXXX` is your server's port.
+  on your machine's loopback address.
 
 ### Config
 
 The project config (`opencode.json`) defines a single `local` provider
-using the OpenAI-compatible adapter:
+using the OpenAI-compatible adapter. It uses OpenCode v2 variable
+substitution (`{env:VARIABLE_NAME}`) so no tracked file needs editing for
+machine-specific values:
 
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "local/model-id",
+  "model": "{env:OPENCODE_MODEL}",
+  "policies": [
+    { "action": "provider.use", "resource": "*", "effect": "deny" },
+    { "action": "provider.use", "resource": "local", "effect": "allow" }
+  ],
   "providers": {
     "local": {
       "name": "Local model endpoint",
       "env": ["LOCAL_API_KEY"],
       "package": "@opencode/ai/providers/openai-compatible",
       "settings": {
-        "baseURL": "http://localhost:XXXX/v1"
+        "baseURL": "{env:OPENCODE_BASE_URL}"
       },
       "models": {
         "model-id": {
@@ -98,18 +107,26 @@ using the OpenAI-compatible adapter:
 }
 ```
 
-Replace `XXXX` with your local server's port and `model-id` with your
-model's name. Set `LOCAL_API_KEY` to none or the dummy value `<local>`;
-never commit a real secret.
+Before running OpenCode, set these environment variables in your shell:
+
+- `OPENCODE_BASE_URL` — your local endpoint, e.g. `http://localhost:11434/v1` for Ollama.
+- `OPENCODE_MODEL` — your local model name, e.g. `qwen2.5:7b`.
+- `LOCAL_API_KEY` — set to none or the dummy value `<local>`; never commit a real secret.
+
+The `policies` section denies all providers by default and allows only
+`local`, so OpenCode cannot offer hosted/free models or any provider whose
+API key happens to be in the environment.
 
 ### Running OpenCode against the local endpoint
 
 ```bash
-opencode run "your task"
+OPENCODE_BASE_URL=http://localhost:11434/v1 \
+  OPENCODE_MODEL=qwen2.5:7b \
+  opencode run "your task"
 ```
 
-OpenCode resolves `local/model-id` through the `local` provider and sends
-requests to `http://localhost:XXXX/v1`. No cloud provider is involved.
+OpenCode resolves `local/qwen2.5:7b` through the `local` provider and sends
+requests to `http://localhost:11434/v1`. No cloud provider is involved.
 
 ### Smoke test results (ADR 0010 validation)
 
@@ -121,15 +138,13 @@ requires:
 | OpenCode version | v2.3.0 |
 | Model | `qwen2.5:7b` (Ollama) |
 | Endpoint | `http://localhost:11434/v1` |
-| Command | `opencode run --auto --model local/qwen2.5:7b "Add a docstring to the add function in example.py. Only modify example.py, no other files."` |
+| Command | `OPENCODE_BASE_URL=http://localhost:11434/v1 OPENCODE_MODEL=qwen2.5:7b opencode run --auto --model local/qwen2.5:7b "Add a docstring to the add function in example.py. Only modify example.py, no other files."` |
 | Tool calling | ✅ Worked — `write` tool used to modify `example.py` |
 | Result | ✅ Docstring added to `add` function |
 
 The smoke test ran in a scratch workspace (not on the feature branch). OpenCode
 successfully connected to the local Ollama endpoint, used tool calling, and
-added `"""Add two numbers."""` to the `add` function. ADR 0010's requirement
-that OpenCode be "configured and tested against a local model endpoint before
-it is used for project work" is satisfied.
+added `"""Add two numbers."""` to the `add` function.
 
 ## AI / Provider Policy
 
