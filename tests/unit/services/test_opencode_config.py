@@ -195,9 +195,9 @@ class TestOpencodeConfigNvidiaProvider:
         assert nvidia["name"] == "NVIDIA NIM"
         assert nvidia["options"]["baseURL"] == "https://integrate.api.nvidia.com/v1"
         assert "apiKey" in nvidia["options"]
-        assert (
-            "{file:" in nvidia["options"]["apiKey"]
-        ), "nvidia apiKey must be a file reference, not a literal value"
+        assert "{file:" in nvidia["options"]["apiKey"], (
+            "nvidia apiKey must be a file reference, not a literal value"
+        )
         for model_id in (
             "nvidia/nemotron-3.5-super-vl-120b-a12b",
             "nvidia/nemotron-3-ultra-550b-a55b",
@@ -212,9 +212,9 @@ class TestOpencodeConfigNoHardcodedKeys:
         config = _load_config()
         config_text = json.dumps(config)
         for key in CLOUD_API_KEY_NAMES:
-            assert (
-                key.lower() not in config_text.lower()
-            ), f"cloud API key name found in config: {key}"
+            assert key.lower() not in config_text.lower(), (
+                f"cloud API key name found in config: {key}"
+            )
 
 
 class TestOpencodeConfigBadConfigFails:
