@@ -11,8 +11,6 @@ import json
 import re
 from pathlib import Path
 
-import pytest
-
 REPO_ROOT = Path(__file__).resolve().parents[3]
 CONFIG_PATH = REPO_ROOT / "opencode.json"
 
@@ -142,17 +140,13 @@ class TestOpencodeConfigNoCloudProvider:
         config = _load_config()
         provider_names = _extract_provider_names(config)
         for name in provider_names:
-            assert name.lower() not in CLOUD_PROVIDER_NAMES, (
-                f"Cloud provider name found: {name}"
-            )
+            assert name.lower() not in CLOUD_PROVIDER_NAMES, f"Cloud provider name found: {name}"
 
     def test_no_cloud_api_key_env(self):
         config = _load_config()
         env_names = _extract_env_names(config)
         for name in env_names:
-            assert name.upper() not in CLOUD_API_KEY_NAMES, (
-                f"Cloud API key env var found: {name}"
-            )
+            assert name.upper() not in CLOUD_API_KEY_NAMES, f"Cloud API key env var found: {name}"
 
     def test_no_cloud_key_value(self):
         config = _load_config()
@@ -183,7 +177,5 @@ class TestOpencodeConfigBadConfigFails:
             match = re.match(r"^https?://([^/:]+)", url)
             assert match is not None
             host = match.group(1)
-            assert not _is_loopback_host(host), (
-                f"Bad config should not be loopback: {url}"
-            )
+            assert not _is_loopback_host(host), f"Bad config should not be loopback: {url}"
             assert "example.com" in url, f"Expected non-local URL, got: {url}"
