@@ -137,6 +137,7 @@ No orchestration framework, model, or polling mechanism is selected by this ADR.
 
 - [ADR 0001: Spec-driven development](0001-spec-driven-development.md)
 - [ADR 0003: Local AI-driven development workflow](../adr/0003-local-development-workflow.md) — authoritative policy for intake and sealing (§4)
+- [ADR 0004: Worker and Task Execution Model](0004-worker-task-model.md) — how this process is executed as tasks on workers
 - [Project constitution](../constitution.md) — C2 (400-line limit)
 - Rule catalogue — A2 ("verify before writing"), exception process (`exception` label)
 - [Workflow hub](../workflow.md) — branch naming convention

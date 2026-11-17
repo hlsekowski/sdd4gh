@@ -1,4 +1,4 @@
-"""Unit tests for the execution state service."""
+"""Unit tests for the execution state service (ADR 0004 §6)."""
 
 import tempfile
 

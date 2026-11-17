@@ -1,4 +1,4 @@
-"""Unit tests for the event processing domain logic."""
+"""Unit tests for the event processing domain logic (ADR 0003 follow-up item 5)."""
 
 from sdd4gh.contracts.event_process import (
     EVENT_STATE_DEDUPLICATED,

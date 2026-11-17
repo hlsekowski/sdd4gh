@@ -1,6 +1,6 @@
 """Event processing service (orchestration).
 
-Mirrors docs/adr/0003 follow-up item 5. Orchestrates event ordering,
+Mirrors ADR 0003 follow-up item 5. Orchestrates event ordering,
 interruption handling, recovery, deduplication, and notification
 frequency; performs no GitHub I/O.
 """

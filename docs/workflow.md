@@ -61,7 +61,7 @@ Every change type runs the full list above. The table states what each type must
 | `feat/` — product behaviour | spec contract updated before code; `check_traceability.py` covers the new section; contract and unit tests added |
 | `fix/` — defect | a test that fails without the fix; spec corrected if the contract was wrong |
 | `chore/` — tooling, CI, dependencies | `check_doc_structure.py` if a checker changed; a failing test case for any new check |
-| `docs/` — documentation only | `check_doc_links.py` and `check_doc_structure.py`; no code change, so `pytest` and `mypy` still run but are not the point |
+| `docs/` — documentation only | `check_doc_links.py`, `check_doc_structure.py` and `check_doc_defaults.py`; no code change, so `pytest` and `mypy` still run but are not the point |
 
 A change that alters a data shape also updates `src/sdd4gh/contracts/` and its contract tests, per [`docs/testing.md`](testing.md).
 

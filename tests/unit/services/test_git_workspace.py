@@ -1,4 +1,4 @@
-"""Unit tests for the local git workspace service."""
+"""Unit tests for the local git workspace service (ADR 0004 §7)."""
 
 from sdd4gh.services.git_workspace import (
     GitWorkspace,

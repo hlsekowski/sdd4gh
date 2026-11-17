@@ -1,4 +1,4 @@
-"""Unit tests for the issue-evaluation task service."""
+"""Unit tests for the issue-evaluation task service (ADR 0005)."""
 
 import tempfile
 

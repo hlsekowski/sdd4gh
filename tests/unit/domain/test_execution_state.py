@@ -1,4 +1,4 @@
-"""Unit tests for the execution state domain logic."""
+"""Unit tests for the execution state domain logic (ADR 0004 §6)."""
 
 import contextlib
 

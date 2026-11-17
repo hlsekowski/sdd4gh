@@ -42,6 +42,8 @@ ruff check . && ruff format --check .
 python3 -m mypy src/sdd4gh
 python3 scripts/check_doc_links.py
 python3 scripts/check_doc_structure.py
+python3 scripts/check_traceability.py
+python3 scripts/check_doc_defaults.py
 ```
 
 Agent instructions live in [`AGENTS.md`](AGENTS.md).

@@ -52,7 +52,7 @@ Not for end users. Used to write and review these docs and for local agent tooli
 
 | Model | Endpoint | Use |
 |---|---|---|
-| `qwen3.5:4b` | See [`DEFAULT_BASE_URL`](../src/sdd4gh/contracts/constants.py) (Ollama) | Local model for VS Code Copilot integration; fast, low resource. Used for development only; **not used to run the framework**. |
+| `qwen3.5:4b` | `http://127.0.0.1:11434/v1` (Ollama) | Local model for VS Code Copilot integration; fast, low resource. Used for development only; **not used to run the framework**. |
 | `nemotron-3.5-super-vl-120b-a12b` | `https://build.nvidia.com/nvidia/nemotron-3.5-super-vl-120b-a12b` | **Recommended** for documentation review: handles larger codebases reliably. Free-tier cloud alternative for development. |
 
 Standard-use models are listed in `docs/spec/prompts.md`.

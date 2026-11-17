@@ -1,4 +1,4 @@
-"""Unit tests for the PR creation service."""
+"""Unit tests for the PR creation service (ADR 0004 §7)."""
 
 import tempfile
 

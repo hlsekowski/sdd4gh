@@ -1,4 +1,4 @@
-"""Unit tests for the event process service."""
+"""Unit tests for the event process service (ADR 0003 follow-up item 5)."""
 
 from sdd4gh.services.event_process import (
     check_notification,

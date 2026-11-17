@@ -1,4 +1,4 @@
-"""Unit tests for retry authorization contracts."""
+"""Unit tests for retry authorization contracts (ADR 0003 follow-up item 6)."""
 
 from sdd4gh.contracts.constants import (
     WORKFLOW_COMMENT_MARKER,

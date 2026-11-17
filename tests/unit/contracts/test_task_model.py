@@ -1,4 +1,4 @@
-"""Unit tests for task execution model contracts."""
+"""Unit tests for task execution model contracts (ADR 0004)."""
 
 from sdd4gh.contracts.task_model import (
     PRIORITY_CLASSES,
