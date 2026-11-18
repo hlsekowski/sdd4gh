@@ -139,7 +139,7 @@ class TestOpencodeConfigParses:
 
     def test_config_has_model(self):
         config = _load_config()
-        assert config.get("model") == "ollama/qwen3-8b-16k"
+        assert config.get("model") == "ollama/gemma4-12b-32k"
 
     def test_config_has_providers(self):
         config = _load_config()
@@ -167,6 +167,8 @@ class TestOpencodeConfigParses:
         model = config["model"]
         provider_name = model.split("/", 1)[0]
         assert provider_name in _extract_providers(config)
+        model_id = model.split("/", 1)[1]
+        assert model_id in _extract_providers(config)[provider_name]["models"]
 
 
 class TestOpencodeConfigOllamaProvider:
@@ -177,6 +179,8 @@ class TestOpencodeConfigOllamaProvider:
         assert ollama["name"] == "Ollama (local)"
         assert ollama["options"]["baseURL"] == "http://localhost:11434/v1"
         assert "qwen3-8b-16k" in ollama["models"]
+        assert "gemma4-12b-32k" in ollama["models"]
+        assert ollama["models"]["gemma4-12b-32k"]["limit"]["context"] == 32768
 
     def test_ollama_base_url_is_loopback(self):
         config = _load_config()

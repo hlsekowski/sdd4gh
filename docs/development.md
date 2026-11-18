@@ -61,8 +61,9 @@ Standard-use models are listed in [`docs/adr/0012-litellm-model-routing.md`](adr
 
 OpenCode is configured as the SDD coding agent via a project-level
 `opencode.json` at the repository root. It connects to a local
-OpenAI-compatible model endpoint; no cloud provider, no paid API key, and
-no non-local default model are configured.
+OpenAI-compatible model endpoint for its default model. An optional NVIDIA
+provider is also configured; its API key is loaded from a local file and is
+not committed.
 
 OpenCode v2 is required. OpenCode v1 uses a different config schema and
 would silently ignore this `opencode.json`.
@@ -87,14 +88,18 @@ machine-specific values:
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "ollama/qwen3-8b-16k",
+  "model": "ollama/gemma4-12b-32k",
   "provider": {
     "ollama": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "Ollama (local)",
       "options": { "baseURL": "http://localhost:11434/v1" },
       "models": {
-        "qwen3-8b-16k": { "name": "Qwen3 8b 16k" }
+        "qwen3-8b-16k": { "name": "Qwen3 8b 16k" },
+        "gemma4-12b-32k": {
+          "name": "Gemma 4 12B 32k",
+          "limit": { "context": 32768, "output": 8192 }
+        }
       }
     },
     "nvidia": {
@@ -303,31 +308,31 @@ machine-specific values:
 }
 ```
 
-Before running OpenCode, set these environment variables in your shell:
+Create the local Ollama model from the repository's [`Modelfile`](../Modelfile):
 
-- `OPENCODE_BASE_URL` — your local endpoint, e.g. `http://localhost:11434/v1` for Ollama.
-- `OPENCODE_MODEL` — your local model name, e.g. `qwen3-8b-16k`.
+```bash
+ollama create gemma4-12b-32k -f Modelfile
+```
 
-The default model is `ollama/qwen3-8b-16k`. The `nvidia` provider's API key
-is read from `~/.secrets/nvidia_key` via a `{file:...}` reference, so no
-secret is ever committed.
+The default model is `ollama/gemma4-12b-32k`; the `qwen3-8b-16k` model remains
+available as an alternative. The `nvidia` provider's API key is read from
+`~/.secrets/nvidia_key` via a `{file:...}` reference, so no secret is ever
+committed.
 
 ### Running OpenCode against the local endpoint
 
 ```bash
-OPENCODE_BASE_URL=http://localhost:11434/v1 \
-  OPENCODE_MODEL=qwen3-8b-16k \
-  opencode run "your task"
+opencode run "your task"
 ```
 
-OpenCode resolves `ollama/qwen3-8b-16k` through the `ollama` provider and
+OpenCode resolves `ollama/gemma4-12b-32k` through the `ollama` provider and
 sends requests to `http://localhost:11434/v1`. No cloud provider is involved
 for the default model.
 
-### Smoke test results (ADR 0010 validation)
+### Previous smoke test results (ADR 0010 validation)
 
-OpenCode was configured and tested against a local model endpoint as ADR 0010
-requires:
+The initial ADR 0010 smoke test used the Qwen model before Gemma became the
+configured default:
 
 | Field | Value |
 |---|---|

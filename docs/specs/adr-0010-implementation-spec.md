@@ -18,7 +18,7 @@
 
 - An OpenCode project config file (`opencode.json`) at the repository root, using the OpenCode v2 schema with `provider`, `agent`, and `command` sections.
 - An `ollama` provider pointing at a local OpenAI-compatible model endpoint (`@ai-sdk/openai-compatible` package, `options.baseURL` loopback address) plus an `nvidia` provider whose API key is read from a file (`{file:~/.secrets/nvidia_key}`), never committed.
-- A default model (`ollama/qwen3-8b-16k`) that resolves to a configured provider.
+- A default model (`ollama/gemma4-12b-32k`) that resolves to a configured provider.
 - Agents (`ask`, `sentinel`, `spec`, `implement`, `review`) and commands (`work`, `spec`, `review`) defined in the config.
 - Env-var substitution (`{env:VARIABLE_NAME}`) for machine-specific values, per OpenCode v2 variable substitution, so no tracked file needs editing for machine-specific values.
 - Provider policies that restrict OpenCode to local providers only, preventing use of hosted/free models or any provider whose API key happens to be in the environment.
@@ -55,14 +55,18 @@ OpenCode v2 supports variable substitution via `{env:VARIABLE_NAME}` inside JSON
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "ollama/qwen3-8b-16k",
+  "model": "ollama/gemma4-12b-32k",
   "provider": {
     "ollama": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "Ollama (local)",
       "options": { "baseURL": "http://localhost:11434/v1" },
       "models": {
-        "qwen3-8b-16k": { "name": "Qwen3 8b 16k" }
+        "qwen3-8b-16k": { "name": "Qwen3 8b 16k" },
+        "gemma4-12b-32k": {
+          "name": "Gemma 4 12B 32k",
+          "limit": { "context": 32768, "output": 8192 }
+        }
       }
     },
     "nvidia": {
@@ -274,7 +278,7 @@ OpenCode v2 supports variable substitution via `{env:VARIABLE_NAME}` inside JSON
 - `provider.ollama.package` is `@ai-sdk/openai-compatible` — the OpenAI-compatible adapter, verified from OpenCode's providers documentation.
 - `provider.ollama.options.baseURL` is `http://localhost:11434/v1`, a loopback address. The developer can override via `OPENCODE_BASE_URL`.
 - `provider.nvidia.options.apiKey` uses `{file:~/.secrets/nvidia_key}` so no secret is committed.
-- `model` is `ollama/qwen3-8b-16k`, resolving to the `ollama` provider.
+- `model` is `ollama/gemma4-12b-32k`, resolving to the `ollama` provider and its configured model entry.
 - `agent` defines `ask`, `sentinel`, `spec`, `implement`, and `review` agents with their prompts, models, and permissions.
 - `command` defines `work`, `spec`, and `review` commands.
 - No cloud API key value is hardcoded anywhere; the nvidia key comes from a file reference.
@@ -310,7 +314,7 @@ OpenCode v2 supports variable substitution via `{env:VARIABLE_NAME}` inside JSON
 
 | Rule | Text (where defined) | How this task complies |
 |---|---|---|
-| S5 | Zero-cost AI: model calls default to a local provider. No paid API keys in defaults; env override only. | Default model `ollama/qwen3-8b-16k` points at a local endpoint; nvidia key uses a file reference, no default key value. |
+| S5 | Zero-cost AI: model calls default to a local provider. No paid API keys in defaults; env override only. | Default model `ollama/gemma4-12b-32k` points at a local endpoint; nvidia key uses a file reference, no default key value. |
 | S6 | Thin providers: Talk to models through an OpenAI-compatible `base_url` + `model` + optional `api_key`. No vendor SDKs. | Uses `@ai-sdk/openai-compatible` with `options.baseURL` + `model`; no vendor SDK added to `pyproject.toml`. |
 | SN3 | No vendor SDKs: `pyproject.toml` `dependencies` is empty; standard library only. | No new dependencies added to `pyproject.toml`. |
 | C2 | 400-line PR diff limit (referenced in ADR 0005 §3, ADR 0007 §4). | Config + tests + docs stay well within the limit. |
