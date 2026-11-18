@@ -92,8 +92,10 @@ python3 scripts/check_opencode_config.py
 ```
 
 It runs `opencode debug config` and `opencode debug agents`, verifies the five
-project agents, and fails if the CLI version differs. It downloads no schema,
-makes no model request, and is not required in offline CI. The config declares
+project agents, verifies that the effective default resolves to
+`ollama/gemma4-12b-32k`, and confirms that `opencode models` lists that model.
+It fails if the CLI version differs. It downloads no schema, makes no model
+request, and is not required in offline CI. The config declares
 the official schema at `https://opencode.ai/config.json`; its model definitions
 reference `https://models.dev/model-schema.json`. The separate schema check
 recorded below used `jsonschema 4.26.0`; those URLs are live and are not fetched
@@ -115,6 +117,16 @@ opencode debug agents
 
 This confirms config loading and agent discovery only. It does not prove model availability, tool-calling quality, delegation, or permission outcomes. Automated tests do not require a live model or provider credentials.
 
+For opt-in local-only runtime checks, run:
+
+```bash
+python3 scripts/check_opencode_config.py --smoke
+```
+
+This makes two loopback Ollama model calls: one read-tool request and one
+Sentinel-to-review delegation request. It never selects or calls the optional
+NVIDIA provider.
+
 ### Runtime evidence
 
 The installed OpenCode CLI successfully loaded the project config and discovered
@@ -134,8 +146,21 @@ The current local default was also exercised with a read-only tool call:
 | Command | `opencode run --model ollama/gemma4-12b-32k --agent sentinel "For a read-only configuration smoke test, use the read tool to read AGENTS.md and report only its first non-empty line. Do not use GitHub, shell, or editing tools."` |
 | Result | The local model called the read tool and returned `# Agent instructions`. |
 
-This verifies a local model request and a read tool call only; delegation and
-other permission outcomes have not been independently runtime-tested.
+This verifies a local model request and a read tool call.
+
+The local Sentinel agent was also exercised with delegation:
+
+| Field | Value |
+|---|---|
+| OpenCode version | v2.3.0 |
+| Model / agents | `ollama/gemma4-12b-32k` / `sentinel` -> `review` |
+| Command | `opencode run --model ollama/gemma4-12b-32k --agent sentinel "Delegate this read-only task to @review: verify that opencode.json exists, read it, and report one sentence. Do not edit files or use GitHub or shell mutations."` |
+| Result | Sentinel delegated the task, and the review agent reported that `opencode.json` exists and summarizes the agent configuration. |
+
+The delegation smoke used only loopback Ollama; it made no hosted request.
+Edit denial, staging approval, force-push denial, pipes/redirection, and some
+compound/substitution scanner outcomes still require separate developer runtime
+checks.
 
 A harmless compound-shell check using the same OpenCode version, model, and
 agent attempted `git status --short; printf scanner-smoke`. OpenCode returned

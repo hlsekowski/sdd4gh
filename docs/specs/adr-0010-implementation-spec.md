@@ -62,6 +62,8 @@ OpenCode's shell scanner evaluates extracted subcommands and reports commands it
 | 6 | Tests make no network or model calls and no runtime dependency is added. | `pytest` and `pyproject.toml` dependency check. |
 | 7 | All documentation describes the current config and the zero-cost policy consistently. | Traceability, doc-default, doc-link, and doc-structure checks. |
 | 8 | The local CLI validation procedure is repeatable and rejects an unpinned CLI version without downloading a schema or making a model request. | `python3 scripts/check_opencode_config.py`; unit tests in `tests/unit/scripts/test_check_opencode_config.py`. |
+| 9 | The effective default model and the local model catalog are resolved by the pinned CLI. | [`scripts/check_opencode_config.py`](../../scripts/check_opencode_config.py) verifies `debug config` resolves `ollama/gemma4-12b-32k` and `opencode models` lists it. |
+| 10 | Opt-in local read/delegation smoke evidence distinguishes verified behavior from developer-only uncertainty. | `python3 scripts/check_opencode_config.py --smoke` runs only the loopback Ollama default; hosted providers are never called. |
 
 ## 5. Least-privilege boundaries
 
