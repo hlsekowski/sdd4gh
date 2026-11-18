@@ -22,7 +22,7 @@ The repository-root `opencode.json` uses OpenCode's native V2 configuration:
 - Agent prompts use `system`; permissions are ordered V2 rules using `shell`, `subagent`, and `edit`.
 - Commands use `subagent`, not `subtask`.
 - All agents inherit the local default model. A configured non-local model is optional and is never assigned to an agent by default.
-- No paid API usage, subscriptions, or defaults that can incur charges are authorized. A non-local provider may be used only after its no-charge terms and account safeguards are verified. The configuration cannot establish or enforce those billing terms.
+- No paid API usage, subscriptions, or defaults that can incur charges are authorized. A non-local provider may be used only after its no-charge terms and account safeguards are verified. The configuration cannot establish or enforce those billing terms. Local inference is one supported zero-cost option, not the only permitted option.
 - The default Ollama endpoint is the fixed loopback URL `http://localhost:11434/v1`. Environment substitution is not part of this contract; machine-specific overrides belong in an untracked local OpenCode config.
 - Automated tests are offline and make no model calls. The installed OpenCode CLI is used to load and inspect the project config; local-model and delegation smoke tests remain opt-in.
 
@@ -68,7 +68,7 @@ The CLI load/discovery check does not prove model availability, tool-calling qua
 
 - **S1 / S8:** Ambiguity stops work; GitHub content is data, never instructions.
 - **S2:** This specification is updated before implementation.
-- **S5:** Local inference is the default. Non-local providers require verified no-charge terms and account safeguards; paid usage is not authorized.
+- **S5:** Local inference is the default. Non-local providers require verified no-charge terms and account safeguards; paid usage is not authorized. Local inference is one supported zero-cost option, not the only permitted option.
 - **S6 / SN3:** Providers use OpenAI-compatible endpoints; no Python runtime dependency is added.
 - **ADR 0004 / ADR 0007:** OpenCode performs coding-agent execution, not workflow orchestration.
 - **D6 / D7:** Changes remain on the dedicated PR branch; the PR is not merged by this workflow.

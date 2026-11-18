@@ -41,7 +41,7 @@ Not for end users. Used for documentation and local agent tooling.
 | Model | Endpoint | Use |
 |---|---|---|
 | `qwen3.5:4b` | `http://127.0.0.1:11434/v1` (Ollama) | Local model for VS Code Copilot integration; not used to run the framework. |
-| `nemotron-3.5-super-vl-120b-a12b` | NVIDIA NIM | Optional non-local model. The project permits it only when its no-charge terms and account safeguards are verified. |
+| `nemotron-3.5-super-vl-120b-a12b` | NVIDIA NIM | Optional non-local model. The project permits it only when its no-charge terms and account safeguards are verified. Allowed under the zero-cost provider policy: genuinely free hosted tier, no paid subscription, no billable usage. |
 
 Standard-use models are listed in [ADR 0012](adr/0012-litellm-model-routing.md).
 
@@ -106,3 +106,17 @@ The prior local smoke test also used Qwen before Gemma became the default:
 | Result | The local model used the write tool to add a docstring in a scratch workspace. |
 
 The environment variables shown are part of the historical command; the current project config does not interpolate them. That result does not verify the current Gemma default, delegated-agent behavior, or permission boundaries. The owner reports successful use of `nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b`; this task does not independently verify a hosted request or any other model. See [ADR 0010](adr/0010-opencode-coding-agent.md) for the zero-cost policy.
+
+## AI / Provider Policy
+
+See [`docs/ai_provider_policy.md`](ai_provider_policy.md) for complete standards on:
+- Zero-cost provider policy: local inference as one supported option, not the only permitted option
+- Provider configuration (single config source, precedence, validation)
+- Standard-use vs development-only models
+- Model pinning, reproducibility (temperature, seed)
+- Timeouts, retries, structured output validation
+- Prompt management (versioned, reviewed like code)
+- Privacy & data handling (what leaves local machine)
+- Model drift monitoring
+- Prompt injection mitigations
+- Credential and billing safeguards: free tiers must not depend on a paid subscription or permit accidental metered calls
