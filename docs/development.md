@@ -2,7 +2,7 @@
 
 > **Purpose:** Developer-only notes: environment setup, checks, and development model configuration.
 > **Read when:** setting up the repo, running checks, or using the OpenCode coding agent.
-> **Owns:** local setup commands, development model notes, and the OpenCode setup pointer. The workflow sequence is owned by [`docs/workflow.md`](workflow.md).
+> **Owns:** local setup commands, development model notes, OpenCode setup and changelog update convention. The workflow sequence is owned by [`docs/workflow.md`](workflow.md).
 
 Developer-only notes. End users start at [`README.md`](../README.md).
 
@@ -13,6 +13,11 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
 ```
+
+## Changelog
+
+Add a concise entry under `Unreleased` in [`CHANGELOG.md`](../CHANGELOG.md) for
+each pull request, as required by the repository's PR template.
 
 Development and testing was done on a Mac Air M4 with 16GB RAM.
 

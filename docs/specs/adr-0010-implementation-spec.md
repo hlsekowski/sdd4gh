@@ -9,8 +9,8 @@
 - [ADR 0010: OpenCode coding-agent execution](../adr/0010-opencode-coding-agent.md) — Accepted
 - [ADR 0008: Workflow runtime and model-routing selection](../adr/0008-workflow-runtime-and-model-routing.md) — Accepted
 - [Project constitution](../constitution.md) — Accepted (S1–S8)
-- Issue #12: native OpenCode V2 configuration
-- Issue #15: zero-cost provider policy
+- [hlsekowski/sdd4gh#12](https://github.com/hlsekowski/sdd4gh/issues/12): native OpenCode V2 configuration
+- [hlsekowski/sdd4gh#15](https://github.com/hlsekowski/sdd4gh/issues/15): zero-cost provider policy
 
 ## 1. Scope
 
@@ -82,5 +82,5 @@ The owner clarified that the requirement is zero cost, with local inference as o
 - [ADR 0010: OpenCode coding-agent execution](../adr/0010-opencode-coding-agent.md)
 - [ADR 0008: Workflow runtime and model-routing selection](../adr/0008-workflow-runtime-and-model-routing.md)
 - [Project constitution](../constitution.md)
-- Issue #12: native OpenCode V2 configuration
-- Issue #15: zero-cost provider policy
+- [hlsekowski/sdd4gh#12](https://github.com/hlsekowski/sdd4gh/issues/12): native OpenCode V2 configuration
+- [hlsekowski/sdd4gh#15](https://github.com/hlsekowski/sdd4gh/issues/15): zero-cost provider policy

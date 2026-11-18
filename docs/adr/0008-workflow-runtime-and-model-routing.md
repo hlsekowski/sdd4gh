@@ -12,8 +12,6 @@ Accepted
 
 [ADR 0003](0003-local-development-workflow.md) defines the Issue, SDD, and PR processes and requires the workflow to use the existing local environment without subscriptions, paid services, cloud charges, or hardware upgrades. [ADR 0004](0004-worker-task-model.md) defines the worker/task model but deliberately selects no runtime technology. Its §9 requires a separate decision for each runtime technology when introduced.
 
-The project owner identified LangGraph, OpenCode, and Kubernetes as the initial plan in the #55 decision log, with the qualifier that the plan "is not written in stone" and the runner recorded as TBD among those three. #55 did not select the stack or LiteLLM — LiteLLM is not in #55, #98, or #9. Issue #98 recorded LangGraph as a candidate workflow runtime under consideration before Kubernetes; #98 selected no runtime — this ADR is the umbrella decision record. Issue #9 scopes Kubernetes work to a local cluster and explicitly excludes cloud deployment. #9 is closed; the multi-worker experiment is not done and has no open issue.
-
 Per ADR 0004 §9, each runtime technology is decided in its own ADR:
 
 - [ADR 0009: LangGraph workflow graph orchestration](0009-langgraph-workflow-orchestration.md) — Accepted
@@ -75,15 +73,13 @@ The implementation must verify, with stub tasks and no model calls:
 4. Replayed or retried work cannot duplicate external effects.
 5. The workflow recovers after downtime without losing required task state.
 
-Issue #9 tracks the local Kubernetes experiment and already requires testing claim exclusivity, expiry, and takeover. The remaining cases must also be covered before multi-worker operation is treated as supported.
-
 This ADR does not select the database, claim-store implementation, local-cluster distribution, or hosted platform. Those choices require a separate decision if implementation needs them; they must remain consistent with ADR 0003, constitution principles C3, C4, and C9, and rule NC3.
 
 ## Consequences
 
 ### Positive
 
-- The chosen stack gives the project a concrete, incremental starting point aligned with the owner's stated direction: LangGraph, OpenCode, local Kubernetes, and LiteLLM routing.
+- The chosen stack gives the project a concrete, incremental starting point: LangGraph, OpenCode, local Kubernetes, and LiteLLM routing.
 - A single OpenAI-compatible local gateway can route both development agents and application model tasks without adding LiteLLM's SDK to the application dependencies.
 - Local-first development remains the default while Kubernetes provides a path to verify multi-worker behavior.
 - Responsibilities are explicit: graph execution, coding-agent tool, and worker hosting are separate concerns.
@@ -107,8 +103,4 @@ This ADR does not select the database, claim-store implementation, local-cluster
 - [ADR 0011: Kubernetes worker hosting](0011-kubernetes-worker-hosting.md) — Kubernetes decision
 - [ADR 0012: LiteLLM model routing for workflow-agent calls](0012-litellm-model-routing.md) — LiteLLM decision
 - AI provider policy — model configuration, privacy, and zero-cost provider constraints
-- #9: Introduce k8s as worker runtime — local multi-worker Kubernetes experiment
-- #98: Introduce LangGraph as the first workflow runtime — prior decision to start with LangGraph
-- #55: Applicability audit — records the owner's initial LangGraph/OpenCode/Kubernetes plan
-- #101: PR introducing LiteLLM — introduced LiteLLM Proxy with Auto Routing into ADR 0008; no prior issue scoped LiteLLM
 - [Project constitution](../constitution.md) — constraints for technology selection

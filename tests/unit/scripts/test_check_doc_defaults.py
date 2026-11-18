@@ -37,6 +37,8 @@ def repo(tmp_path):
     """A git repository with one ADR and the constants module it names."""
     subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
     (tmp_path / "docs/adr").mkdir(parents=True)
+    (tmp_path / ".github").mkdir()
+    (tmp_path / "prompts").mkdir()
     (tmp_path / "src/sdd4gh/contracts").mkdir(parents=True)
     (tmp_path / "src/sdd4gh/contracts/constants.py").write_text(
         '"""Constants."""\n\nCONFIDENCE_SHOW_BELOW = 0.95\n'
@@ -50,6 +52,8 @@ def repo(tmp_path):
         "Corrections are capped at `MAX_CORRECTION_ATTEMPTS_PER_BATCH` attempts "
         "per batch (defined in `src/sdd4gh/contracts/pr_process.py`).\n"
     )
+    (tmp_path / ".github/pull_request_template.md").write_text("# PR template\n")
+    (tmp_path / "prompts/sentinel.md").write_text("# Prompt\n")
     subprocess.run(["git", "add", "-A"], cwd=tmp_path, check=True)
     return tmp_path
 
@@ -83,6 +87,19 @@ class TestSymbolLinks:
         adr.write_text("# ADR 0006\n\nSee [`CONFIDENCE_SHOW_BELOW`](../../src/nope.py).\n")
         errors = run_rule(checker, repo, checker.check_symbol_links)
         assert any("does not exist" in error for error in errors)
+
+    def test_document_inventory_includes_templates_and_prompts(self, checker, repo):
+        (repo / "prompts/untracked note.md").write_text("# Untracked prompt\n")
+        original_root = checker.REPO_ROOT
+        checker.REPO_ROOT = repo
+        try:
+            files = checker.doc_files()
+        finally:
+            checker.REPO_ROOT = original_root
+
+        assert Path(".github/pull_request_template.md") in files
+        assert Path("prompts/sentinel.md") in files
+        assert Path("prompts/untracked note.md") in files
 
 
 class TestSymbolPaths:

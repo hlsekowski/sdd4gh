@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """Check documentation links and paths resolve.
 
-Verifies that markdown links, anchors and backticked repo paths in
-README.md, AGENTS.md and docs/** resolve on the current checkout.
+Verifies that local Markdown references resolve across the repository.
 """
 
 import re
 import subprocess
 import sys
 from pathlib import Path
+from urllib.parse import urlsplit
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -31,11 +31,9 @@ def _this_repo_blob_prefix() -> str:
     return f"{slug}/blob/"
 
 
-# Documentation roots to check.
-DOC_ROOTS = (Path("README.md"), Path("AGENTS.md"), Path("docs"))
-
-# Top-level directories a backticked repo path may be rooted in.
-KNOWN_ROOTS = ("src", "tests", "scripts", "docs", "data", "example", ".github")
+# File suffixes that identify a backticked repository-file reference.
+REPO_FILE_SUFFIXES = {".md", ".py", ".json", ".toml", ".yaml", ".yml", ".txt", ".sh"}
+REPO_ROOTS = {"src", "tests", "scripts", "docs", "data", "example", ".github", "prompts"}
 
 # Absolute blob/<branch> URLs to this repository are branch-dependent; use
 # relative links. URLs to other repositories have no relative equivalent
@@ -48,23 +46,33 @@ ALLOWLIST: set[str] = set()
 MARKDOWN_LINK = re.compile(r"\[([^\]]*)\]\(([^)]+)\)")
 BACKTICK_PATH = re.compile(r"`([^`]+)`")
 HEADING = re.compile(r"^#+\s+(.*)$", re.MULTILINE)
+ADR_REFERENCE = re.compile(r"\bADR (\d{4})")
+ADR_SECTION_REFERENCE = re.compile(
+    r"\bADR (\d{4})\s+§{1,2}\s*(\d+)"
+    r"(?:\s*[–-]\s*§{1,2}\s*(\d+))?"
+)
+NUMBERED_HEADING = re.compile(r"^#{2,6}\s+(\d+)[a-z]?(?:[.:)]|\s)", re.MULTILINE)
 
 
 def tracked_markdown() -> list[Path]:
-    """Markdown files tracked by git under the documentation roots."""
+    """Tracked and unignored untracked Markdown files anywhere in the repository."""
     result = subprocess.run(
-        ["git", "ls-files", "*.md"],
+        [
+            "git",
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "*.md",
+        ],
         capture_output=True,
         text=True,
         cwd=REPO_ROOT,
         check=True,
     )
-    files = []
-    for name in result.stdout.split():
-        path = Path(name)
-        if any(path == root or root in path.parents for root in DOC_ROOTS):
-            files.append(path)
-    return files
+    return sorted(Path(name) for name in result.stdout.split("\0") if name)
 
 
 def is_allowlisted(path: Path) -> bool:
@@ -84,13 +92,16 @@ def heading_slugs(path: Path) -> set[str]:
 
 def looks_like_repo_path(text: str) -> bool:
     """A backticked string that names a repository path."""
-    if text.startswith(("http://", "https://", "~", "$", "<", "./", "../")):
+    if text.startswith(("http://", "https://", "mailto:", "~", "$", "<", "/")):
         return False
     if "*" in text or " " in text or "\n" in text:
         return False
-    if not text.startswith(KNOWN_ROOTS):
+    file_path = text.partition("#")[0]
+    if Path(file_path).suffix.lower() not in REPO_FILE_SUFFIXES:
         return False
-    return bool(re.search(r"\.[a-zA-Z]{1,4}$", text))
+    if file_path.startswith(("./", "../")):
+        return True
+    return Path(file_path).parent == Path(".") or Path(file_path).parts[0] in REPO_ROOTS
 
 
 def edges(text: str, base: Path, root: Path) -> set[Path]:
@@ -129,6 +140,17 @@ def check_file(path: Path, repo_root: Path | None = None) -> list[str]:
         line = text[: match.start()].count("\n") + 1
 
         if target.startswith(("http://", "https://", "mailto:", "#")):
+            if target.startswith(("http://", "https://")):
+                try:
+                    parsed = urlsplit(target)
+                except ValueError:
+                    errors.append(f"{path}:{line}: malformed URL: {target}")
+                    continue
+                if any(character.isspace() for character in target) or not parsed.netloc:
+                    errors.append(
+                        f"{path}:{line}: URL contains whitespace or has no host: {target}"
+                    )
+                    continue
             if target.startswith(REPO_BLOB_PREFIX):
                 errors.append(
                     f"{path}:{line}: absolute repository URL {target} "
@@ -167,33 +189,62 @@ def check_file(path: Path, repo_root: Path | None = None) -> list[str]:
         if not looks_like_repo_path(candidate):
             continue
         line = text[: match.start()].count("\n") + 1
-        if not (REPO_ROOT / candidate).exists():
+        file_part, _, anchor = candidate.partition("#")
+        if file_part.startswith(("./", "../")):
+            resolved = (path.parent / file_part).resolve()
+        else:
+            resolved = (root / file_part).resolve()
+        try:
+            resolved.relative_to(root)
+        except ValueError:
+            errors.append(f"{path}:{line}: path {candidate} resolves outside the repository")
+            continue
+        if not resolved.exists():
             errors.append(f"{path}:{line}: path does not exist: {candidate}")
+            continue
+        if anchor and anchor not in heading_slugs(resolved):
+            errors.append(f"{path}:{line}: anchor #{anchor} not found in {file_part}")
 
     return errors
 
 
-def check_adr_references(files: list[Path]) -> list[str]:
-    """Textual 'ADR NNNN' references must map to an existing ADR file."""
+def check_adr_references(files: list[Path], repo_root: Path | None = None) -> list[str]:
+    """Textual ADR and numbered section references must resolve to an ADR."""
+    root = (repo_root or REPO_ROOT).resolve()
     errors: list[str] = []
-    existing = set()
-    for path in (REPO_ROOT / "docs" / "adr").glob("*.md"):
+    existing: dict[int, Path] = {}
+    for path in (root / "docs" / "adr").glob("*.md"):
         match = re.match(r"(\d{4})-", path.name)
         if match:
-            existing.add(int(match.group(1)))
+            existing[int(match.group(1))] = path
 
     for path in files:
         text = path.read_text()
-        for match in re.finditer(r"ADR (\d{4})", text):
-            if int(match.group(1)) not in existing:
+        for match in ADR_REFERENCE.finditer(text):
+            number = int(match.group(1))
+            if number not in existing:
                 line = text[: match.start()].count("\n") + 1
-                errors.append(f"{path}:{line}: ADR {match.group(1)} has no file in docs/adr/")
+                errors.append(f"{path}:{line}: ADR {number:04d} has no file in docs/adr/")
+
+        for match in ADR_SECTION_REFERENCE.finditer(text):
+            number = int(match.group(1))
+            adr_path = existing.get(number)
+            if adr_path is None:
+                continue
+            sections = {int(section) for section in NUMBERED_HEADING.findall(adr_path.read_text())}
+            start = int(match.group(2))
+            end = int(match.group(3) or start)
+            referenced_sections = range(start, end + 1) if end >= start else (start, end)
+            line = text[: match.start()].count("\n") + 1
+            for section in referenced_sections:
+                if section not in sections:
+                    errors.append(f"{path}:{line}: ADR {number:04d} has no section {section}")
     return errors
 
 
 def main() -> int:
     files = [path for path in tracked_markdown() if not is_allowlisted(path)]
-    print(f"Checking {len(files)} documentation files for unresolved references...")
+    print(f"Checking {len(files)} Markdown files repository-wide for unresolved references...")
 
     errors: list[str] = []
     for path in files:

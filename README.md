@@ -30,14 +30,16 @@ from sdd4gh.services.workflow_orchestrator import WorkflowOrchestrator
 
 ## Shared symbols
 
-`CONFIDENCE_SHOW_BELOW`, `EVALUATION_RESULTS`, `WORKFLOW_COMMENT_MARKER`
-and `ModelClientProtocol` are published here for a consuming application to
-import, so both sides agree on one definition.
+[`CONFIDENCE_SHOW_BELOW`](src/sdd4gh/contracts/constants.py),
+[`EVALUATION_RESULTS`](src/sdd4gh/contracts/constants.py),
+[`WORKFLOW_COMMENT_MARKER`](src/sdd4gh/contracts/constants.py) and
+[`ModelClientProtocol`](src/sdd4gh/contracts/ports.py) are published for a
+consuming application to import, so both sides agree on one definition.
 
 ## Checks
 
 ```bash
-pytest                                     # 491 tests
+pytest                                     # mocked HTTP, no live model
 ruff check . && ruff format --check .
 python3 -m mypy src/sdd4gh
 python3 scripts/check_doc_links.py
