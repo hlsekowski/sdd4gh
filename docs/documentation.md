@@ -24,6 +24,65 @@ ADRs keep their existing template and `Status` field; the header is added above 
 
 - `AGENTS.md` and `README.md` are entry files and keep their own format.
 
+## Documentation quality policy (DQ1–DQ5)
+
+These principles govern every document under `docs/`, `AGENTS.md`, and `README.md`.
+
+### DQ1 — Minimum sufficient information
+
+Every document contains the information necessary for its intended purpose and audience. Remove:
+
+- Repeated explanations.
+- Redundant introductions and conclusions.
+- Information that adds no practical value.
+- Generic advice that does not influence project behavior.
+- Obsolete instructions.
+
+Do not remove information solely to reduce length.
+
+### DQ2 — Information density
+
+Prefer precise, actionable statements; clear headings; structured information where appropriate; examples that clarify non-obvious behavior; and explicit conditions, exceptions, and consequences. Avoid unnecessarily verbose explanations, ambiguous instructions, repeating the same concept in multiple forms, and excessive nested structures.
+
+### DQ3 — Single source of truth
+
+Each project rule, requirement, or decision has one authoritative location. Other documents reference that location rather than reproduce its content. Distinguish between normative rules, explanatory material, and references to other documents.
+
+### DQ4 — Audience and context
+
+Apply different standards to different document types:
+
+| Document | Standard |
+|---|---|
+| `AGENTS.md` | Minimal, actionable, always-relevant agent instructions |
+| `README.md` | Project introduction and onboarding |
+| Procedures | Sufficient detail for reliable execution |
+| ADRs | Complete decision rationale, alternatives, and consequences |
+| Specifications | Complete requirements, constraints, and acceptance criteria |
+| Historical documentation | Preserve useful historical context and decisions |
+
+Do not introduce universal word-count or line-count limits for all Markdown files. Retain existing justified limits (AGENTS.md: 40 lines, README.md: 80 lines).
+
+### DQ5 — Preserve decision integrity
+
+Never simplify documentation by removing:
+
+- Explicit requirements.
+- Architectural decisions.
+- Decision rationale.
+- Important alternatives and trade-offs.
+- Acceptance criteria.
+- Constraints and assumptions.
+- Security requirements.
+- Exceptions.
+- Dependencies and consequences.
+
+Never change an accepted ADR decision or status as part of documentation optimization.
+
+## Enforcement
+
+Blocking rules are validated mechanically by the documentation checkers under `scripts/` and run on every commit through pre-commit and CI. Advisory rules (semantic quality such as unnecessary explanations or duplicated meaning) require human or AI-agent review and are not enforced by pre-commit.
+
 Intentional removals of code paths are recorded in the
 [dropped code paths catalog](dropped-code-paths.md).
 
