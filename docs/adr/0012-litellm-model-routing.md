@@ -12,8 +12,6 @@ Accepted
 
 ADR 0004 defines the worker/task execution model but deliberately selects no runtime technology. Its §9 requires a separate decision for each runtime technology when introduced.
 
-LiteLLM is not in the source-project [qnagym#55](https://github.com/hlsekowski/qnagym/issues/55), [qnagym#98](https://github.com/hlsekowski/qnagym/issues/98), or [qnagym#9](https://github.com/hlsekowski/qnagym/issues/9). It was introduced into ADR 0008 by the merged [qnagym#101 PR](https://github.com/hlsekowski/qnagym/pull/101) without a prior issue scoping it. This ADR records that provenance.
-
 ADR 0008 previously bundled LangGraph, OpenCode, Kubernetes, and LiteLLM into a single decision record. This ADR separates the LiteLLM decision as required by ADR 0004 §9.
 
 ## Decision
@@ -61,5 +59,4 @@ The LiteLLM team confirmed that PyPI versions 1.82.7 and 1.82.8 were compromised
 - [ADR 0004: Worker and Task Execution Model](0004-worker-task-model.md) — worker/task invariants and runtime neutrality
 - [ADR 0008: Workflow runtime and model-routing selection](0008-workflow-runtime-and-model-routing.md) — umbrella decision record
 - AI provider policy — model configuration, privacy, and zero-cost provider constraints
-- [hlsekowski/qnagym#101](https://github.com/hlsekowski/qnagym/pull/101) — merged source-project PR introducing LiteLLM Proxy with Auto Routing into ADR 0008; no prior issue scoped LiteLLM
 - [Project constitution](../constitution.md) — constraints for technology selection

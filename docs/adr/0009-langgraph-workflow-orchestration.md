@@ -12,8 +12,6 @@ Accepted
 
 ADR 0004 defines the worker/task execution model but deliberately selects no runtime technology. Its §9 requires a separate decision for each runtime technology when introduced.
 
-The project owner identified LangGraph as part of the initial plan in the [qnagym#55 decision log](https://github.com/hlsekowski/qnagym/issues/55), with the qualifier that the plan "is not written in stone." [qnagym#98](https://github.com/hlsekowski/qnagym/issues/98) recorded LangGraph as a candidate workflow runtime; that issue selected no runtime.
-
 ADR 0008 previously bundled LangGraph, OpenCode, Kubernetes, and LiteLLM into a single decision record. This ADR separates the LangGraph decision as required by ADR 0004 §9.
 
 ## Decision
@@ -50,6 +48,4 @@ Until the gate is passed, LangGraph graph logic may be prototyped in application
 - [ADR 0003: Local AI-Driven Development Workflow](0003-local-development-workflow.md) — local-first and zero-cost constraints
 - [ADR 0004: Worker and Task Execution Model](0004-worker-task-model.md) — worker/task invariants and runtime neutrality
 - [ADR 0008: Workflow runtime and model-routing selection](0008-workflow-runtime-and-model-routing.md) — umbrella decision record
-- [hlsekowski/qnagym#55](https://github.com/hlsekowski/qnagym/issues/55) — source-project audit recording the owner's initial plan
-- [hlsekowski/qnagym#98](https://github.com/hlsekowski/qnagym/issues/98) — closed source-project issue proposing LangGraph as a runtime candidate
 - [Project constitution](../constitution.md) — constraints for technology selection

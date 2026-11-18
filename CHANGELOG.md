@@ -4,4 +4,4 @@ Notable project changes are recorded under `Unreleased` and updated for each pul
 
 ## Unreleased
 
-- Audited and repaired Markdown references; extended reference checks to all repository Markdown files.
+- Audited and repaired Markdown references, removed cross-repository issue citations, and extended checks to all repository Markdown files.
