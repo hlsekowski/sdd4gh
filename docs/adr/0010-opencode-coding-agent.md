@@ -20,7 +20,7 @@ ADR 0008 previously bundled LangGraph, OpenCode, Kubernetes, and LiteLLM into a 
 
 Use [OpenCode](https://opencode.ai/docs/) as the coding-agent execution technology for the SDD process.
 
-OpenCode performs the SDD coding-agent role. Its configurable provider endpoint supports connecting to an OpenAI-compatible local model endpoint. OpenCode must be configured and tested against a local model endpoint before it is used for project work. Paid APIs, subscriptions, or cloud model defaults are not authorized.
+OpenCode performs the SDD coding-agent role. Its configurable provider endpoint supports connecting to an OpenAI-compatible local model endpoint. The project configuration defaults every agent to local inference. A non-local provider may be used only when its no-charge terms and account safeguards have been verified; paid API usage, subscriptions, and defaults that can incur charges are not authorized. OpenCode configuration alone cannot verify a provider's billing terms.
 
 OpenCode can use the LiteLLM OpenAI-compatible endpoint (ADR 0012) without taking over workflow orchestration.
 
@@ -29,12 +29,12 @@ OpenCode can use the LiteLLM OpenAI-compatible endpoint (ADR 0012) without takin
 ### Positive
 
 - Strong fit alongside LangGraph and LiteLLM for the SDD coding-agent role.
-- Supports a local model endpoint, preserving the project's zero-cost constraint.
+- Defaults to a local model endpoint, preserving the project's zero-cost constraint while allowing verified no-charge alternatives.
 - Separate ADR per technology as ADR 0004 §9 requires.
 
 ### Limitations
 
-- OpenCode must be configured and tested against a local model endpoint before project use.
+- Local inference is the default. Developers who explicitly select a non-local provider must verify that the provider and account cannot incur charges.
 - OpenCode does not replace workflow orchestration; that remains LangGraph's concern (ADR 0009).
 
 ## Related

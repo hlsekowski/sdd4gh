@@ -1,8 +1,8 @@
 # Development
 
-> **Purpose:** Developer-only notes: environment setup, the commands to run, and the development-only model list.
-> **Read when:** setting up the repo, running checks, or choosing a development model.
-> **Owns:** the local setup commands, the development-only model list, and the pointer to the AI provider policy. The workflow sequence is owned by [`docs/workflow.md`](workflow.md).
+> **Purpose:** Developer-only notes: environment setup, checks, and development model configuration.
+> **Read when:** setting up the repo, running checks, or using the OpenCode coding agent.
+> **Owns:** local setup commands, development model notes, and the OpenCode setup pointer. The workflow sequence is owned by [`docs/workflow.md`](workflow.md).
 
 Developer-only notes. End users start at [`README.md`](../README.md).
 
@@ -16,144 +16,93 @@ pip install -e ".[dev]"
 
 Development and testing was done on a Mac Air M4 with 16GB RAM.
 
-## Tests
-
-```bash
-pytest   # mocked HTTP; no live model
-```
-
-See [`docs/testing.md`](testing.md) for complete testing standards (organization, mocking, coverage, naming, failure paths).
-
-## Local validation
-
-Run every check before opening a PR. The full list lives in `AGENTS.md`'s Commands block:
+## Tests and local validation
 
 ```bash
 pytest                      # tests (mocked HTTP, no live model)
-ruff check . && ruff format --check .   # lint
-python3 -m mypy src/sdd4gh              # type-check
-python3 scripts/check_traceability.py   # doc checks
+ruff check . && ruff format --check .
+python3 -m mypy src/sdd4gh
+python3 scripts/check_traceability.py
 python3 scripts/check_doc_defaults.py
 python3 scripts/check_doc_links.py
 python3 scripts/check_doc_structure.py
 ```
 
-`mypy` is in the `dev` extra, so `pip install -e ".[dev]"` provides every Python check above. `pre-commit` is not; install it separately or use `pre-commit run --all-files`, which provisions its own environments. The `gitleaks` and `cz` (commitlint) hooks are `language: system` and need those binaries on `PATH`.
+See [`docs/testing.md`](testing.md) for testing standards. `mypy` is in the `dev` extra. `pre-commit` is not; install it separately or use `pre-commit run --all-files`, which provisions its own environments. The `gitleaks` and `cz` (commitlint) hooks are `language: system` and need those binaries on `PATH`.
 
 ## Spec-first change workflow
 
-The spec-first workflow sequence is owned by the workflow hub: [`docs/workflow.md`](workflow.md).
-
-The workflow model and its decision gate are decided in [ADR 0003](adr/0003-local-development-workflow.md). The AI workflow's PR Process (feedback evaluation, check monitoring, corrections, lifecycle) is defined in [ADR 0006](adr/0006-pr-process.md).
+The workflow sequence is owned by [`docs/workflow.md`](workflow.md). The workflow model and its decision gate are decided in [ADR 0003](adr/0003-local-development-workflow.md). The AI workflow's PR process is defined in [ADR 0006](adr/0006-pr-process.md).
 
 ## Models used for development
 
-Not for end users. Used to write and review these docs and for local agent tooling.
+Not for end users. Used for documentation and local agent tooling.
 
 | Model | Endpoint | Use |
 |---|---|---|
-| `qwen3.5:4b` | `http://127.0.0.1:11434/v1` (Ollama) | Local model for VS Code Copilot integration; fast, low resource. Used for development only; **not used to run the framework**. |
-| `nemotron-3.5-super-vl-120b-a12b` | `https://build.nvidia.com/nvidia/nemotron-3.5-super-vl-120b-a12b` | **Recommended** for documentation review: handles larger codebases reliably. Free-tier cloud alternative for development. |
+| `qwen3.5:4b` | `http://127.0.0.1:11434/v1` (Ollama) | Local model for VS Code Copilot integration; not used to run the framework. |
+| `nemotron-3.5-super-vl-120b-a12b` | NVIDIA NIM | Optional non-local model. The project permits it only when its no-charge terms and account safeguards are verified. |
 
-Standard-use models are listed in [`docs/adr/0012-litellm-model-routing.md`](adr/0012-litellm-model-routing.md).
+Standard-use models are listed in [ADR 0012](adr/0012-litellm-model-routing.md).
 
-### OpenCode coding-agent configuration (ADR 0010)
+## OpenCode coding-agent configuration (ADR 0010)
 
-OpenCode is configured as the SDD coding agent via a project-level
-`opencode.json` at the repository root. It connects to a local
-OpenAI-compatible model endpoint; no cloud provider, no paid API key, and
-no non-local default model are configured.
+The canonical project configuration is [`opencode.json`](../opencode.json). It uses the native OpenCode V2 keys `providers`, `agents`, and `commands`. All five agents inherit the local default model, `ollama/gemma4-12b-32k`. The NVIDIA provider is optional and is not assigned to an agent by default; its API key is read from `~/.secrets/nvidia_key`, never committed.
 
-OpenCode v2 is required. OpenCode v1 uses a different config schema and
-would silently ignore this `opencode.json`.
+OpenCode V2 is required. Install it using the [official instructions](https://opencode.ai/docs/). For local inference, run an OpenAI-compatible model server such as Ollama on the loopback address configured in `opencode.json`.
 
-### Prerequisites
-
-- Install OpenCode v2: see the official install docs at
-  https://opencode.ai/docs/ (for example `brew install anomalyco/tap/opencode-v2` on macOS).
-- Run a local OpenAI-compatible model server (Ollama, llama.cpp, or vLLM)
-  on your machine's loopback address.
-
-### Config
-
-The project config (`opencode.json`) defines a single `local` provider
-using the OpenAI-compatible adapter. It uses OpenCode v2 variable
-substitution (`{env:VARIABLE_NAME}`) so no tracked file needs editing for
-machine-specific values:
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "model": "{env:OPENCODE_MODEL}",
-  "policies": [
-    { "action": "provider.use", "resource": "*", "effect": "deny" },
-    { "action": "provider.use", "resource": "local", "effect": "allow" }
-  ],
-  "providers": {
-    "local": {
-      "name": "Local model endpoint",
-      "env": ["LOCAL_API_KEY"],
-      "package": "@opencode/ai/providers/openai-compatible",
-      "settings": {
-        "baseURL": "{env:OPENCODE_BASE_URL}"
-      },
-      "models": {
-        "model-id": {
-          "name": "Local model"
-        }
-      }
-    }
-  }
-}
-```
-
-Before running OpenCode, set these environment variables in your shell:
-
-- `OPENCODE_BASE_URL` — your local endpoint, e.g. `http://localhost:11434/v1` for Ollama.
-- `OPENCODE_MODEL` — your local model name, e.g. `qwen2.5:7b`.
-- `LOCAL_API_KEY` — set to none or the dummy value `<local>`; never commit a real secret.
-
-The `policies` section denies all providers by default and allows only
-`local`, so OpenCode cannot offer hosted/free models or any provider whose
-API key happens to be in the environment.
-
-### Running OpenCode against the local endpoint
+Create the configured local model from [`Modelfile`](../Modelfile):
 
 ```bash
-OPENCODE_BASE_URL=http://localhost:11434/v1 \
-  OPENCODE_MODEL=qwen2.5:7b \
-  opencode run "your task"
+ollama create gemma4-12b-32k -f Modelfile
 ```
 
-OpenCode resolves `local/qwen2.5:7b` through the `local` provider and sends
-requests to `http://localhost:11434/v1`. No cloud provider is involved.
+Load and inspect the project config without making a model request:
 
-### Smoke test results (ADR 0010 validation)
+```bash
+opencode --version
+opencode debug config
+opencode debug agents
+```
 
-OpenCode was configured and tested against a local model endpoint as ADR 0010
-requires:
+This confirms config loading and agent discovery only. It does not prove model availability, tool-calling quality, delegation, or permission outcomes. Automated tests do not require a live model or provider credentials.
+
+### Runtime evidence
+
+The installed OpenCode CLI successfully loaded the project config and discovered
+all five configured agents (`opencode v2.3.0`). `opencode models` listed both
+`ollama/gemma4-12b-32k` and the optional
+`nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b`.
+The config also passed the official `https://opencode.ai/config.json` schema,
+including its referenced `https://models.dev/model-schema.json` model schema,
+using a temporary `jsonschema 4.26.0` install (no project dependency added).
+
+The current local default was also exercised with a read-only tool call:
 
 | Field | Value |
 |---|---|
 | OpenCode version | v2.3.0 |
-| Model | `qwen2.5:7b` (Ollama) |
+| Model / agent | `ollama/gemma4-12b-32k` / `sentinel` |
+| Command | `opencode run --model ollama/gemma4-12b-32k --agent sentinel "For a read-only configuration smoke test, use the read tool to read AGENTS.md and report only its first non-empty line. Do not use GitHub, shell, or editing tools."` |
+| Result | The local model called the read tool and returned `# Agent instructions`. |
+
+This verifies a local model request and a read tool call only; delegation and
+other permission outcomes have not been independently runtime-tested.
+
+A harmless compound-shell check using the same OpenCode version, model, and
+agent attempted `git status --short; printf scanner-smoke`. OpenCode returned
+`Error: Permission denied: shell`; no subcommand ran. Edit denial, staging
+approval, force-push denial, pipes/redirection, and delegation have not been
+independently runtime-tested.
+
+The prior local smoke test also used Qwen before Gemma became the default:
+
+| Field | Value |
+|---|---|
+| OpenCode version | v2.3.0 |
+| Model | `ollama/qwen3-8b-16k` |
 | Endpoint | `http://localhost:11434/v1` |
-| Command | `OPENCODE_BASE_URL=http://localhost:11434/v1 OPENCODE_MODEL=qwen2.5:7b opencode run --auto --model local/qwen2.5:7b "Add a docstring to the add function in example.py. Only modify example.py, no other files."` |
-| Tool calling | ✅ Worked — `write` tool used to modify `example.py` |
-| Result | ✅ Docstring added to `add` function |
+| Command | `OPENCODE_BASE_URL=http://localhost:11434/v1 OPENCODE_MODEL=qwen3-8b-16k opencode run --auto --model ollama/qwen3-8b-16k "Add a docstring to the add function in example.py. Only modify example.py, no other files."` |
+| Result | The local model used the write tool to add a docstring in a scratch workspace. |
 
-The smoke test ran in a scratch workspace (not on the feature branch). OpenCode
-successfully connected to the local Ollama endpoint, used tool calling, and
-added `"""Add two numbers."""` to the `add` function.
-
-## AI / Provider Policy
-
-See `docs/ai_provider_policy.md` for complete standards on:
-- Provider configuration (single config source, precedence, validation)
-- Standard-use vs development-only models
-- Model pinning, reproducibility (temperature, seed)
-- Timeouts, retries, structured output validation
-- Prompt management (versioned, reviewed like code)
-- Privacy & data handling (what leaves local machine)
-- Model drift monitoring
-- Prompt injection mitigations
+The environment variables shown are part of the historical command; the current project config does not interpolate them. That result does not verify the current Gemma default, delegated-agent behavior, or permission boundaries. The owner reports successful use of `nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b`; this task does not independently verify a hosted request or any other model. See [ADR 0010](adr/0010-opencode-coding-agent.md) for the zero-cost policy.
