@@ -37,10 +37,10 @@ Model calls default to zero cost: no paid API usage, subscriptions, or billable 
 
 ## Related
 
-- [Constitution S5: Zero-cost AI](../constitution.md)
-- [ADR 0010: OpenCode coding-agent execution](../adr/0010-opencode-coding-agent.md)
-- [ADR 0008: Workflow runtime and model-routing selection](../adr/0008-workflow-runtime-and-model-routing.md)
-- [ADR 0010 Implementation Specification](../specs/adr-0010-implementation-spec.md)
-- [ADR 0012: LiteLLM model routing](../adr/0012-litellm-model-routing.md)
+- [Constitution S5: Zero-cost AI](constitution.md)
+- [ADR 0010: OpenCode coding-agent execution](adr/0010-opencode-coding-agent.md)
+- [ADR 0008: Workflow runtime and model-routing selection](adr/0008-workflow-runtime-and-model-routing.md)
+- [ADR 0010 Implementation Specification](specs/adr-0010-implementation-spec.md)
+- [ADR 0012: LiteLLM model routing](adr/0012-litellm-model-routing.md)
 - Issue #15: docs(opencode): define zero-cost provider policy with local as an option
 - Issue #1: Configure OpenCode against a local model endpoint (ADR 0010)
