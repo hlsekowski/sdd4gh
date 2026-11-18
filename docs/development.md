@@ -56,6 +56,21 @@ The canonical project configuration is [`opencode.json`](../opencode.json). It u
 
 OpenCode V2 is required. Install it using the [official instructions](https://opencode.ai/docs/). For local inference, run an OpenAI-compatible model server such as Ollama on the loopback address configured in `opencode.json`.
 
+The repeatable, developer-only configuration check is pinned to OpenCode
+`v2.3.0` and uses the CLI's bundled config schema:
+
+```bash
+python3 scripts/check_opencode_config.py
+```
+
+It runs `opencode debug config` and `opencode debug agents`, verifies the five
+project agents, and fails if the CLI version differs. It downloads no schema,
+makes no model request, and is not required in offline CI. The config declares
+the official schema at `https://opencode.ai/config.json`; its model definitions
+reference `https://models.dev/model-schema.json`. The separate schema check
+recorded below used `jsonschema 4.26.0`; those URLs are live and are not fetched
+by the repeatable local check.
+
 Create the configured local model from [`Modelfile`](../Modelfile):
 
 ```bash

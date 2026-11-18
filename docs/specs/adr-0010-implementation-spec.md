@@ -24,7 +24,7 @@ The repository-root `opencode.json` uses OpenCode's native V2 configuration:
 - All agents inherit the local default model. A configured non-local model is optional and is never assigned to an agent by default.
 - No paid API usage, subscriptions, or defaults that can incur charges are authorized. A non-local provider may be used only after its no-charge terms and account safeguards are verified. The configuration cannot establish or enforce those billing terms. Local inference is one supported zero-cost option, not the only permitted option.
 - The default Ollama endpoint is the fixed loopback URL `http://localhost:11434/v1`. Environment substitution is not part of this contract; machine-specific overrides belong in an untracked local OpenCode config.
-- Automated tests are offline and make no model calls. The installed OpenCode CLI is used to load and inspect the project config; local-model and delegation smoke tests remain opt-in.
+- Automated tests are offline and make no model calls. The developer-only `python3 scripts/check_opencode_config.py` check requires OpenCode CLI `v2.3.0`, whose bundled schema validates the project config while `debug agents` verifies the configured agents. The check downloads no schema and makes no model call; CI does not require OpenCode. Local-model and delegation smoke tests remain opt-in.
 
 LangGraph orchestration, LiteLLM workflow-agent routing, Kubernetes, application contracts, and application model routing are out of scope.
 
@@ -61,6 +61,7 @@ OpenCode's shell scanner evaluates extracted subcommands and reports commands it
 | 5 | The OpenCode CLI loads the config and discovers all five agents. | `opencode --version`, `opencode debug config`, and `opencode debug agents`; record the exact version and result in developer documentation. |
 | 6 | Tests make no network or model calls and no runtime dependency is added. | `pytest` and `pyproject.toml` dependency check. |
 | 7 | All documentation describes the current config and the zero-cost policy consistently. | Traceability, doc-default, doc-link, and doc-structure checks. |
+| 8 | The local CLI validation procedure is repeatable and rejects an unpinned CLI version without downloading a schema or making a model request. | `python3 scripts/check_opencode_config.py`; unit tests in `tests/unit/scripts/test_check_opencode_config.py`. |
 
 The CLI load/discovery check does not prove model availability, tool-calling quality, delegation, or permission outcomes. Those require an opt-in runtime smoke test with the selected model and are not CI requirements.
 
