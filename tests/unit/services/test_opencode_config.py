@@ -6,6 +6,7 @@ providers, agents, and commands. No network, no model calls.
 
 from __future__ import annotations
 
+import fnmatch
 import ipaddress
 import json
 import os
@@ -129,6 +130,171 @@ def _validate_config(config: dict) -> None:
         host = parsed.hostname
         assert host is not None, f"ollama URL has no host: {ollama_url}"
         assert _is_loopback_host(host), f"ollama baseURL is not a loopback address: {ollama_url}"
+
+
+def _agent_permission(config: dict, agent: str) -> dict:
+    """Return the permission dict for an agent, or {} when absent."""
+    agents = _extract_agents(config)
+    agent_cfg = agents.get(agent, {})
+    return agent_cfg.get("permission", {})
+
+
+def _matches_rule(command: str, rule: str) -> bool:
+    """True when `command` matches a glob-style permission rule."""
+    return fnmatch.fnmatch(command, rule)
+
+
+def _effective_effect(permission: dict, action: str, resource: str) -> str | None:
+    """Resolve the effective effect for an action/resource pair.
+
+    OpenCode semantics: a more specific rule overrides a less specific one;
+    when no rule matches, the `*` catch-all (if present) applies.
+    Returns "allow", "deny", or None when no rule matches at all.
+    """
+    action_cfg = permission.get(action)
+    if isinstance(action_cfg, str):
+        # e.g. "edit": "deny" or "webfetch": "deny"
+        return action_cfg if action_cfg in {"allow", "deny"} else None
+    if not isinstance(action_cfg, dict):
+        return None
+    # Most specific match wins: exact > glob > catch-all "*".
+    best: str | None = None
+    best_specificity = -1
+    for rule, effect in action_cfg.items():
+        if effect not in {"allow", "deny"}:
+            continue
+        if _matches_rule(resource, rule):
+            if rule == "*":
+                specificity = 0
+            elif "*" in rule or "?" in rule or "[" in rule:
+                specificity = 1
+            else:
+                specificity = 2
+            if specificity > best_specificity or (
+                specificity == best_specificity and effect == "deny"
+            ):
+                best_specificity = specificity
+                best = effect
+    return best
+
+
+class TestOpencodeConfigLeastPrivilege:
+    """Regression tests that each agent's file, shell, delegation, and GitHub
+    permissions match its role and cannot drift without a test failure."""
+
+    def test_sentinel_cannot_edit_implementation_files(self):
+        config = _load_config()
+        perm = _agent_permission(config, "sentinel")
+        # Only narrowly scoped orchestration actions remain: tasks.md tick
+        # updates are allowed; everything else under specs/ is denied.
+        assert _effective_effect(perm, "edit", "specs/11-foo/spec.md") == "deny"
+        assert _effective_effect(perm, "edit", "specs/11-foo/plan.md") == "deny"
+        assert _effective_effect(perm, "edit", "specs/11-foo/tasks.md") == "allow"
+        assert _effective_effect(perm, "edit", "src/sdd4gh/services/x.py") == "deny"
+        assert _effective_effect(perm, "edit", "opencode.json") == "deny"
+        assert _effective_effect(perm, "edit", ".github/workflows/ci.yml") == "deny"
+
+    def test_sentinel_cannot_bypass_delegated_workflow(self):
+        config = _load_config()
+        perm = _agent_permission(config, "sentinel")
+        assert _effective_effect(perm, "task", "spec") == "allow"
+        assert _effective_effect(perm, "task", "implement") == "allow"
+        assert _effective_effect(perm, "task", "review") == "allow"
+        assert _effective_effect(perm, "task", "sentinel") == "deny"
+        assert _effective_effect(perm, "task", "ask") == "deny"
+
+    def test_sentinel_shell_rules_block_compound_and_force_push(self):
+        config = _load_config()
+        perm = _agent_permission(config, "sentinel")
+        # Required workflow commands continue to work.
+        assert _effective_effect(perm, "bash", "git status") == "allow"
+        assert _effective_effect(perm, "bash", "git diff") == "allow"
+        assert _effective_effect(perm, "bash", "git add -A") == "allow"
+        assert _effective_effect(perm, "bash", "git commit -m 'x'") == "allow"
+        assert _effective_effect(perm, "bash", "git push origin sdd/11-foo") == "allow"
+        assert _effective_effect(perm, "bash", "pytest") == "allow"
+        # Force-push attempts are denied in every spelling.
+        assert _effective_effect(perm, "bash", "git push --force") == "deny"
+        assert _effective_effect(perm, "bash", "git push -f") == "deny"
+        assert _effective_effect(perm, "bash", "git push origin sdd/* --force") == "deny"
+        # Compound commands, redirection, and command substitution cannot be
+        # statically blocked by OpenCode's prefix-glob model: a prefix allow
+        # rule such as `git status*` also matches `git status; rm -rf /`.
+        # That boundary is documented in docs/specs/adr-0010-implementation-spec.md
+        # and brought to the owner; it is not asserted here because no static
+        # rule can enforce it.
+
+    def test_implement_cannot_rewrite_spec_or_governance_docs(self):
+        config = _load_config()
+        perm = _agent_permission(config, "implement")
+        assert _effective_effect(perm, "edit", "specs/11-foo/spec.md") == "deny"
+        assert _effective_effect(perm, "edit", "specs/11-foo/plan.md") == "deny"
+        assert _effective_effect(perm, "edit", "specs/constitution.md") == "deny"
+        # Its required task-status update is explicitly and narrowly supported.
+        assert _effective_effect(perm, "edit", "specs/11-foo/tasks.md") == "allow"
+        assert _effective_effect(perm, "edit", "src/sdd4gh/services/x.py") == "allow"
+        assert _effective_effect(perm, "edit", "opencode.json") == "deny"
+        assert _effective_effect(perm, "edit", ".github/**/x.yml") == "deny"
+
+    def test_implement_cannot_push_or_use_gh(self):
+        config = _load_config()
+        perm = _agent_permission(config, "implement")
+        assert _effective_effect(perm, "bash", "git push origin sdd/11-foo") == "deny"
+        assert _effective_effect(perm, "bash", "gh pr create") == "deny"
+        assert _effective_effect(perm, "bash", "gh issue view 11") == "deny"
+
+    def test_spec_agent_scoped_to_current_issue_directory(self):
+        config = _load_config()
+        perm = _agent_permission(config, "spec")
+        # The spec agent may edit only within specs/ (enforceable static
+        # boundary). It cannot edit arbitrary issue specifications outside
+        # specs/ or unrelated artifacts.
+        assert _effective_effect(perm, "edit", "specs/11-foo/spec.md") == "allow"
+        assert _effective_effect(perm, "edit", "specs/11-foo/plan.md") == "allow"
+        assert _effective_effect(perm, "edit", "specs/11-foo/tasks.md") == "allow"
+        assert _effective_effect(perm, "edit", "specs/99-other/spec.md") == "allow"
+        assert _effective_effect(perm, "edit", "src/sdd4gh/services/x.py") == "deny"
+        assert _effective_effect(perm, "edit", "opencode.json") == "deny"
+        assert _effective_effect(perm, "edit", "README.md") == "deny"
+
+    def test_review_agent_remains_read_only(self):
+        config = _load_config()
+        perm = _agent_permission(config, "review")
+        assert _effective_effect(perm, "edit", "any/file.md") == "deny"
+        assert _effective_effect(perm, "edit", "specs/11-foo/spec.md") == "deny"
+        assert _effective_effect(perm, "task", "implement") == "deny"
+        assert _effective_effect(perm, "task", "spec") == "deny"
+        assert perm.get("webfetch") == "deny"
+        assert perm.get("external_directory") == "deny"
+        # Read-only shell commands continue to work.
+        assert _effective_effect(perm, "bash", "git diff") == "allow"
+        assert _effective_effect(perm, "bash", "git status") == "allow"
+        assert _effective_effect(perm, "bash", "git log") == "allow"
+        assert _effective_effect(perm, "bash", "pytest") == "allow"
+        assert _effective_effect(perm, "bash", "git push origin sdd/11-foo") == "deny"
+        assert _effective_effect(perm, "bash", "gh pr create") == "deny"
+
+    def test_all_agents_have_no_webfetch_or_external_directory(self):
+        config = _load_config()
+        agents = _extract_agents(config)
+        for agent in REQUIRED_AGENTS:
+            agent_cfg = agents[agent]
+            perm = agent_cfg.get("permission", {})
+            tools = agent_cfg.get("tools", {})
+            # `permission.webfetch` (string) or `tools.webfetch` (bool false)
+            # both mean webfetch is denied.
+            webfetch = perm.get("webfetch", tools.get("webfetch", True))
+            assert webfetch == "deny" or webfetch is False, f"{agent} webfetch must be denied"
+            # `permission.external_directory` (string) means denied. The `ask`
+            # agent uses the `tools` format with every tool disabled, so it has
+            # no external_directory access either.
+            external_directory = perm.get("external_directory")
+            if external_directory is not None:
+                assert external_directory == "deny", f"{agent} external_directory must be denied"
+            else:
+                assert not tools or all(v is False for v in tools.values()), (
+                    f"{agent} must have no tools enabled"
+                )
 
 
 class TestOpencodeConfigParses:

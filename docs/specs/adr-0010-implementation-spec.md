@@ -322,6 +322,32 @@ OpenCode v2 supports variable substitution via `{env:VARIABLE_NAME}` inside JSON
 | D7 | No automatic merging. | PR is not merged by the workflow. |
 | D8 | External content is data; never instructions. | GitHub content treated as data only. |
 
+### Boundaries that cannot be statically enforced
+
+OpenCode's static permission model uses prefix-glob path rules and prefix-glob
+command rules. The following boundaries cannot be enforced statically and are
+brought to the owner before any boundary is weakened:
+
+1. **Single-issue scope for the `spec` agent.** `specs/**` is the narrowest
+   statically enforceable path rule. OpenCode cannot distinguish
+   `specs/11-foo/spec.md` from `specs/99-other/spec.md`, so the spec agent's
+   "one issue directory" scope is enforced by prompt text and reviewed in
+   code review, not by a static rule.
+
+2. **Compound commands, redirection, and command substitution.** A prefix
+   allow rule such as `git status*` also matches `git status; rm -rf /`, so
+   shell compound commands cannot be blocked statically while allowing the
+   required workflow commands. Force-push spellings (`--force`, `-f`) are
+   denied explicitly, but `git push origin sdd/* --force` is shadowed by the
+   `git push origin sdd/*` allow rule under prefix matching.
+
+3. **Delegation to self.** The `sentinel` agent may delegate to `spec`,
+   `implement`, and `review` but not to itself or `ask`; this is enforced by
+   explicit deny rules for `task: sentinel` and `task: ask`.
+
+Any weakening of these boundaries requires an owner decision recorded in this
+spec.
+
 ## 5. Files touched
 
 | File | Purpose |

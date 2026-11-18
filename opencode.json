@@ -79,7 +79,8 @@
           "*.env.*": "deny"
         },
         "edit": {
-          "*": "allow",
+          "*": "deny",
+          "specs/**/tasks.md": "allow",
           ".github/**": "deny",
           "opencode.json": "deny",
           "prompts/**": "deny",
@@ -97,6 +98,15 @@
           "git push origin sdd/*": "allow",
           "git push*--force*": "deny",
           "git push* -f*": "deny",
+          "*--force*": "deny",
+          "* -f*": "deny",
+          "* && *": "deny",
+          "* | *": "deny",
+          "* ; *": "deny",
+          "* > *": "deny",
+          "* >> *": "deny",
+          "* $( *": "deny",
+          "* ` *": "deny",
           "gh issue view*": "allow",
           "gh issue comment*": "allow",
           "gh pr create*": "allow",
@@ -135,7 +145,12 @@
         "bash": {
           "*": "deny",
           "gh issue view*": "allow"
-        }
+        },
+        "task": {
+          "*": "deny"
+        },
+        "webfetch": "deny",
+        "external_directory": "deny"
       }
     },
     "implement": {
@@ -155,6 +170,8 @@
           ".github/**": "deny",
           "opencode.json": "deny",
           "prompts/**": "deny",
+          "specs/**/spec.md": "deny",
+          "specs/**/plan.md": "deny",
           "specs/constitution.md": "deny",
           ".env*": "deny"
         },
@@ -194,7 +211,12 @@
           "npm test*": "allow",
           "pytest*": "allow",
           "make test*": "allow"
-        }
+        },
+        "task": {
+          "*": "deny"
+        },
+        "webfetch": "deny",
+        "external_directory": "deny"
       }
     }
   },
