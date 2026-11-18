@@ -37,6 +37,22 @@ def test_main_uses_pinned_cli_and_confirms_project_agents(monkeypatch, capsys):
                 ]
             ),
             json.dumps([{"id": agent} for agent in checker.REQUIRED_AGENTS]),
+            json.dumps(
+                [
+                    {
+                        "type": "document",
+                        "path": str(checker.CONFIG_PATH),
+                        "info": {
+                            "agents": dict.fromkeys(checker.REQUIRED_AGENTS),
+                            "model": {
+                                "providerID": "ollama",
+                                "model": "gemma4-12b-32k",
+                            },
+                        },
+                    }
+                ]
+            ),
+            "ollama/gemma4-12b-32k\n",
         ]
     )
     commands = []
@@ -52,6 +68,8 @@ def test_main_uses_pinned_cli_and_confirms_project_agents(monkeypatch, capsys):
         ["opencode", "--version"],
         ["opencode", "debug", "config"],
         ["opencode", "debug", "agents"],
+        ["opencode", "debug", "config"],
+        ["opencode", "models"],
     ]
     assert "OpenCode config check passed" in capsys.readouterr().out
 
@@ -123,3 +141,63 @@ def test_main_fails_when_cli_does_not_discover_project_agents(monkeypatch, capsy
 
     assert checker.main() == 1
     assert "missing configured agents" in capsys.readouterr().err
+
+
+def test_project_effective_model_resolves_provider_and_model():
+    checker = load_checker()
+    output = json.dumps(
+        [
+            {
+                "type": "document",
+                "path": str(checker.CONFIG_PATH),
+                "info": {
+                    "model": {
+                        "providerID": "ollama",
+                        "model": "gemma4-12b-32k",
+                    }
+                },
+            }
+        ]
+    )
+
+    assert checker.project_effective_model(output) == (
+        "ollama",
+        "gemma4-12b-32k",
+    )
+    assert checker.listed_models(
+        "ollama/gemma4-12b-32k\nnvidia/nvidia/nemotron-3.5-super-vl-120b-a12b\n"
+    ) == {
+        "ollama/gemma4-12b-32k",
+        "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b",
+    }
+
+
+def test_run_smoke_uses_only_local_default(monkeypatch, capsys):
+    checker = load_checker()
+    commands = []
+
+    def fake_run(command, **kwargs):
+        commands.append(command)
+        return SimpleNamespace(
+            returncode=0,
+            stdout="read or delegation smoke result",
+            stderr="",
+        )
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    checker.run_smoke()
+
+    assert len(commands) == 2
+    assert all(
+        command[:5]
+        == [
+            "opencode",
+            "run",
+            "--model",
+            "ollama/gemma4-12b-32k",
+            "--agent",
+        ]
+        for command in commands
+    )
+    assert all("nvidia" not in " ".join(command) for command in commands)
