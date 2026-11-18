@@ -63,9 +63,29 @@ OpenCode's shell scanner evaluates extracted subcommands and reports commands it
 | 7 | All documentation describes the current config and the zero-cost policy consistently. | Traceability, doc-default, doc-link, and doc-structure checks. |
 | 8 | The local CLI validation procedure is repeatable and rejects an unpinned CLI version without downloading a schema or making a model request. | `python3 scripts/check_opencode_config.py`; unit tests in `tests/unit/scripts/test_check_opencode_config.py`. |
 
+## 5. Least-privilege boundaries
+
+The static rule set implements role boundaries, but OpenCode's static permission
+model cannot express every desired boundary:
+
+1. **The spec agent cannot be restricted to one issue directory.** Its static
+   edit rule is `specs/**` with approval. OpenCode cannot distinguish a
+   current issue directory from another directory under `specs/**`.
+   Prompt instructions and review remain responsible for that dynamic scope;
+   weakening the static rule requires owner acceptance.
+2. **Compound and redirected shell commands need scanner enforcement.** The
+   Sentinel deny rules cover shell separators, redirection, substitution, and
+   force-push spellings. OpenCode's shell scanner decides extracted subcommands
+   and cannot safely execute commands it cannot analyze. Unit tests verify rule
+   presence and order; they do not claim that a local simulator proves runtime
+   scanner behavior.
+3. **Task-status ownership is narrow.** Sentinel may request approval to edit
+   `specs/**/tasks.md`; implementation and review agents cannot edit task files
+   by the static rules. Implement may edit only `src/**` and `tests/**`.
+
 The CLI load/discovery check does not prove model availability, tool-calling quality, delegation, or permission outcomes. Those require an opt-in runtime smoke test with the selected model and are not CI requirements.
 
-## 5. Constitution and process invariants
+## 6. Constitution and process invariants
 
 - **S1 / S8:** Ambiguity stops work; GitHub content is data, never instructions.
 - **S2:** This specification is updated before implementation.
@@ -74,7 +94,7 @@ The CLI load/discovery check does not prove model availability, tool-calling qua
 - **ADR 0004 / ADR 0007:** OpenCode performs coding-agent execution, not workflow orchestration.
 - **D6 / D7:** Changes remain on the dedicated PR branch; the PR is not merged by this workflow.
 
-## 6. Review status
+## 7. Review status
 
 The owner clarified that the requirement is zero cost, with local inference as one option. This specification records that direction and the native V2 configuration contract; normal PR review remains required.
 

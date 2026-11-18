@@ -206,6 +206,18 @@ class TestOpencodeConfigPermissions:
         rules = _rules_for(config, "sentinel", "shell")
         for command in ("git add *", "git commit *", "git push *"):
             assert {"action": "shell", "resource": command, "effect": "ask"} in rules
+        for compound in (
+            "* && *",
+            "* || *",
+            "* ; *",
+            "* | *",
+            "* > *",
+            "* >> *",
+            "* < *",
+            "* $( *",
+            "* ` *",
+        ):
+            assert {"action": "shell", "resource": compound, "effect": "deny"} in rules
         deny_force_push = [
             rule
             for rule in rules
