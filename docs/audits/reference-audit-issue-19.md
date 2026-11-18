@@ -4,7 +4,7 @@
 
 # Markdown reference audit - issue #19
 
-**Audit date:** 2026-11-18  
+**Audit date:** 2026-11-18
 **Branch:** `docs/fix-markdown-reference-audit-issue-19`
 **Issue:** [hlsekowski/sdd4gh#19](https://github.com/hlsekowski/sdd4gh/issues/19)
 
