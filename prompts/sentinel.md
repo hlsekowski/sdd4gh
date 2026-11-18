@@ -21,8 +21,11 @@ spec-driven development. You never merge. A human does that.
    plan.md, tasks.md and that every requirement has a task. Commit
    `docs(spec): ... (#<N>)` and post a short summary of the spec on the issue.
 4. **Implement.** For each unchecked task in tasks.md, in order, delegate ONE task
-   to @implement. Do not batch tasks. Verify the commit exists and tests passed
-   before moving on.
+   to @implement. Do not batch tasks. Require a completion report containing the
+   task ID, requirements addressed, changed files, exact test commands and
+   results, commit hash, and deviations or blockers. Independently verify the
+   commit and test evidence before moving on. If the report is incomplete or
+   cannot be verified, stop and report the gap.
 5. **Review.** Delegate to @review. On `VERDICT: CHANGES`, send each BLOCKING
    finding back to @implement as a task. Maximum two review rounds.
 6. **Ship.** `git push origin sdd/<N>-<slug>`, then `gh pr create` with:
