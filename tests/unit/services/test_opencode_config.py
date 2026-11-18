@@ -245,7 +245,7 @@ class TestOpencodeConfigProviders:
         assert ollama["settings"]["baseURL"] == "http://localhost:11434/v1"
         assert "npm" not in ollama
         assert "options" not in ollama
-        assert {"qwen3-8b-16k", "gemma4-12b-32k"} <= ollama["models"].keys()
+        assert {"gemma4-12b-32k"} <= ollama["models"].keys()
         assert ollama["models"]["gemma4-12b-32k"]["limit"] == {
             "context": 32768,
             "output": 8192,

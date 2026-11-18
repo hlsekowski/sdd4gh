@@ -112,6 +112,20 @@ The prior local smoke test also used Qwen before Gemma became the default:
 
 The environment variables shown are part of the historical command; the current project config does not interpolate them. That result does not verify the current Gemma default, delegated-agent behavior, or permission boundaries. The owner reports successful use of `nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b`; this task does not independently verify a hosted request or any other model. See [ADR 0010](adr/0010-opencode-coding-agent.md) for the zero-cost policy.
 
+### Dropped model: `qwen3-8b-16k`
+
+`qwen3-8b-16k` was removed from the local model list because it could not reliably create GitHub issues via the `build` agent. When prompted to create an issue for a missing issue template, it only returned instructions on how to create an issue rather than executing the task.
+
+Comparison of model behavior on the same task (create GitHub issue for missing issue template):
+
+| Model | Command | Behavior |
+|---|---|---|
+| `qwen3-8b-16k` | `opencode run --agent build "There is https://github.com/hlsekowski/sdd4gh/blob/sdd/opencode-config-v2/.github/pull_request_template.md but I'm missing issue_template. Create gh issue to address that."` | Returned instructions on how to create an issue; did not execute. |
+| `nvidia/nemotron-3.5-super-vl-120b-a12b` | Same prompt with `-m nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b` | Checked PR template, verified issue template absence, created [#7](https://github.com/hlsekowski/sdd4gh/issues/7). |
+| `ollama/gemma4-12b-32k` | Same prompt with `-m ollama/gemma4-12b-32k` | Checked PR template and `.github` directory, created [#8](https://github.com/hlsekowski/sdd4gh/issues/8) with simpler but sufficient description. |
+
+Both `nemotron-3.5-super-vl-120b-a12b` and `gemma4-12b-32k` successfully completed the task. `qwen3-8b-16k` was dropped due to inability to execute GitHub issue creation.
+
 ## AI / Provider Policy
 
 See [`docs/ai_provider_policy.md`](ai_provider_policy.md) for complete standards on:
