@@ -12,7 +12,7 @@ Accepted
 
 ADR 0004 defines the worker/task execution model but deliberately selects no runtime technology. Its §9 requires a separate decision for each runtime technology when introduced.
 
-LiteLLM is not in #55, #98, or #9. It was introduced into ADR 0008 by PR #101 without a prior issue scoping it. This ADR records that provenance.
+LiteLLM is not in the source-project [qnagym#55](https://github.com/hlsekowski/qnagym/issues/55), [qnagym#98](https://github.com/hlsekowski/qnagym/issues/98), or [qnagym#9](https://github.com/hlsekowski/qnagym/issues/9). It was introduced into ADR 0008 by the merged [qnagym#101 PR](https://github.com/hlsekowski/qnagym/pull/101) without a prior issue scoping it. This ADR records that provenance.
 
 ADR 0008 previously bundled LangGraph, OpenCode, Kubernetes, and LiteLLM into a single decision record. This ADR separates the LiteLLM decision as required by ADR 0004 §9.
 
@@ -36,7 +36,7 @@ Before routing workflow or product traffic through LiteLLM:
 2. Verify the local classifier, heuristic fallback, router default, and model-unavailable path. None may select a model outside the corresponding local allowlist.
 3. Verify that every selected model meets the consuming call's output contract, including structured JSON for application product calls.
 4. Verify that prompts and relevant context sent to the classifier remain local and are not written to logs.
-5. Before use, check the exact LiteLLM release and container artifact against current security advisories, verify its provenance and [image signature](https://docs.litellm.ai/proxy/docker_image_security), pin an immutable artifact, and audit its dependencies. Do not infer that a version is safe solely because it is earlier than a reported compromised version.
+5. Before use, check the exact LiteLLM release and container artifact against current security advisories, verify its provenance and [image signature](https://docs.litellm.ai/docs/proxy/docker_image_security), pin an immutable artifact, and audit its dependencies. Do not infer that a version is safe solely because it is earlier than a reported compromised version.
 6. Confirm that the planned Auto Routing configuration is available without a paid license or hosted service. Auto Routing is beta, so pin its configuration and test upgrades before changing the pinned release.
 
 The LiteLLM team confirmed that PyPI versions 1.82.7 and 1.82.8 were compromised in its [March 2026 incident report](https://docs.litellm.ai/blog/security-townhall-updates). It also confirmed that PyPI package 1.107.0 and several container tags were compromised on October 21, 2026, in its [incident report](https://docs.litellm.ai/blog/security-incident-oct-21-2026) and [canonical attack-chain report](https://docs.litellm.ai/blog/security-incident-oct-21-2026-attack-chain). This history makes artifact verification a blocking adoption gate, not a reason to reuse an old version pin.
@@ -61,5 +61,5 @@ The LiteLLM team confirmed that PyPI versions 1.82.7 and 1.82.8 were compromised
 - [ADR 0004: Worker and Task Execution Model](0004-worker-task-model.md) — worker/task invariants and runtime neutrality
 - [ADR 0008: Workflow runtime and model-routing selection](0008-workflow-runtime-and-model-routing.md) — umbrella decision record
 - AI provider policy — model configuration, privacy, and zero-cost provider constraints
-- #101: PR introducing LiteLLM — introduced LiteLLM Proxy with Auto Routing into ADR 0008; no prior issue scoped LiteLLM
+- [hlsekowski/qnagym#101](https://github.com/hlsekowski/qnagym/pull/101) — merged source-project PR introducing LiteLLM Proxy with Auto Routing into ADR 0008; no prior issue scoped LiteLLM
 - [Project constitution](../constitution.md) — constraints for technology selection

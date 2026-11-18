@@ -23,3 +23,18 @@ ADRs keep their existing template and `Status` field; the header is added above 
 ## Exclusions
 
 - `AGENTS.md` and `README.md` are entry files and keep their own format.
+
+## Reference integrity
+
+`python3 scripts/check_doc_links.py` checks every tracked and unignored
+untracked Markdown file in the repository, including prompts and GitHub
+templates. It verifies local Markdown links and heading fragments,
+backticked repository-file paths, repository-owned branch-specific `blob/`
+URLs, and explicit ADR file/section references.
+
+External URLs and GitHub issue, pull request, commit, symbol, and contextual
+claims still need review before a PR. The checker cannot establish that an
+external page is reachable or that any target supports the surrounding claim;
+record evidence and exact corrections for findings that need manual review.
+The inventory and evidence from the issue #19 audit are recorded in
+[`audits/reference-audit-issue-19.md`](audits/reference-audit-issue-19.md).

@@ -10,9 +10,9 @@ Accepted
 
 ## Context
 
-ADR 0003 §1–§2 establish the three-process model (Issue Process, SDD Process, PR Process) and the systems and actors that execute it. ADR 0003 §6–§10 then sketch, at a high level, how the PR Process should evaluate feedback, bound automatic corrections, track a PR's lifecycle, route communications, and apply trust boundaries.
+ADR 0003 §1–§2 establish the three-process model (Issue Process, SDD Process, PR Process) and the systems and actors that execute it. ADR 0003 §5 defines the process handoffs, and §6 points readers to this ADR for the current PR Process decisions.
 
-This ADR does not redefine that model. It elevates ADR 0003 §6–§10 into a complete, implementable specification for the PR Process alone: the same decisions, restated as explicit control flow, with diagrams, so an implementer (or an agent) can follow it without re-deriving behavior from prose. It assumes ADR 0003 §1–§2 and §5 (process/system/actor boundaries and the Issue↔SDD↔PR interfaces) as given, and does not duplicate them beyond what's needed to keep the diagrams below self-contained.
+This ADR is the current normative and implementable specification for the PR Process. It assumes ADR 0003 §1–§2 and §5 (process/system/actor boundaries and the Issue↔SDD↔PR interfaces) as given, and does not duplicate them beyond what's needed to keep the diagrams below self-contained.
 
 ADR 0005 is now accepted and defines the Issue Process terms this ADR references. The scope-change routing (§1 below) and issue-state language (§3) have been reconciled against ADR 0005's final terms: a workflow-prefixed comment on the linked issue remains the mechanism for scope-change notification, and "closing an issue" / "reopening a sealed issue" retain the meanings established in ADR 0003 §4 and ADR 0005 §7.
 
@@ -20,7 +20,7 @@ See ADR 0003 for the general workflow this ADR specializes.
 
 ## Decision
 
-### 1. PR Feedback Evaluation (ADR 0003 §6)
+### 1. PR Feedback Evaluation
 
 Monitor new feedback across four surfaces: conversation comments, submitted reviews, inline review comments, and replies to inline comments. A user corrects or supersedes earlier feedback by posting a new comment or review, not by editing an existing one — edits to existing comments are not monitored.
 
@@ -71,7 +71,7 @@ This is the PR Process's internal expansion of two interfaces from ADR 0003: the
 
 Keep the sealed description unchanged. Update specifications, tests, and code as needed, then push verified changes to the existing PR — never a replacement PR per feedback cycle.
 
-### 2. PR Checks and Bounded Corrections (ADR 0003 §7)
+### 2. PR Checks and Bounded Corrections
 
 Goal: get required PR checks to a passing state. A failed check triggers an automatic correction attempt with no comment needed; pending or running checks are simply awaited. Corrections are capped at a predefined, configurable maximum of `MAX_CORRECTION_ATTEMPTS_PER_BATCH` attempts per batch (defined in `src/sdd4gh/contracts/pr_process.py`).
 
@@ -117,7 +117,7 @@ flowchart TD
 
 After the limit is exhausted: stop automatic corrections, post a PR summary of failures and attempted work, wait for an explicit retry request as a new PR comment, and do not reset the counter because unrelated actionable feedback arrives in the meantime.
 
-### 3. PR Lifecycle and Completion (ADR 0003 §8)
+### 3. PR Lifecycle and Completion
 
 | Event / state | Behavior |
 |---|---|
@@ -204,12 +204,10 @@ As in ADR 0003, these decisions are sufficiently agreed for review without them.
 4. Safe local-synchronization semantics and resumable post-merge operations for the `PostMerge` state in §3.
 5. Maintainer review of the confidence-gate and attempt-cap values as configured in [`src/sdd4gh/contracts/constants.py`](../../src/sdd4gh/contracts/constants.py) (the same file already holding `CONFIDENCE_SHOW_BELOW`), once implemented.
 6. Traceability entries added once this ADR is implemented, per [`docs/testing.md`](../testing.md) ("Spec section → code → tests"), one entry per §1–§5.
-7. *(Tracked separately, not blocking this ADR.)* Once ADR 0005 and this ADR are accepted, ADR 0003 §4 and §6–§10 should get short "elaborated by ADR 0005 / ADR 0006" pointers so ADR 0003 doesn't remain the stale version of content these two ADRs now own.
-
 ## Related
 
-- [ADR 0003: Local AI-Driven Development Workflow](0003-local-development-workflow.md) — **origin of §6–§10**, elevated here and now annotated there as superseded; also the source of the actor/system/interface model these diagrams reuse.
+- [ADR 0003: Local AI-Driven Development Workflow](0003-local-development-workflow.md) — source of the actor/system/interface model; §6 points to this ADR for current PR-process decisions.
 - [ADR 0005: Issue Process](0005-issue-process.md) — accepted; defines Issue Process terms referenced here.
-- Issue #13 — tracking issue for this ADR.
+- Originating issue: [hlsekowski/qnagym#13](https://github.com/hlsekowski/qnagym/issues/13) (closed in the source project; not an sdd4gh tracking issue).
 - [Project constitution](../constitution.md) — C4, C9.
 - [Workflow hub](../workflow.md) — the development workflow this ADR's PR steps run alongside.

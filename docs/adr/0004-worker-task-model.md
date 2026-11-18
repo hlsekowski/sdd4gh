@@ -50,10 +50,10 @@ A correction attempt (ADR 0003 section 7) can span several tasks, for example on
 Illustration, non-normative; task kind names are examples:
 
 ```
-evaluate issue #42, revision 1  -> asks for clarification; ends
+evaluate issue N, revision 1  -> asks for clarification; ends
   ... user edits the description: no task exists, no worker is occupied ...
-evaluate issue #42, revision 2  -> accepted; branch created; SDD task created; ends
-run SDD cycle for #42           -> verified push; PR created; ends
+evaluate issue N, revision 2  -> accepted; branch created; SDD task created; ends
+run SDD cycle for issue N     -> verified push; PR created; ends
   ... CI runs: no task exists, no worker is occupied ...
 handle check results of the PR  -> checks failed; correction task created; ends
 ```
@@ -328,4 +328,4 @@ No orchestration framework, queue implementation, container runtime, workflow en
 - [ADR 0003: Local AI-driven development workflow](0003-local-development-workflow.md)
 - [ADR 0008: Workflow runtime and model-routing selection](0008-workflow-runtime-and-model-routing.md) — Proposed; umbrella decision record referencing per-technology ADRs 0009–0012
 - [Project constitution](../constitution.md)
-- Backlog: multi-worker runtime (#9)
+- Historical source-project issue: [hlsekowski/qnagym#9](https://github.com/hlsekowski/qnagym/issues/9) (closed; local-only multi-worker experiment).

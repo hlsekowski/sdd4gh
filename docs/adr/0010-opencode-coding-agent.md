@@ -12,7 +12,7 @@ Accepted
 
 ADR 0004 defines the worker/task execution model but deliberately selects no runtime technology. Its §9 requires a separate decision for each runtime technology when introduced.
 
-The project owner identified OpenCode as part of the initial plan in the #55 decision log, with the qualifier that the plan "is not written in stone."
+The project owner identified OpenCode as part of the initial plan in the [qnagym#55 decision log](https://github.com/hlsekowski/qnagym/issues/55), with the qualifier that the plan "is not written in stone."
 
 ADR 0008 previously bundled LangGraph, OpenCode, Kubernetes, and LiteLLM into a single decision record. This ADR separates the OpenCode decision as required by ADR 0004 §9.
 
@@ -44,5 +44,5 @@ OpenCode can use the LiteLLM OpenAI-compatible endpoint (ADR 0012) without takin
 - [ADR 0007: SDD Process](0007-sdd-process.md) — responsibilities of the process that invokes a coding agent
 - [ADR 0008: Workflow runtime and model-routing selection](0008-workflow-runtime-and-model-routing.md) — umbrella decision record
 - [ADR 0012: LiteLLM model routing](0012-litellm-model-routing.md) — model routing for workflow-agent calls
-- #55: Applicability audit — records the owner's initial plan
+- [hlsekowski/qnagym#55](https://github.com/hlsekowski/qnagym/issues/55) — source-project audit recording the owner's initial plan
 - [Project constitution](../constitution.md) — constraints for technology selection

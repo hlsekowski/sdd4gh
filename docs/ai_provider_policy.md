@@ -42,5 +42,5 @@ Model calls default to zero cost: no paid API usage, subscriptions, or billable 
 - [ADR 0008: Workflow runtime and model-routing selection](adr/0008-workflow-runtime-and-model-routing.md)
 - [ADR 0010 Implementation Specification](specs/adr-0010-implementation-spec.md)
 - [ADR 0012: LiteLLM model routing](adr/0012-litellm-model-routing.md)
-- Issue #15: docs(opencode): define zero-cost provider policy with local as an option
-- Issue #1: Configure OpenCode against a local model endpoint (ADR 0010)
+- [hlsekowski/sdd4gh#15](https://github.com/hlsekowski/sdd4gh/issues/15): define the zero-cost provider policy with local inference as an option
+- [hlsekowski/sdd4gh#1](https://github.com/hlsekowski/sdd4gh/issues/1): configure OpenCode against a local model endpoint (ADR 0010)
