@@ -201,7 +201,7 @@ Branches follow the workflow.md convention: `<type>/<short-description>` where t
 
 ### No push
 
-The workspace service does not push. Push is a separate safe effect (issue #157).
+The workspace service does not push. Push is a separate safe effect.
 
 ## 8. Infrastructure failure classification
 
@@ -227,7 +227,7 @@ Notification delivery follows safe-effect and retry rules. Failure to deliver do
 
 ### Execution retries vs correction attempts
 
-Execution retries (infrastructure failures) are not counted against `MAX_CORRECTION_ATTEMPTS_PER_BATCH`. Correction attempts (ADR 0003 §7) are tracked separately in `CorrectionBatch`.
+Execution retries (infrastructure failures) are not counted against `MAX_CORRECTION_ATTEMPTS_PER_BATCH`. Correction attempts (ADR 0006 §2) are tracked separately in `CorrectionBatch`.
 
 ### Correction batch
 

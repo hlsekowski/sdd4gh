@@ -2,7 +2,7 @@
 
 > **Purpose:** The decision on issue intake, evaluation, acceptance, sealing and reopening.
 > **Read when:** changing how issues are evaluated, sealed or reopened.
-> **Owns:** issue-process policies: triggers, evaluation, outcomes, retry, edits after sealing and withdrawal. These policies are retained here as the decision record; the Issue Process is implemented (#39).
+> **Owns:** issue-process policies: triggers, evaluation, outcomes, retry, edits after sealing and withdrawal. The implementation is in [`issue_process.py`](../../src/sdd4gh/domain/issue_process.py) and [`issue_process.py`](../../src/sdd4gh/services/issue_process.py).
 
 ## Status
 
@@ -68,12 +68,12 @@ Once the issue is sealed, the sealed description remains the requirements baseli
 
 For each new description revision after sealing, the workflow posts one comment stating that the sealed description is unchanged and that the recent edit will not be taken into account. One comment is posted per distinct new revision, identified by content hash, so repeated saves of the same text produce no further comments.
 
-These comments are the only automatic reaction to description edits. Scope changes are handled through the PR feedback path (ADR 0003 §4 and §6), not by the Issue Process.
+These comments are the only automatic reaction to description edits. Scope changes are handled through the PR feedback path (ADR 0003 §4 and ADR 0006 §1), not by the Issue Process.
 
 ### 7. Withdrawal and closure
 
 - An issue closed before any PR exists withdraws its work item (ADR 0004 §7). Pending evaluation tasks become obsolete and make no effects.
-- Closing an issue while a PR is open does not withdraw the work item. The PR Process handles it (ADR 0003 §8).
+- Closing an issue while a PR is open does not withdraw the work item. The PR Process handles it (ADR 0006 §3).
 - Closing a pending issue cancels its scheduled evaluation.
 - The Issue Process never reopens or closes an issue on its own.
 
@@ -127,7 +127,7 @@ Before implementation, define:
 2. The change type mapping to branch prefixes and the branch name format, `<type>/<short-description>` (per [`docs/workflow.md`](../workflow.md)), based on `main`.
 3. The text and marker format of the comments for: clarification requests, sealing, sealed-edit notices, reopened-issue notices, and ambiguous development links.
 4. Detection of linked branches and PRs, and the rules that make a link ambiguous.
-5. The retry request syntax and the authorization rule for who may post it (ADR 0003 §10).
+5. The retry request syntax and the authorization rule for who may post it (ADR 0006 §5).
 6. The order of acceptance effects and their reconciliation (ADR 0004 §7).
 7. Acceptance scenarios: a clean pass, a gate failure followed by a fix, repeated edits within the window, edits after sealing, a reopened issue, an ambiguous link, and retry after exhaustion.
 

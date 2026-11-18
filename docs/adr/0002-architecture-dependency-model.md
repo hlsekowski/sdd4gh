@@ -57,6 +57,9 @@ Two contract modules are imported by more than one layer. They stay in
 `contracts/ports.py` is named `ports`, not `types`, because a module named
 `types` shadows the standard library module and mypy rejects it.
 
+Package-relative module paths in this ADR's tables and diagrams are relative
+to `src/sdd4gh/`, unless they begin with a repository-level path such as `tests/`.
+
 ## Mermaid Diagrams
 
 ### 1. Layer Architecture (Logical Dependencies)

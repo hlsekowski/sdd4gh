@@ -6,7 +6,7 @@
 
 ## Status
 
-Accepted. §6–§10 elevated to [ADR 0006](0006-pr-process.md). Retained as historical record; ADR 0006 is current normative source.
+Accepted. The PR Process is specified in [ADR 0006](0006-pr-process.md); this ADR's §6 points to that current normative source.
 
 ## Context
 
@@ -183,7 +183,7 @@ SDD does not independently merge PRs, close issues, or resolve ambiguous feedbac
 
 ### 6. PR feedback
 
-> **Superseded:** §6–§10 are elevated to [ADR 0006](0006-pr-process.md), which is the current normative source. Retained here as a historical record; do not use this section for implementation.
+> **Current source:** [ADR 0006](0006-pr-process.md) owns the PR Process decisions. This section is a pointer; it does not retain separate PR-process rules.
 
 PR feedback evaluation, check monitoring, bounded corrections, lifecycle, communication, and trust boundaries are defined in [ADR 0006](0006-pr-process.md). Read that ADR for the current PR Process specification.
 
@@ -230,7 +230,7 @@ No orchestration framework, coding agent, model, or polling mechanism is selecte
 - [ADR 0002: Architecture dependency model](0002-architecture-dependency-model.md)
 - [ADR 0004: Worker and Task Execution Model](0004-worker-task-model.md) — how the three processes above are executed as tasks
 - [ADR 0005: Issue Process](0005-issue-process.md) — elaborates §4 (intake, sealing, reopening)
-- [ADR 0006: PR Process](0006-pr-process.md) — §6–§10 elevated here; current normative source for PR behaviour
+- [ADR 0006: PR Process](0006-pr-process.md) — current normative source for PR-process decisions; pointed to from §6
 - [ADR 0007: SDD Process](0007-sdd-process.md) — specializes §5 (the development cycle and its handoffs)
 - [Project constitution](../constitution.md)
 - [Workflow hub](../workflow.md) — the executable step list this ADR's model describes

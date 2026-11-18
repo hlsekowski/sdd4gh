@@ -160,33 +160,31 @@ Tests run in CI on every PR:
 
 1. **Identify category**: unit / contract / integration
 2. **Find/create test file**: Follow organization above
-3. **Add spec reference**: Header comment `# Verifies docs/adr/<file>.md#<section>`
+3. **Add spec reference**: Header comment `# Verifies ADR NNNN §<section>` for an existing numbered section
 4. **Write test**: Follow naming, mocking, assertion standards
 5. **Run locally**: `pytest tests/<path>/test_<name>.py -v`
 6. **Verify coverage**: `pytest --cov=sdd4gh --cov-report=term-missing`
 
-## Example: Adding a Unit Test for `questions.py`
+## Example: Testing issue evaluation
 
 ```python
-# tests/unit/domain/test_questions.py
-# Verifies docs/adr/0005-issue-process.md#question-count-formula
+# tests/unit/domain/test_issue_process_domain.py
+# Verifies ADR 0005 §3
 
-import pytest
-from sdd4gh.domain.issue_process import decide_issue
+from sdd4gh.contracts.issue_process import EVALUATION_PASS
+from sdd4gh.domain.issue_process import evaluate_issue
 
 
-class TestQuestionCount:
-    def test_question_count_with_duration(self):
-        assert calculate_question_count(45) == 8
-        assert calculate_question_count(30) == 5
-        assert calculate_question_count(90) == 15
+def test_evaluate_issue_passes_clear_confident_request():
+    evaluation = evaluate_issue(
+        description="Add a documentation reference check.",
+        change_type="docs",
+        confidence=0.98,
+        clarity_pass=True,
+        consistency_pass=True,
+    )
 
-    def test_question_count_min_max_bounds(self):
-        assert calculate_question_count(0) == 3  # min
-        assert calculate_question_count(1000) == 15  # max
-
-    def test_question_count_fallback(self):
-        assert calculate_question_count(None) == 5  # fallback
+    assert evaluation.result == EVALUATION_PASS
 ```
 
 ---

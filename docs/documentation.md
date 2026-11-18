@@ -82,3 +82,21 @@ Never change an accepted ADR decision or status as part of documentation optimiz
 ## Enforcement
 
 Blocking rules are validated mechanically by the documentation checkers under `scripts/` and run on every commit through pre-commit and CI. Advisory rules (semantic quality such as unnecessary explanations or duplicated meaning) require human or AI-agent review and are not enforced by pre-commit.
+
+Intentional removals of code paths are recorded in the
+[dropped code paths catalog](dropped-code-paths.md).
+
+## Reference integrity
+
+`python3 scripts/check_doc_links.py` checks every tracked and unignored
+untracked Markdown file in the repository, including prompts and GitHub
+templates. It verifies local Markdown links and heading fragments,
+backticked repository-file paths, repository-owned branch-specific `blob/`
+URLs, and explicit ADR file/section references.
+
+External URLs and GitHub issue, pull request, commit, symbol, and contextual
+claims still need review before a PR. The checker cannot establish that an
+external page is reachable or that any target supports the surrounding claim;
+record evidence and exact corrections for findings that need manual review.
+The inventory and evidence from the issue #19 audit are recorded in
+[`audits/reference-audit-issue-19.md`](audits/reference-audit-issue-19.md).

@@ -21,9 +21,6 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 SRC_ROOT = Path("src/sdd4gh")
 
-# Documentation roots whose claims are checked.
-DOC_ROOTS = (Path("README.md"), Path("AGENTS.md"), Path("docs"))
-
 # A markdown link whose label is a backticked symbol and whose target is a
 # Python file: [`SYMBOL`](../src/sdd4gh/contracts/constants.py)
 SYMBOL_LINK = re.compile(r"\[`([A-Za-z_][A-Za-z0-9_]*)`\]\(([^)]+\.py)\)")
@@ -47,21 +44,26 @@ ALLOWLIST: dict[tuple[str, str], str] = {}
 
 
 def doc_files() -> list[Path]:
-    """Markdown files tracked by git under the documentation roots."""
+    """Tracked and unignored untracked Markdown files anywhere in the repository."""
     import subprocess
 
     result = subprocess.run(
-        ["git", "ls-files", "*.md"],
+        [
+            "git",
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            "*.md",
+        ],
         capture_output=True,
         text=True,
         cwd=REPO_ROOT,
         check=True,
     )
-    return [
-        path
-        for name in result.stdout.split()
-        if (path := Path(name)) and any(path == root or root in path.parents for root in DOC_ROOTS)
-    ]
+    return sorted(Path(name) for name in result.stdout.split("\0") if name)
 
 
 def source_files() -> list[Path]:

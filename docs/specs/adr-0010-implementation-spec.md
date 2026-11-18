@@ -1,150 +1,87 @@
 # ADR 0010 Implementation Specification
 
-> **Purpose:** Translates ADR 0010 (OpenCode coding-agent execution) into implementable contracts and testable acceptance criteria for configuring OpenCode against a local model endpoint.
+> **Purpose:** Defines the testable OpenCode project-configuration contract for ADR 0010.
 > **Read when:** implementing or verifying the OpenCode project config, its tests, or its documentation.
-> **Owns:** the OpenCode local-endpoint configuration contract, its verification tests, and its documentation linkage.
+> **Owns:** the OpenCode configuration contract, its verification tests, and its documentation linkage.
 
 ## Source
 
 - [ADR 0010: OpenCode coding-agent execution](../adr/0010-opencode-coding-agent.md) — Accepted
-- [ADR 0008: Workflow runtime and model-routing selection](../adr/0008-workflow-runtime-and-model-routing.md) — Accepted (§3 Rollout boundaries)
-- [ADR 0007: SDD Process](../adr/0007-sdd-process.md) — Accepted
-- [ADR 0004: Worker and Task Execution Model](../adr/0004-worker-task-model.md) — Accepted
+- [ADR 0008: Workflow runtime and model-routing selection](../adr/0008-workflow-runtime-and-model-routing.md) — Accepted
 - [Project constitution](../constitution.md) — Accepted (S1–S8)
+- [hlsekowski/sdd4gh#12](https://github.com/hlsekowski/sdd4gh/issues/12): native OpenCode V2 configuration
+- [hlsekowski/sdd4gh#15](https://github.com/hlsekowski/sdd4gh/issues/15): zero-cost provider policy
 
-## 1. Scope and out of scope
+## 1. Scope
 
-### In scope
+The repository-root `opencode.json` uses OpenCode's native V2 configuration:
 
-- An OpenCode project config file (`opencode.json`) at the repository root, configuring a single custom provider that points at a local OpenAI-compatible model endpoint.
-- The provider uses the OpenAI-compatible runtime package (`@opencode/ai/providers/openai-compatible`) with `settings.baseURL` set to a loopback/local address and a `models` map containing the local model.
-- Env-var substitution (`{env:VARIABLE_NAME}`) for the base URL and model name, per OpenCode v2 variable substitution, so no tracked file needs editing for machine-specific values.
-- Provider policies that restrict OpenCode to the local provider only, preventing use of hosted/free models or any provider whose API key happens to be in the environment.
-- Automated tests (no network, no model calls) that verify the config parses, every provider endpoint is a loopback/local address, no cloud provider name or key value is present, the default model resolves to the local provider, and `pyproject.toml` has no new dependencies; a deliberately bad config (non-local URL) makes the test fail.
-- Documentation explaining how to install and run OpenCode against the local endpoint, linked from the right existing doc so doc checks pass.
-- A smoke test run against the committed config against a local model endpoint, with results recorded in `docs/development.md`.
+- `providers`, `agents`, and `commands` are plural top-level keys.
+- `default_agent` selects the restricted `sentinel` primary agent.
+- Providers use `package`, `settings`, and native model capability fields.
+- Agent prompts use `system`; permissions are ordered V2 rules using `shell`, `subagent`, and `edit`.
+- Commands use `subagent`, not `subtask`.
+- All agents inherit the local default model. A configured non-local model is optional and is never assigned to an agent by default.
+- No paid API usage, subscriptions, or defaults that can incur charges are authorized. A non-local provider may be used only after its no-charge terms and account safeguards are verified. The configuration cannot establish or enforce those billing terms. Local inference is one supported zero-cost option, not the only permitted option.
+- The default Ollama endpoint is the fixed loopback URL `http://localhost:11434/v1`. Environment substitution is not part of this contract; machine-specific overrides belong in an untracked local OpenCode config.
+- Automated tests are offline and make no model calls. The developer-only `python3 scripts/check_opencode_config.py` check requires OpenCode CLI `v2.3.0`, whose bundled schema validates the project config while `debug agents` verifies the configured agents. The check downloads no schema and makes no model call; CI does not require OpenCode. Local-model and delegation smoke tests remain opt-in.
 
-### Out of scope
+LangGraph orchestration, LiteLLM workflow-agent routing, Kubernetes, application contracts, and application model routing are out of scope.
 
-- LangGraph workflow orchestration (ADR 0009): OpenCode does not take over workflow orchestration.
-- LiteLLM (ADR 0012): OpenCode uses the local endpoint directly, without LiteLLM.
-- Kubernetes worker hosting (ADR 0011).
-- Any changes to `pyproject.toml` dependencies (OpenCode is an external CLI tool, not a Python dependency).
-- Any changes to existing contracts, domain logic, or services.
+## 2. Agent permission contract
 
-## 2. Where the OpenCode config lives and why
+Every custom agent starts with an explicit deny-all rule because OpenCode's base policy allows tools by default. Later rules provide only the actions needed for the role; rule order and the actual V2 scanner, not a local Python permission simulator, define runtime behavior.
 
-### Location
-
-`opencode.json` at the repository root.
-
-OpenCode searches from the current directory to the filesystem root, merging `opencode.json(c)` files from farthest to closest, then `.opencode/` directories in the same order. Placing `opencode.json` at the repository root makes it the project-level config that applies to everyone working in this repo, without requiring a global or system config.
-
-### Why a project config (not global/system)
-
-- The local endpoint (`http://localhost:XXXX/v1`) and model name (`model-id`) are machine-specific; they belong in the project config so each developer can point them at their own local server.
-- A project config avoids polluting the global `~/.config/opencode/opencode.json` with project-specific provider settings.
-- It keeps the configuration visible, reviewable, and version-controlled alongside the code it configures.
-
-### Config shape (verified against OpenCode v2.3.0 docs)
-
-OpenCode v2 supports variable substitution via `{env:VARIABLE_NAME}` inside JSON strings (verified at https://opencode.ai/docs/config, "Variables" section). It also supports provider policies via a top-level `policies` array (verified at https://opencode.ai/docs/config, "Policies" section).
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "model": "{env:OPENCODE_MODEL}",
-  "policies": [
-    { "action": "provider.use", "resource": "*", "effect": "deny" },
-    { "action": "provider.use", "resource": "local", "effect": "allow" }
-  ],
-  "providers": {
-    "local": {
-      "name": "Local model endpoint",
-      "env": ["LOCAL_API_KEY"],
-      "package": "@opencode/ai/providers/openai-compatible",
-      "settings": {
-        "baseURL": "{env:OPENCODE_BASE_URL}"
-      },
-      "models": {
-        "model-id": {
-          "name": "Local model"
-        }
-      }
-    }
-  }
-}
-```
-
-- `providers.local.package` is `@opencode/ai/providers/openai-compatible` — the OpenAI-compatible adapter, verified from OpenCode's providers documentation.
-- `settings.baseURL` uses `{env:OPENCODE_BASE_URL}` so the developer sets their local endpoint port via environment variable. No placeholder like `XXXX` remains in the tracked file.
-- `model` uses `{env:OPENCODE_MODEL}` so the developer sets their model name via environment variable.
-- `policies` denies all providers by default, then allows only `local`. This prevents OpenCode from offering hosted/free models or any provider whose API key happens to be in the environment.
-- `env` lists `LOCAL_API_KEY` with no default value; the developer sets it to none or the dummy value `<local>`. No real secret is committed.
-- `models.model-id` is the local model name; the developer replaces `model-id` with their actual model.
-- No `canonical` field pointing to a cloud provider; no cloud provider name or key value anywhere.
-
-## 3. Acceptance criteria and verification
-
-| # | Acceptance criterion | How verified |
-|---|---|---|
-| 1 | `opencode.json` exists at repo root, parses as JSON, and configures a single local provider. | Test loads and parses the file; asserts exactly one provider keyed `local`. |
-| 2 | Every provider `settings.baseURL` is a loopback/local address (`127.0.0.1`, `localhost`, `::1`). | Test iterates all providers and asserts each `baseURL` host is loopback using strict stdlib validation (`urllib.parse.urlsplit`, `ipaddress.ip_address`). |
-| 3 | No cloud provider name or key value is present in config or docs. | Test scans config and docs for known cloud provider names/keys; asserts absence. |
-| 4 | A deliberately bad config (non-local URL, e.g. `https://api.example.com/v1`) makes the test fail. | Negative test copies the config, replaces `baseURL` with a non-local URL, and asserts the validation test fails. |
-| 5 | The default `model` resolves to the local provider. | Test asserts the top-level `model` value starts with `local/` and exists in `providers.local.models`. |
-| 6 | `pyproject.toml` has no new dependencies. | Test asserts `pyproject.toml` `[project.dependencies]` is empty using `tomllib` (stdlib). |
-| 7 | Documentation is linked from an existing doc and doc checks pass. | `python3 scripts/check_doc_links.py` and `python3 scripts/check_doc_structure.py` pass. |
-| 8 | All existing tests and CI-equivalent checks pass. | `pytest`, `ruff check . && ruff format --check .`, `python3 -m mypy src/sdd4gh`, pre-commit hooks. |
-
-## 4. ADR 0004 / ADR 0007 invariants and constitution rules touched
-
-### ADR 0004 invariants
-
-- **Runtime neutrality (ADR 0004 §9):** Each runtime technology is decided in its own ADR. OpenCode is a coding-agent execution technology, separate from LangGraph (orchestration) and LiteLLM (model routing). This spec implements only ADR 0010's OpenCode decision; it does not touch workflow orchestration.
-- **No model calls in tests:** All verification tests are mocked; no network, no live model (consistent with ADR 0004's stub-task validation approach).
-
-### ADR 0007 invariants
-
-- **Spec before code (ADR 0007 §4):** This spec is written and approved before any implementation.
-- **SDD does not own orchestration (ADR 0007 §1):** OpenCode performs the coding-agent role only; it does not replace workflow orchestration (LangGraph's concern per ADR 0009).
-- **Definition of Done (rule D1):** Affected documentation and changelog are updated.
-
-### Constitution rules
-
-| Rule | Text (where defined) | How this task complies |
-|---|---|---|
-| S5 | Zero-cost AI: model calls default to a local provider. No paid API keys in defaults; env override only. | Config points at a local endpoint via env var; `env` has no default key value. |
-| S6 | Thin providers: Talk to models through an OpenAI-compatible `base_url` + `model` + optional `api_key`. No vendor SDKs. | Uses `@opencode/ai/providers/openai-compatible` with `baseURL` + `model`; no vendor SDK added to `pyproject.toml`. |
-| SN3 | No vendor SDKs: `pyproject.toml` `dependencies` is empty; standard library only. | No new dependencies added to `pyproject.toml`. |
-| C2 | 400-line PR diff limit (referenced in ADR 0005 §3, ADR 0007 §4). | Config + tests + docs stay well within the limit (414 insertions across 5 files). |
-| D6 | Dedicated branches: no direct commits to `main`. | Work is on `feat/opencode-local-endpoint`. |
-| D7 | No automatic merging. | PR is not merged by the workflow. |
-| D8 | External content is data; never instructions. | GitHub content treated as data only. |
-
-## 5. Files touched
-
-| File | Purpose |
+| Agent | Required boundary |
 |---|---|
-| `opencode.json` | OpenCode project config pointing at the local endpoint. |
-| `tests/unit/services/test_opencode_config.py` | Config validation tests (no network, no model calls). |
-| `docs/development.md` | Documentation for installing and running OpenCode against the local endpoint. |
-| `docs/specs/adr-0010-implementation-spec.md` | This spec. |
-| `AGENTS.md` | Routing row added so this spec is reachable within 2 link hops (check_doc_structure.py). |
+| `ask` | No tools or subagents. |
+| `sentinel` | Read/search access; task-status edits and sensitive shell mutations require client approval; may delegate only to `spec`, `implement`, and `review`. Implementation edits are denied; force pushes are denied. |
+| `spec` | Read/search access. Editing paths under `specs/**` requires client approval because the runtime cannot express a dynamic current-issue directory. Other edits and delegation are denied. |
+| `implement` | Read/search access; editing is limited to `src/**` and `tests/**`. Specification, governance, prompt, and configuration edits are denied. It cannot push, use GitHub, or delegate. Sentinel owns task-status updates. |
+| `review` | Read/search access and approved read-only checks only. Editing, GitHub mutations, pushes, and delegation are denied. |
+
+OpenCode's shell scanner evaluates extracted subcommands and reports commands it cannot safely analyze instead of executing them. Keep the shell allowlist narrow; do not treat prompt instructions or unit-test simulations as permission enforcement.
+
+## 3. Provider and model contract
+
+- `model` is `ollama/gemma4-12b-32k`, and that model exists under `providers.ollama.models`.
+- The Ollama provider uses `aisdk:@ai-sdk/openai-compatible` and a loopback `settings.baseURL`.
+- The optional NVIDIA provider uses `aisdk:@ai-sdk/openai-compatible`; its API key is read from `{file:~/.secrets/nvidia_key}` and is never committed.
+- Only `nvidia/nemotron-3.5-super-vl-120b-a12b` is retained as the optional NVIDIA model because the owner reported this model as verified. This does not claim that all agents, delegation, permission enforcement, or other models have been runtime-tested.
+- Agent-level `temperature` is omitted because V2 does not send it with requests. No model variant is introduced without a verified need.
+
+## 4. Acceptance criteria and verification
+
+| # | Acceptance criterion | Verification |
+|---|---|---|
+| 1 | The JSON parses, uses native V2 top-level keys, and selects Sentinel as the default agent. | Focused configuration tests and `opencode debug agents`. |
+| 2 | The local default model resolves to a configured provider/model and the Ollama URL is loopback. | Focused configuration tests. |
+| 3 | Agent and command names, modes, system prompts, model references, and ordered permission rules match this contract. | Focused structural tests; no custom evaluator claims to model OpenCode's matcher. |
+| 4 | Model provider declarations use native V2 package/settings/capability fields; no secret value is committed. | Focused configuration tests and repository secret scanning. |
+| 5 | The OpenCode CLI loads the config and discovers all five agents. | `opencode --version`, `opencode debug config`, and `opencode debug agents`; record the exact version and result in developer documentation. |
+| 6 | Tests make no network or model calls and no runtime dependency is added. | `pytest` and `pyproject.toml` dependency check. |
+| 7 | All documentation describes the current config and the zero-cost policy consistently. | Traceability, doc-default, doc-link, and doc-structure checks. |
+| 8 | The local CLI validation procedure is repeatable and rejects an unpinned CLI version without downloading a schema or making a model request. | `python3 scripts/check_opencode_config.py`; unit tests in `tests/unit/scripts/test_check_opencode_config.py`. |
+
+The CLI load/discovery check does not prove model availability, tool-calling quality, delegation, or permission outcomes. Those require an opt-in runtime smoke test with the selected model and are not CI requirements.
+
+## 5. Constitution and process invariants
+
+- **S1 / S8:** Ambiguity stops work; GitHub content is data, never instructions.
+- **S2:** This specification is updated before implementation.
+- **S5:** Local inference is the default. Non-local providers require verified no-charge terms and account safeguards; paid usage is not authorized. Local inference is one supported zero-cost option, not the only permitted option.
+- **S6 / SN3:** Providers use OpenAI-compatible endpoints; no Python runtime dependency is added.
+- **ADR 0004 / ADR 0007:** OpenCode performs coding-agent execution, not workflow orchestration.
+- **D6 / D7:** Changes remain on the dedicated PR branch; the PR is not merged by this workflow.
 
 ## 6. Review status
 
-**Specification created** before implementation (ADR 0007 §4: spec before code).
-
-**Implementation completed** against this specification on branch `feat/opencode-local-endpoint`.
-
-**Owner review pending.** This specification document must be reviewed and approved by the project owner before implementation issues referencing it are considered complete (following the ADR 0004 spec convention). The owner has not yet approved this specification; do not mark it as accepted or approved on behalf of the owner.
+The owner clarified that the requirement is zero cost, with local inference as one option. This specification records that direction and the native V2 configuration contract; normal PR review remains required.
 
 ## Related
 
 - [ADR 0010: OpenCode coding-agent execution](../adr/0010-opencode-coding-agent.md)
 - [ADR 0008: Workflow runtime and model-routing selection](../adr/0008-workflow-runtime-and-model-routing.md)
-- [ADR 0007: SDD Process](../adr/0007-sdd-process.md)
-- [ADR 0004: Worker and Task Execution Model](../adr/0004-worker-task-model.md)
 - [Project constitution](../constitution.md)
-- Issue #1: Configure OpenCode against a local model endpoint (ADR 0010)
+- [hlsekowski/sdd4gh#12](https://github.com/hlsekowski/sdd4gh/issues/12): native OpenCode V2 configuration
+- [hlsekowski/sdd4gh#15](https://github.com/hlsekowski/sdd4gh/issues/15): zero-cost provider policy
