@@ -24,6 +24,9 @@ ADRs keep their existing template and `Status` field; the header is added above 
 
 - `AGENTS.md` and `README.md` are entry files and keep their own format.
 
+Intentional removals of code paths are recorded in the
+[dropped code paths catalog](dropped-code-paths.md).
+
 ## Reference integrity
 
 `python3 scripts/check_doc_links.py` checks every tracked and unignored
