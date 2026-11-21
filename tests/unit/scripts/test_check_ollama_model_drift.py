@@ -297,11 +297,12 @@ def test_model_discovery_uses_library_tags_and_registry_weight_manifests(
     assert manifest_requests == [("gemma4", "12b"), ("gemma4", "27b")]
 
 
-def test_model_discovery_skips_exact_cloud_tags_before_registry_lookup(monkeypatch):
+def test_model_discovery_skips_cloud_and_mlx_tags_before_registry_lookup(monkeypatch):
     policy = CHECKER.load_policy()
     gemma_tags = (FIXTURES_DIR / "library_tags.html").read_text()
     search_html = (
         '<a href="/library/deepseek-v4.1-flash">deepseek-v4.1-flash</a>'
+        '<a href="/library/flint">flint</a>'
         '<a href="/library/gemma4">gemma4</a>'
     )
     manifest = json.loads((FIXTURES_DIR / "manifest.json").read_text())
@@ -312,14 +313,16 @@ def test_model_discovery_skips_exact_cloud_tags_before_registry_lookup(monkeypat
             return search_html if "page=1" in url else "<html></html>"
         if url == "https://ollama.com/library/deepseek-v4.1-flash/tags":
             return '<a href="/library/deepseek-v4.1-flash:cloud">cloud</a>'
+        if url == "https://ollama.com/library/flint/tags":
+            return '<a href="/library/flint:40b-a2b-mlx-bf16">40b-a2b-mlx-bf16</a>'
         if url == "https://ollama.com/library/gemma4/tags":
             return gemma_tags
         raise AssertionError(f"unexpected catalog URL: {url}")
 
     def get_manifest(_registry_url, model, tag, _timeout):
         manifest_requests.append((model, tag))
-        if tag == "cloud":
-            raise AssertionError("cloud tags must not request registry manifests")
+        if tag == "cloud" or "mlx" in tag.split("-"):
+            raise AssertionError("excluded tags must not request registry manifests")
         return CHECKER.GIB, manifest
 
     monkeypatch.setattr(CHECKER, "http_text", fetch)

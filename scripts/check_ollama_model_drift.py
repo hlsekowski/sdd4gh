@@ -454,6 +454,25 @@ def library_tags(
     return parser.tags
 
 
+def tag_is_excluded(tag: str, exclusion_policy: object) -> bool:
+    if not isinstance(exclusion_policy, dict):
+        return tag == "cloud"
+    suffixes = exclusion_policy.get("tag_suffixes", [])
+    markers = exclusion_policy.get("tag_markers", [])
+    segments = tag.split("-")
+    return (
+        tag == "cloud"
+        or (
+            isinstance(suffixes, list)
+            and any(isinstance(suffix, str) and tag.endswith(suffix) for suffix in suffixes)
+        )
+        or (
+            isinstance(markers, list)
+            and any(isinstance(marker, str) and marker in segments for marker in markers)
+        )
+    )
+
+
 def discover_models(
     ollama: dict[str, Any], functionalities: list[Any]
 ) -> dict[str, dict[str, Any]]:
@@ -502,7 +521,6 @@ def discover_models(
     if not names:
         raise SkipCheck("Ollama library discovery returned no models")
     excluded = ollama.get("exclude", {})
-    suffixes = excluded.get("tag_suffixes", []) if isinstance(excluded, dict) else []
     ignored = set(ollama.get("ignore", []))
     candidates: dict[str, dict[str, Any]] = {}
 
@@ -533,9 +551,7 @@ def discover_models(
         if not tag_names:
             raise SkipCheck(f"Ollama registry returned no tags for discovered model {model}")
         for tag in sorted(tag_names):
-            if tag == "cloud" or (
-                isinstance(suffixes, list) and any(tag.endswith(suffix) for suffix in suffixes)
-            ):
+            if tag_is_excluded(tag, excluded):
                 continue
             name = f"{model}:{tag}"
             if name in ignored:
@@ -898,9 +914,6 @@ def plan_candidates(
     installed, shown = installed_fit_models(base_url, configured, timeout)
     excluded_names = set(ollama.get("ignore", []))
     exclusion_policy = ollama.get("exclude", {})
-    tag_suffixes = (
-        exclusion_policy.get("tag_suffixes", []) if isinstance(exclusion_policy, dict) else []
-    )
 
     def excluded(name: str, details: dict[str, Any]) -> bool:
         tag = name.rsplit(":", 1)[-1]
@@ -913,8 +926,7 @@ def plan_candidates(
             "/" in name
             or remote
             or name in excluded_names
-            or tag == "cloud"
-            or any(tag.endswith(suffix) for suffix in tag_suffixes)
+            or tag_is_excluded(tag, exclusion_policy)
         )
 
     outcomes: dict[str, dict[str, Any]] = {}

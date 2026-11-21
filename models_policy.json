@@ -54,7 +54,8 @@
     "model_store_path": null,
     "require_capabilities": ["tools"],
     "exclude": {
-      "tag_suffixes": ["-cloud", "-mlx"],
+      "tag_suffixes": ["-cloud"],
+      "tag_markers": ["mlx"],
       "remote": true
     },
     "ignore": [],
