@@ -62,6 +62,7 @@
       "search_url": "https://ollama.com/search?c=tools",
       "registry_url": "https://registry.ollama.ai/v2/library",
       "max_families": 30,
+      "max_redirects": 3,
       "timeout_seconds": 15,
       "page_size": 30
     },

@@ -239,6 +239,106 @@ def test_saved_library_and_registry_fixtures_parse_official_models():
     assert weight_size == 7 * CHECKER.GIB
 
 
+def test_catalog_get_follows_same_host_303_redirect(monkeypatch):
+    class Response:
+        def __init__(self, status, body=b"", location=None):
+            self.status = status
+            self.body = body
+            self.location = location
+
+        def getheader(self, name):
+            return self.location if name == "Location" else None
+
+        def read(self):
+            return self.body
+
+    responses = [
+        Response(303, location="/search?c=tools"),
+        Response(200, b"<html>catalog</html>"),
+    ]
+    requests = []
+
+    class Connection:
+        def __init__(self, host, port, timeout):
+            assert host == "ollama.com"
+            assert port is None
+            assert timeout == 10
+
+        def request(self, method, path):
+            requests.append((method, path))
+
+        def getresponse(self):
+            return responses.pop(0)
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(CHECKER, "HTTPSConnection", Connection)
+
+    result = CHECKER.http_text(
+        "https://ollama.com/search?c=tools&page=1",
+        timeout=10,
+        max_redirects=3,
+    )
+
+    assert result == "<html>catalog</html>"
+    assert requests == [
+        ("GET", "/search?c=tools&page=1"),
+        ("GET", "/search?c=tools"),
+    ]
+
+
+def test_catalog_get_rejects_cross_host_redirect(monkeypatch):
+    class Response:
+        status = 303
+
+        def getheader(self, _name):
+            return "https://example.com/search"
+
+    connections = []
+
+    class Connection:
+        def __init__(self, host, _port, **_kwargs):
+            connections.append(host)
+
+        def request(self, _method, _path):
+            pass
+
+        def getresponse(self):
+            return Response()
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(CHECKER, "HTTPSConnection", Connection)
+
+    with pytest.raises(RuntimeError, match="redirect left the official Ollama host"):
+        CHECKER.http_text(
+            "https://ollama.com/search?c=tools&page=1",
+            timeout=10,
+            max_redirects=3,
+        )
+
+    assert connections == ["ollama.com"]
+
+
+def test_discovery_passes_policy_redirect_limit(monkeypatch):
+    policy = CHECKER.load_policy()
+    limits = []
+
+    def fetch(_url, *, timeout, max_redirects):
+        assert timeout == policy["ollama"]["discovery"]["timeout_seconds"]
+        limits.append(max_redirects)
+        return "<html></html>"
+
+    monkeypatch.setattr(CHECKER, "http_text", fetch)
+
+    with pytest.raises(CHECKER.SkipCheck, match="returned no models"):
+        CHECKER.discover_models(policy["ollama"], policy["functionalities"])
+
+    assert limits == [policy["ollama"]["discovery"]["max_redirects"]]
+
+
 def test_vm_stat_fixture_uses_reported_page_size():
     pages = CHECKER.parse_vm_stat((FIXTURES_DIR / "vm_stat.txt").read_text())
 

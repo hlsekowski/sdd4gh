@@ -272,20 +272,53 @@ def http_json(
             active_connection.remove(connection)
 
 
-def http_text(url: str, *, timeout: float) -> str:
-    parsed = urlparse(url)
-    connection_type = HTTPSConnection if parsed.scheme == "https" else HTTPConnection
-    connection = connection_type(parsed.hostname, parsed.port, timeout=timeout)
-    try:
-        connection.request("GET", parsed.path + (f"?{parsed.query}" if parsed.query else ""))
-        response = connection.getresponse()
-        if response.status < 200 or response.status >= 300:
-            raise RuntimeError(f"GET {url} returned HTTP {response.status}")
-        return response.read().decode("utf-8", errors="replace")
-    except (OSError, TimeoutError) as error:
-        raise RuntimeError(f"GET {url} failed: {error}") from error
-    finally:
-        connection.close()
+def http_text(url: str, *, timeout: float, max_redirects: int) -> str:
+    if isinstance(max_redirects, bool) or not isinstance(max_redirects, int) or max_redirects < 0:
+        raise ValueError("catalog redirect limit must be a non-negative integer")
+    original = urlparse(url)
+    if (
+        original.scheme != "https"
+        or original.hostname != "ollama.com"
+        or original.username
+        or original.password
+        or original.port not in {None, 443}
+    ):
+        raise RuntimeError("catalog GET is restricted to the official HTTPS Ollama host")
+    redirect_statuses = {301, 302, 303, 307, 308}
+    current_url = url
+    for redirect_count in range(max_redirects + 1):
+        parsed = urlparse(current_url)
+        if (
+            parsed.scheme != "https"
+            or parsed.hostname != original.hostname
+            or parsed.username
+            or parsed.password
+            or parsed.port not in {None, 443}
+        ):
+            raise RuntimeError("catalog redirect left the official Ollama host")
+        connection = HTTPSConnection(parsed.hostname, parsed.port, timeout=timeout)
+        try:
+            connection.request(
+                "GET",
+                parsed.path + (f"?{parsed.query}" if parsed.query else ""),
+            )
+            response = connection.getresponse()
+            if response.status in redirect_statuses:
+                location = response.getheader("Location")
+                if not location:
+                    raise RuntimeError(f"GET {current_url} redirected without a Location header")
+                if redirect_count == max_redirects:
+                    raise RuntimeError(f"GET {url} exceeded its redirect limit")
+                current_url = urljoin(current_url, location)
+                continue
+            if response.status < 200 or response.status >= 300:
+                raise RuntimeError(f"GET {current_url} returned HTTP {response.status}")
+            return response.read().decode("utf-8", errors="replace")
+        except (OSError, TimeoutError) as error:
+            raise RuntimeError(f"GET {current_url} failed: {error}") from error
+        finally:
+            connection.close()
+    raise RuntimeError(f"GET {url} exceeded its redirect limit")
 
 
 def registry_config(
@@ -426,11 +459,15 @@ def discover_models(
     registry_url = discovery.get("registry_url")
     maximum = discovery.get("max_families")
     timeout = discovery.get("timeout_seconds")
+    max_redirects = discovery.get("max_redirects")
     if (
         not isinstance(search_url, str)
         or not isinstance(registry_url, str)
         or not isinstance(maximum, int)
         or not isinstance(timeout, (int, float))
+        or isinstance(max_redirects, bool)
+        or not isinstance(max_redirects, int)
+        or max_redirects < 0
     ):
         raise RuntimeError("Ollama discovery policy is invalid")
     if (
@@ -443,7 +480,13 @@ def discover_models(
     names: set[str] = set()
     for page in range(1, int(maximum) + 1):
         parser = ModelLinks()
-        parser.feed(http_text(ollama_search_url(search_url, page), timeout=float(timeout)))
+        parser.feed(
+            http_text(
+                ollama_search_url(search_url, page),
+                timeout=float(timeout),
+                max_redirects=max_redirects,
+            )
+        )
         names.update(parser.models)
         if len(names) >= maximum or not parser.models:
             break
