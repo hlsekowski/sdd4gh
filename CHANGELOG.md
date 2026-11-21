@@ -10,6 +10,7 @@ Notable project changes are recorded under `Unreleased` and updated for each pul
 - Added an opt-in, monitor-only Ollama model drift check with memory-fit estimates and supervised fit verification.
 - Discovered Ollama tags from official library pages, sized model and tensor manifest layers, excluded cloud and MLX tags before weight lookup, and followed bounded same-host HTTPS catalog redirects.
 - Added Ollama model-store disk-space warnings and safety stops before pulls and model loads.
+- Relaxed Ollama fit-verification preflight to allow yellow/orange memory pressure, keeping hard pressure as an immediate stop.
 - Added reproducible OpenCode runtime model-resolution and opt-in local smoke validation.
 - Added least-privilege OpenCode agent permissions with shell, edit, and delegation regressions.
 - Added a catalog format for documenting intentionally dropped code paths.

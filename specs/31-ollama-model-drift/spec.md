@@ -48,8 +48,9 @@ or Ollama configuration.
    of default pytest or CI.
 7. Before a live load, require macOS arm64, loopback Ollama URL, non-CI,
    explicit consent, AC/battery and Low Power Mode observation, empty
-   `/api/ps`, stable normal pressure, low swap, healthy responsiveness
-   canaries, and a clean crash journal. Refuse the run if preflight fails.
+   `/api/ps`, stable memory pressure at or below the policy preflight maximum,
+   low swap, healthy responsiveness canaries, and a clean crash journal.
+   Refuse the run if preflight fails.
 8. Use a single fixed-allow-list probe wrapper for every OS/process interaction.
    It may only perform the read-only probes in this specification and issue
    the test's own bounded Ollama requests, cancel its own request, and unload
@@ -59,9 +60,11 @@ or Ollama configuration.
 9. Record a flushed JSONL monitoring timeline and a fsynced crash journal
    outside tracked files. Monitor pressure, swap growth, timer lag, process
    creation latency, watched-process exits, Ollama health, Ollama/Metal errors,
-   placement, and thermal/power status. A trip stops requests, unloads only the
-   run's own model, observes recovery, and leaves remaining models untested.
-   No automated system recovery is permitted.
+   placement, and thermal/power status. Warning-level pressure is recorded but
+   does not stop the run by itself; hard pressure still trips immediately. A
+   trip stops requests, unloads only the run's own model, observes recovery,
+   and leaves remaining models untested. No automated system recovery is
+   permitted.
 10. Test configured models before candidates, ordered by estimated footprint;
     cap the run at policy `max_models_per_run`. Configured models receive the
     policy number of retries for soft trips or inconclusive outcomes after

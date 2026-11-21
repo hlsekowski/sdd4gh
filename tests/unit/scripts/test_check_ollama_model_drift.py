@@ -444,7 +444,13 @@ def test_vm_stat_fixture_uses_reported_page_size():
 def test_monitor_thresholds_and_collateral_exit_decisions():
     safety = CHECKER.load_policy()["ollama"]["safety"]
 
+    assert CHECKER.pressure_is_admissible(1, safety)
+    assert CHECKER.pressure_is_admissible(2, safety)
+    assert CHECKER.pressure_is_admissible(3, safety)
+    assert not CHECKER.pressure_is_admissible(4, safety)
     assert CHECKER.threshold_trip("pressure", 1, safety) is None
+    assert CHECKER.threshold_trip("pressure", 2, safety) is None
+    assert CHECKER.threshold_trip("pressure", 3, safety) is None
     assert CHECKER.threshold_trip("pressure", 4, safety) == (
         "memory_pressure_hard",
         "hard",

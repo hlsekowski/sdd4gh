@@ -38,6 +38,10 @@ cancel only its own request and unload only a model it loaded. It cannot
 signal or modify other processes, alter system or Ollama settings, or pull
 models without explicit authorization. A monitor trip stops the run and
 records evidence; it never attempts to recover the machine automatically.
+Preflight and model admission allow the policy's configured yellow/orange
+memory-pressure levels; hard pressure remains an immediate stop. Warning-level
+pressure is recorded but does not stop a run by itself. Other preflight and
+runtime safety checks are unchanged.
 Functionalities are shared at the top level of policy schema version 2, while
 provider-specific discovery and execution rules remain in provider sections.
 The implementation is [`scripts/check_ollama_model_drift.py`](../../scripts/check_ollama_model_drift.py);

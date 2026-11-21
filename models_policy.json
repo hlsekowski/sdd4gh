@@ -98,11 +98,10 @@
       "request_timeout_seconds": 240
     },
     "safety": {
-      "pressure_normal_seconds": 30,
+      "pressure_baseline_seconds": 30,
       "max_swap_used_mib": 1024,
       "idle_baseline_seconds": 20,
       "watch_set_min_rss_mib": 150,
-      "pressure_warn_trip_seconds": 10,
       "swap_growth_mib": {"warn": 256, "trip": 1024},
       "timer_lag_ms": {"warn": 250, "trip": 1000, "consecutive": 3, "stall_seconds": 5},
       "spawn_latency_ms": {"warn": 300, "trip": 1500, "consecutive": 2},
@@ -116,8 +115,12 @@
       "ollama_sample_seconds": 2,
       "log_sample_seconds": 1,
       "thermal_sample_seconds": 5,
-      "collateral_warn_pressure": 2,
-      "memory_pressure_levels": {"normal": 1, "warn": 2, "hard": 4}
+      "memory_pressure_levels": {
+        "normal": 1,
+        "warn": 2,
+        "preflight_max": 3,
+        "hard": 4
+      }
     }
   }
 }

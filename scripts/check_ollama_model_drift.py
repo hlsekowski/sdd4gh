@@ -742,6 +742,11 @@ def threshold_trip(
     return None
 
 
+def pressure_is_admissible(pressure: int, safety: dict[str, Any]) -> bool:
+    levels = safety["memory_pressure_levels"]
+    return pressure <= levels["preflight_max"] and pressure < levels["hard"]
+
+
 def collateral_exit_trip(
     vanished: list[int], pressure: int, swap_growth_bytes: int, safety: dict[str, Any]
 ) -> bool:
@@ -1134,15 +1139,15 @@ def normal_preflight(
         raise SkipCheck("Ollama already has a loaded model; unload it manually and retry")
     safety = policy["ollama"]["safety"]
     baseline_duration = max(
-        safety["pressure_normal_seconds"],
+        safety["pressure_baseline_seconds"],
         safety["idle_baseline_seconds"],
     )
     baseline_started = time.monotonic()
     canaries: list[dict[str, float]] = []
     while time.monotonic() - baseline_started < baseline_duration:
         pressure = int(probe("pressure"))
-        if pressure != safety["memory_pressure_levels"]["normal"]:
-            raise SkipCheck("memory pressure is not normal")
+        if not pressure_is_admissible(pressure, safety):
+            raise SkipCheck("memory pressure exceeds the configured preflight maximum")
         swap = swap_used_bytes(probe("swap"))
         if swap >= safety["max_swap_used_mib"] * MIB:
             raise SkipCheck("swap use exceeds the preflight limit")
@@ -1269,7 +1274,6 @@ class FitMonitor:
         self.trip: dict[str, Any] | None = None
         self.thread = threading.Thread(target=self._run, daemon=True)
         self.started = time.monotonic()
-        self.pressure_warn_start: float | None = None
         self.timer_trips = 0
         self.spawn_trips = 0
         self.log_offset = 0
@@ -1315,12 +1319,7 @@ class FitMonitor:
                 if pressure_trip:
                     self._trip(*pressure_trip, sample)
                 if pressure >= levels["warn"]:
-                    if self.pressure_warn_start is None:
-                        self.pressure_warn_start = now
-                    if now - self.pressure_warn_start >= self.safety["pressure_warn_trip_seconds"]:
-                        self._trip("memory_pressure_sustained", "soft", sample)
-                else:
-                    self.pressure_warn_start = None
+                    sample.setdefault("warnings", []).append("memory_pressure")
                 lag_trip = threshold_trip("timer_lag_ms", lag_ms, self.safety)
                 if lag_ms >= self.safety["timer_lag_ms"]["trip"]:
                     self.timer_trips += 1
@@ -1414,8 +1413,6 @@ class FitMonitor:
             except (RuntimeError, ValueError) as error:
                 sample["probe_error"] = str(error)
                 self._trip("monitor_probe_failed", "hard", sample)
-            if sample.get("pressure_level", 0) >= self.safety["collateral_warn_pressure"]:
-                sample.setdefault("warnings", []).append("memory_pressure")
             append_timeline(self.timeline, sample)
             if self.trip:
                 return
@@ -1440,8 +1437,8 @@ def admission_check(
     required = estimate_bytes - int(fit_policy["max_squeeze_gib"] * GIB)
     if reclaimable < max(0, required):
         raise SkipCheck("machine busy: reclaimable memory is below the admission limit")
-    if int(probe("pressure")) != safety["memory_pressure_levels"]["normal"]:
-        raise SkipCheck("memory pressure changed before model admission")
+    if not pressure_is_admissible(int(probe("pressure")), safety):
+        raise SkipCheck("memory pressure exceeds the configured preflight maximum")
 
 
 def tool_probe(
@@ -1625,9 +1622,8 @@ def monitor_until_baseline(
     deadline = time.monotonic() + policy["ollama"]["fit"]["recovery_timeout_seconds"]
     while time.monotonic() < deadline:
         try:
-            normal_pressure = (
-                int(probe("pressure"))
-                == policy["ollama"]["safety"]["memory_pressure_levels"]["normal"]
+            acceptable_pressure = pressure_is_admissible(
+                int(probe("pressure")), policy["ollama"]["safety"]
             )
             stable_swap = swap_used_bytes(probe("swap")) <= baseline_swap
             loaded = http_json(
@@ -1635,7 +1631,7 @@ def monitor_until_baseline(
                 "/api/ps",
                 timeout=policy["ollama"]["safety"]["ollama_unresponsive_seconds"],
             ).get("models", [])
-            if normal_pressure and stable_swap and loaded == []:
+            if acceptable_pressure and stable_swap and loaded == []:
                 return True
         except (RuntimeError, ValueError):
             pass
