@@ -297,6 +297,41 @@ def test_model_discovery_uses_library_tags_and_registry_weight_manifests(
     assert manifest_requests == [("gemma4", "12b"), ("gemma4", "27b")]
 
 
+def test_model_discovery_skips_exact_cloud_tags_before_registry_lookup(monkeypatch):
+    policy = CHECKER.load_policy()
+    gemma_tags = (FIXTURES_DIR / "library_tags.html").read_text()
+    search_html = (
+        '<a href="/library/deepseek-v4.1-flash">deepseek-v4.1-flash</a>'
+        '<a href="/library/gemma4">gemma4</a>'
+    )
+    manifest = json.loads((FIXTURES_DIR / "manifest.json").read_text())
+    manifest_requests = []
+
+    def fetch(url, *, timeout, max_redirects):
+        if "/search?" in url:
+            return search_html if "page=1" in url else "<html></html>"
+        if url == "https://ollama.com/library/deepseek-v4.1-flash/tags":
+            return '<a href="/library/deepseek-v4.1-flash:cloud">cloud</a>'
+        if url == "https://ollama.com/library/gemma4/tags":
+            return gemma_tags
+        raise AssertionError(f"unexpected catalog URL: {url}")
+
+    def get_manifest(_registry_url, model, tag, _timeout):
+        manifest_requests.append((model, tag))
+        if tag == "cloud":
+            raise AssertionError("cloud tags must not request registry manifests")
+        return CHECKER.GIB, manifest
+
+    monkeypatch.setattr(CHECKER, "http_text", fetch)
+    monkeypatch.setattr(CHECKER, "registry_manifest", get_manifest)
+    monkeypatch.setattr(CHECKER, "registry_config", lambda *_args, **_kwargs: {})
+
+    candidates = CHECKER.discover_models(policy["ollama"], policy["functionalities"])
+
+    assert set(candidates) == {"gemma4:12b", "gemma4:27b"}
+    assert manifest_requests == [("gemma4", "12b"), ("gemma4", "27b")]
+
+
 def test_catalog_get_follows_same_host_303_redirect(monkeypatch):
     class Response:
         def __init__(self, status, body=b"", location=None):

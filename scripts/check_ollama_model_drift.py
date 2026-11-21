@@ -533,7 +533,9 @@ def discover_models(
         if not tag_names:
             raise SkipCheck(f"Ollama registry returned no tags for discovered model {model}")
         for tag in sorted(tag_names):
-            if isinstance(suffixes, list) and any(tag.endswith(suffix) for suffix in suffixes):
+            if tag == "cloud" or (
+                isinstance(suffixes, list) and any(tag.endswith(suffix) for suffix in suffixes)
+            ):
                 continue
             name = f"{model}:{tag}"
             if name in ignored:
