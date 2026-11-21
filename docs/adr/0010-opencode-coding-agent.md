@@ -46,6 +46,15 @@ mocked regressions are in
 and supervised fit verification is in
 [`test_ollama_model_drift.py`](../../tests/live/test_ollama_model_drift.py).
 
+Before each model pull or load, the fit verifier checks available space on the
+filesystem containing Ollama's model store. The store path is selected from an
+explicit policy override, `OLLAMA_MODELS`, or Ollama's default
+`~/.ollama/models` location, in that order. The policy sets a warning at 20%
+available space and a hard safety stop at 15% or less. A stop preserves and
+prints completed results, leaves remaining models untested, and never attempts
+to free disk space. An unavailable or invalid measurement stops the run rather
+than allowing a model operation to proceed. See the [issue #32 spec](../../specs/32-ollama-disk-space-monitoring/spec.md).
+
 ## Consequences
 
 ### Positive

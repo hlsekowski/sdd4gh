@@ -49,10 +49,13 @@ The NVIDIA check must:
 
 The Ollama fit-verification mode is monitor-only. It requires explicit
 operator consent and a clean preflight, records machine and model evidence,
-and must stop safely on a monitored trip. It may cancel only its own request
-and unload only a model it loaded. It must not change system, Ollama, or
-OpenCode configuration or interfere with other processes. See the [Ollama model-drift
-spec](../specs/31-ollama-model-drift/spec.md) for its full contract.
+checks free space on the Ollama model-store filesystem before pulls and loads,
+and must stop safely on a monitored trip or low-disk condition. It may cancel
+only its own request and unload only a model it loaded. It must not change
+system, Ollama, or OpenCode configuration or interfere with other processes.
+See the [Ollama model-drift spec](../specs/31-ollama-model-drift/spec.md) and
+[disk-space spec](../specs/32-ollama-disk-space-monitoring/spec.md) for the
+full contracts.
 
 ## Provider configuration
 

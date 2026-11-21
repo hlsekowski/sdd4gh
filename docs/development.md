@@ -155,6 +155,16 @@ It may stop on a safety trip; any recovery (including stopping or restarting
 Ollama) is manual. Reports and monitoring timelines are stored under the
 ignored `.ollama-model-drift/` directory.
 
+Before each permitted pull or model load, fit verification checks available
+space on the Ollama model-store filesystem. It uses
+`ollama.model_store_path` when set, then `OLLAMA_MODELS`, then
+`~/.ollama/models`. If Ollama runs with a separate environment, set the policy
+override to its actual model-store directory. At or below 20% available space
+it warns and continues; at or below 15% it aborts with partial results.
+If the directory or filesystem cannot be measured, it fails closed. It never
+deletes files or tries to reclaim space. See the [issue #32 disk-space
+spec](../specs/32-ollama-disk-space-monitoring/spec.md).
+
 ```bash
 SDD4GH_ALLOW_MODEL_LOAD=1 python3 scripts/check_ollama_model_drift.py --verify-fit
 SDD4GH_ALLOW_MODEL_LOAD=1 pytest -m live tests/live/test_ollama_model_drift.py

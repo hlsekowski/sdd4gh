@@ -22,11 +22,85 @@ def test_loads_shared_schema_v2_policy():
     policy = CHECKER.load_policy()
 
     assert policy["schema_version"] == 2
+    assert policy["ollama"]["safety"]["disk_free_percent"] == {"warn": 20, "stop": 15}
     assert {item["id"] for item in policy["functionalities"]} == {
         "coding",
         "cybersecurity",
         "general-purpose",
     }
+
+
+def test_model_store_path_prefers_policy_then_environment_then_default(monkeypatch, tmp_path):
+    policy_path = tmp_path / "policy-models"
+    environment_path = tmp_path / "environment-models"
+    ollama = {"model_store_path": str(policy_path)}
+    monkeypatch.setenv("OLLAMA_MODELS", str(environment_path))
+
+    assert CHECKER.resolve_model_store_path(ollama) == (policy_path, "policy")
+
+    assert CHECKER.resolve_model_store_path({"model_store_path": None}) == (
+        environment_path,
+        "OLLAMA_MODELS",
+    )
+
+    monkeypatch.delenv("OLLAMA_MODELS")
+    monkeypatch.setattr(CHECKER.Path, "home", lambda: tmp_path)
+    assert CHECKER.resolve_model_store_path({"model_store_path": None}) == (
+        tmp_path / ".ollama" / "models",
+        "default",
+    )
+
+
+def test_disk_space_probe_uses_available_blocks_and_policy_thresholds(monkeypatch, tmp_path):
+    monkeypatch.setattr(
+        CHECKER.os,
+        "statvfs",
+        lambda _path: type(
+            "Statvfs",
+            (),
+            {"f_bavail": 20, "f_frsize": 1, "f_blocks": 100},
+        )(),
+    )
+    safety = CHECKER.load_policy()["ollama"]["safety"]
+    status = CHECKER.measure_disk_space(
+        {"model_store_path": str(tmp_path)},
+        safety,
+    )
+
+    assert status["available_bytes"] == 20
+    assert status["total_bytes"] == 100
+    assert status["available_percent"] == 20
+    assert status["action"] == "warn"
+    assert CHECKER.disk_space_action(15, safety) == "stop"
+    assert CHECKER.disk_space_action(20.1, safety) == "continue"
+
+
+def test_disk_space_warning_continues_but_measurement_failure_stops(capsys, monkeypatch):
+    policy = CHECKER.load_policy()["ollama"]
+    disk_checks = []
+    monkeypatch.setattr(
+        CHECKER,
+        "measure_disk_space",
+        lambda *_args, **_kwargs: {
+            "path": "/models",
+            "available_percent": 20,
+            "action": "warn",
+        },
+    )
+
+    assert CHECKER.check_disk_space(policy, disk_checks, "model load") is None
+    assert disk_checks[0]["action"] == "warn"
+    assert "WARNING:" in capsys.readouterr().out
+
+    def fail_measurement(*_args, **_kwargs):
+        raise RuntimeError("unavailable")
+
+    monkeypatch.setattr(CHECKER, "measure_disk_space", fail_measurement)
+    reason = CHECKER.check_disk_space(policy, disk_checks, "model load")
+
+    assert reason == "disk space could not be verified before model load: unavailable"
+    assert disk_checks[1]["action"] == "stop"
+    assert "DISK SPACE SAFETY STOP" in capsys.readouterr().out
 
 
 def test_probe_rejects_unlisted_process_or_system_operations(monkeypatch):
@@ -211,6 +285,145 @@ def test_configured_models_are_ordered_before_candidates_by_memory_estimate():
         "candidate-small",
         "candidate-large",
     ]
+
+
+def test_disk_stop_preserves_completed_models_and_skips_later_loads(monkeypatch, tmp_path):
+    report = {
+        "machine": {"context": 4096},
+        "configured_models": [
+            {
+                "resolved_name": "configured-small",
+                "configured_name": "configured-small",
+                "verdict": "candidate",
+                "resolution_verified": True,
+                "estimate_bytes": 1,
+                "usable_bytes": 100,
+            },
+            {
+                "resolved_name": "configured-large",
+                "configured_name": "configured-large",
+                "verdict": "candidate",
+                "resolution_verified": True,
+                "estimate_bytes": 2,
+                "usable_bytes": 100,
+            },
+        ],
+        "candidates": [],
+        "outcomes": {},
+    }
+    disk_statuses = iter(
+        [
+            {"path": "/models", "available_percent": 30, "action": "continue"},
+            {"path": "/models", "available_percent": 15, "action": "stop"},
+        ]
+    )
+    loaded_models = [
+        {
+            "name": name,
+            "size": 100,
+            "size_vram": 100,
+            "context_length": 4096,
+        }
+        for name in ("configured-small", "configured-large")
+    ]
+    loaded = []
+
+    class Monitor:
+        def __init__(self, *, model_loaded, **_kwargs):
+            self.trip = None
+            self.model_loaded = model_loaded
+
+        def start(self):
+            pass
+
+        def stop(self):
+            pass
+
+    monkeypatch.setattr(CHECKER, "journal_path", lambda: tmp_path / "journal.json")
+    monkeypatch.setattr(CHECKER, "write_journal", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(
+        CHECKER,
+        "installed_models",
+        lambda *_args, **_kwargs: {"configured-small": {}, "configured-large": {}},
+    )
+    monkeypatch.setattr(
+        CHECKER, "measure_disk_space", lambda *_args, **_kwargs: next(disk_statuses)
+    )
+    monkeypatch.setattr(
+        CHECKER,
+        "normal_preflight",
+        lambda *_args, **_kwargs: ({"baseline_swap_bytes": 0}, {}),
+    )
+    monkeypatch.setattr(CHECKER, "admission_check", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(CHECKER, "FitMonitor", Monitor)
+    monkeypatch.setattr(
+        CHECKER,
+        "load_model",
+        lambda _base, model, *_args, **_kwargs: loaded.append(model),
+    )
+    monkeypatch.setattr(CHECKER, "unload_own_model", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(CHECKER, "functionality_prompts", lambda *_args, **_kwargs: [])
+    monkeypatch.setattr(CHECKER, "retry_in_place", lambda *_args, **_kwargs: {})
+    monkeypatch.setattr(CHECKER, "timeline_summary", lambda *_args, **_kwargs: {"warnings": []})
+    monkeypatch.setattr(CHECKER, "monitor_until_baseline", lambda *_args, **_kwargs: True)
+    monkeypatch.setattr(
+        CHECKER,
+        "http_json",
+        lambda *_args, **_kwargs: {"models": loaded_models},
+    )
+
+    verdicts, exit_code = CHECKER.live_verify(
+        report,
+        CHECKER.load_policy(),
+        "http://localhost:11434",
+        only=None,
+        deep=False,
+        allow_pull=False,
+    )
+
+    assert exit_code == 3
+    assert loaded == ["configured-small"]
+    assert verdicts[0]["verdict"] == "fits_degraded"
+    assert verdicts[1]["verdict"] == "not_tested"
+    assert verdicts[1]["disk_space_checks"][0]["available_percent"] == 15
+
+
+def test_disk_stop_prevents_model_pull(monkeypatch, tmp_path):
+    report = {
+        "machine": {"context": 4096},
+        "configured_models": [],
+        "candidates": [{"name": "candidate:latest"}],
+        "outcomes": {"candidate:latest": {"weights_bytes": CHECKER.GIB}},
+    }
+    monkeypatch.setattr(CHECKER, "journal_path", lambda: tmp_path / "journal.json")
+    monkeypatch.setattr(CHECKER, "installed_models", lambda *_args, **_kwargs: {})
+    monkeypatch.setattr(
+        CHECKER,
+        "measure_disk_space",
+        lambda *_args, **_kwargs: {
+            "path": "/models",
+            "available_percent": 15,
+            "action": "stop",
+        },
+    )
+    monkeypatch.setattr(
+        CHECKER,
+        "pull_model",
+        lambda *_args, **_kwargs: pytest.fail("pull occurred below the disk stop threshold"),
+    )
+
+    verdicts, exit_code = CHECKER.live_verify(
+        report,
+        CHECKER.load_policy(),
+        "http://localhost:11434",
+        only=None,
+        deep=False,
+        allow_pull=True,
+    )
+
+    assert exit_code == 3
+    assert verdicts[0]["verdict"] == "not_tested"
+    assert verdicts[0]["disk_space_checks"][0]["stage"] == "model pull"
 
 
 def test_configured_custom_variant_resolves_base_and_context_from_modelfile(monkeypatch):
@@ -401,3 +614,62 @@ def test_default_main_never_enters_fit_verification(monkeypatch, capsys, tmp_pat
 
     assert CHECKER.main([]) == 2
     assert "No model was loaded" in capsys.readouterr().out
+
+
+def test_safety_stop_prints_partial_results_if_report_cannot_be_saved(monkeypatch, capsys):
+    policy = CHECKER.load_policy()
+    config = {
+        "providers": {
+            "ollama": {
+                "settings": {"baseURL": "http://localhost:11434/v1"},
+                "models": {},
+            }
+        }
+    }
+    plan = {
+        "machine": {
+            "chip": "Apple M4",
+            "macos": "15",
+            "gpu_budget_bytes": 8 * CHECKER.GIB,
+            "gpu_budget_source": "test",
+            "context": 4096,
+        },
+        "outcomes": {},
+        "configured_models": [],
+        "candidates": [],
+        "unverified_candidates": [],
+    }
+    verdicts = [
+        {"model": "completed", "verdict": "fits_degraded"},
+        {"model": "unrun", "verdict": "not_tested"},
+    ]
+    monkeypatch.setattr(CHECKER, "load_policy", lambda: policy)
+    monkeypatch.setattr(CHECKER, "load_config", lambda: config)
+    monkeypatch.setattr(
+        CHECKER,
+        "probe",
+        lambda operation, **_kwargs: {
+            "system_name": "Darwin",
+            "arm64": "1",
+            "termination_handlers": "",
+        }[operation],
+    )
+    monkeypatch.setattr(
+        CHECKER,
+        "http_json",
+        lambda *_args, **_kwargs: {"version": "test"},
+    )
+    monkeypatch.setattr(CHECKER, "plan_candidates", lambda *_args, **_kwargs: plan)
+    monkeypatch.setattr(CHECKER, "live_verify", lambda *_args, **_kwargs: (verdicts, 3))
+    monkeypatch.setattr(CHECKER.time, "sleep", lambda _seconds: None)
+
+    def fail_saving(_report):
+        raise RuntimeError("disk is full")
+
+    monkeypatch.setattr(CHECKER, "save_report", fail_saving)
+
+    assert CHECKER.main(["--verify-fit"]) == 3
+    captured = capsys.readouterr()
+    assert "Partial fit results:" in captured.out
+    assert '"model": "completed"' in captured.out
+    assert "Evidence report could not be saved: disk is full" in captured.err

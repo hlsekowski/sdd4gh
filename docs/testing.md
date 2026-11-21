@@ -208,7 +208,11 @@ and
 [`test_check_nvidia_model_drift.py`](../tests/unit/scripts/test_check_nvidia_model_drift.py).
 The supervised local fit test is
 [`test_ollama_model_drift.py`](../tests/live/test_ollama_model_drift.py) and
-is excluded from default pytest and CI.
+is excluded from default pytest and CI. The disk-space thresholds, model-store
+path resolution, pre-load gates and partial-result safety stop from issue #32
+are specified in
+[`specs/32-ollama-disk-space-monitoring/spec.md`](../specs/32-ollama-disk-space-monitoring/spec.md)
+and covered by the same mocked unit test file.
 
 ---
 

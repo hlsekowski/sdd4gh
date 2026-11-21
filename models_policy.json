@@ -51,6 +51,7 @@
   },
   "ollama": {
     "base_url": "http://localhost:11434",
+    "model_store_path": null,
     "require_capabilities": ["tools"],
     "exclude": {
       "tag_suffixes": ["-cloud", "-mlx"],
@@ -104,6 +105,7 @@
       "timer_lag_ms": {"warn": 250, "trip": 1000, "consecutive": 3, "stall_seconds": 5},
       "spawn_latency_ms": {"warn": 300, "trip": 1500, "consecutive": 2},
       "ollama_unresponsive_seconds": 10,
+      "disk_free_percent": {"warn": 20, "stop": 15},
       "pressure_sample_seconds": 0.25,
       "host_probe_timeout_seconds": 10,
       "server_log_tail_bytes": 200000,

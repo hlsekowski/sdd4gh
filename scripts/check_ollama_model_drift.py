@@ -110,7 +110,7 @@ def configured_context(models: dict[str, Any], policy: dict[str, Any]) -> int:
     return context
 
 
-def probe(operation: str) -> str:
+def probe(operation: str, *, path: str | None = None) -> str:
     """Run only named read-only host probes and the fixed responsiveness canary."""
     if operation == "system_name":
         return platform.system()
@@ -129,6 +129,30 @@ def probe(operation: str) -> str:
 
         signal.signal(signal.SIGTERM, request_stop)
         return ""
+    if operation == "model_store_disk_space":
+        if not path:
+            raise ValueError("model-store disk-space probe requires a path")
+        try:
+            if not os.path.isdir(path):
+                raise RuntimeError(f"Ollama model-store path is not a directory: {path}")
+            filesystem = os.statvfs(path)
+        except OSError as error:
+            raise RuntimeError(
+                f"cannot inspect Ollama model-store filesystem {path}: {error}"
+            ) from error
+        total_bytes = filesystem.f_blocks * filesystem.f_frsize
+        available_bytes = filesystem.f_bavail * filesystem.f_frsize
+        if total_bytes <= 0 or available_bytes < 0 or available_bytes > total_bytes:
+            raise RuntimeError(f"Ollama model-store filesystem has invalid capacity: {path}")
+        return json.dumps(
+            {
+                "total_bytes": total_bytes,
+                "available_bytes": available_bytes,
+                "available_percent": available_bytes / total_bytes * 100,
+            }
+        )
+    if path is not None:
+        raise ValueError(f"probe {operation} does not accept a path")
     commands: dict[str, list[str]] = {
         "ram_bytes": ["/usr/sbin/sysctl", "-n", "hw.memsize"],
         "chip": ["/usr/sbin/sysctl", "-n", "machdep.cpu.brand_string"],
@@ -164,6 +188,54 @@ def probe(operation: str) -> str:
     if result.returncode:
         raise RuntimeError(f"host probe {operation} failed: {result.stderr.strip()}")
     return result.stdout.strip()
+
+
+def resolve_model_store_path(ollama: dict[str, Any]) -> tuple[Path, str]:
+    configured = ollama.get("model_store_path")
+    if configured is not None:
+        if not isinstance(configured, str) or not configured:
+            raise ValueError("ollama.model_store_path must be a non-empty path or null")
+        path, source = Path(configured), "policy"
+    else:
+        environment_path = os.environ.get("OLLAMA_MODELS")
+        if environment_path:
+            path, source = Path(environment_path), "OLLAMA_MODELS"
+        else:
+            path, source = Path.home() / ".ollama" / "models", "default"
+    path = path.expanduser()
+    if not path.is_absolute():
+        raise ValueError(f"Ollama model-store path must be absolute: {path}")
+    return path, source
+
+
+def disk_space_action(available_percent: float, safety: dict[str, Any]) -> str:
+    thresholds = safety["disk_free_percent"]
+    if available_percent <= thresholds["stop"]:
+        return "stop"
+    if available_percent <= thresholds["warn"]:
+        return "warn"
+    return "continue"
+
+
+def measure_disk_space(ollama: dict[str, Any], safety: dict[str, Any]) -> dict[str, Any]:
+    path, source = resolve_model_store_path(ollama)
+    filesystem = json.loads(probe("model_store_disk_space", path=str(path)))
+    if not isinstance(filesystem, dict):
+        raise RuntimeError("model-store disk-space probe returned an invalid response")
+    available_percent = filesystem.get("available_percent")
+    if (
+        not isinstance(available_percent, (int, float))
+        or not math.isfinite(available_percent)
+        or not 0 <= available_percent <= 100
+    ):
+        raise RuntimeError("model-store disk-space probe returned an invalid free-space percentage")
+    return {
+        "path": str(path),
+        "path_source": source,
+        **filesystem,
+        "action": disk_space_action(available_percent, safety),
+        "checked_at": timestamp(),
+    }
 
 
 def http_json(
@@ -1501,6 +1573,70 @@ def monitor_until_baseline(
     return False
 
 
+def check_disk_space(
+    ollama: dict[str, Any],
+    disk_checks: list[dict[str, Any]],
+    stage: str,
+) -> str | None:
+    try:
+        status = measure_disk_space(ollama, ollama["safety"])
+    except (RuntimeError, ValueError) as error:
+        disk_checks.append(
+            {
+                "stage": stage,
+                "action": "stop",
+                "error": str(error),
+                "checked_at": timestamp(),
+            }
+        )
+        reason = f"disk space could not be verified before {stage}: {error}"
+        print(f"DISK SPACE SAFETY STOP: {reason}")
+        return reason
+    status["stage"] = stage
+    disk_checks.append(status)
+    if status["action"] == "warn":
+        print(
+            f"WARNING: {status['available_percent']:.1f}% available on "
+            f"Ollama model-store filesystem {status['path']} "
+            f"(warn at {ollama['safety']['disk_free_percent']['warn']}% or less)."
+        )
+    elif status["action"] == "stop":
+        reason = (
+            f"{status['available_percent']:.1f}% available on "
+            f"Ollama model-store filesystem {status.get('path', 'unknown')}; "
+            f"stop threshold is {ollama['safety']['disk_free_percent']['stop']}%"
+        )
+        print(f"DISK SPACE SAFETY STOP before {stage}: {reason}")
+        return reason
+    return None
+
+
+def stop_for_disk_space(
+    verdicts: list[dict[str, Any]],
+    model: str,
+    disk_checks: list[dict[str, Any]],
+    remaining_models: list[str],
+    reason: str,
+) -> tuple[list[dict[str, Any]], int]:
+    verdicts.append(
+        {
+            "model": model,
+            "verdict": "not_tested",
+            "reason": reason,
+            "disk_space_checks": disk_checks,
+        }
+    )
+    verdicts.extend(
+        {
+            "model": remaining,
+            "verdict": "not_tested",
+            "reason": "disk-space safety stop",
+        }
+        for remaining in remaining_models
+    )
+    return verdicts, 3
+
+
 def live_verify(
     report: dict[str, Any],
     policy: dict[str, Any],
@@ -1568,6 +1704,8 @@ def live_verify(
     for model in models[:max_models]:
         is_existing = model in existing
         attempts = fit["existing_attempts"] if is_existing else fit["candidate_attempts"]
+        disk_checks: list[dict[str, Any]] = []
+
         installed = installed_models(base_url, fit["request_timeout_seconds"])
         if not is_installed(model, installed):
             if not allow_pull:
@@ -1575,18 +1713,27 @@ def live_verify(
                     {"model": model, "verdict": "not_tested", "reason": "model is not installed"}
                 )
                 continue
-            try:
-                normal_preflight(base_url, policy, context, fit["request_timeout_seconds"])
-            except RuntimeError as error:
-                raise SkipCheck(
-                    f"preflight could not establish a safe baseline before pull: {error}"
-                ) from error
             weights = outcome_for(model).get("weights_bytes", 0)
             if weights > fit["max_pull_gib"] * GIB:
                 verdicts.append(
                     {"model": model, "verdict": "not_tested", "reason": "model exceeds pull limit"}
                 )
                 continue
+            disk_stop = check_disk_space(ollama, disk_checks, "model pull")
+            if disk_stop:
+                return stop_for_disk_space(
+                    verdicts,
+                    model,
+                    disk_checks,
+                    models[models.index(model) + 1 :],
+                    disk_stop,
+                )
+            try:
+                normal_preflight(base_url, policy, context, fit["request_timeout_seconds"])
+            except RuntimeError as error:
+                raise SkipCheck(
+                    f"preflight could not establish a safe baseline before pull: {error}"
+                ) from error
             pull_model(base_url, model, fit["pull_timeout_seconds"])
             installed = installed_models(base_url, fit["request_timeout_seconds"])
             if not is_installed(model, installed):
@@ -1604,6 +1751,15 @@ def live_verify(
                 ) from error
             estimate = outcome_for(model).get("estimate_bytes", 0)
             admission_check(base_url, estimate, fit, ollama["safety"])
+            disk_stop = check_disk_space(ollama, disk_checks, "model load")
+            if disk_stop:
+                return stop_for_disk_space(
+                    verdicts,
+                    model,
+                    disk_checks,
+                    models[models.index(model) + 1 :],
+                    disk_stop,
+                )
             timeline = REPORT_DIR / f"timeline-{model.replace(':', '-')}-{attempt}.jsonl"
             active_connection: list[HTTPConnection] = []
             monitor = FitMonitor(
@@ -1628,7 +1784,11 @@ def live_verify(
             )
             loaded = False
             started = time.monotonic()
-            result: dict[str, Any] = {"model": model, "attempt": attempt}
+            result: dict[str, Any] = {
+                "model": model,
+                "attempt": attempt,
+                "disk_space_checks": disk_checks,
+            }
             result["preflight"] = preflight
             try:
                 if monitor.trip:
@@ -1969,8 +2129,11 @@ def compare_results(report: dict[str, Any], verdicts: list[dict[str, Any]]) -> d
 
 def save_report(report: dict[str, Any]) -> Path:
     destination = report_path()
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+    try:
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+    except OSError as error:
+        raise RuntimeError(f"cannot save evidence report {destination}: {error}") from error
     return destination
 
 
@@ -2042,10 +2205,25 @@ def main(argv: list[str] | None = None) -> int:
             allow_pull=args.allow_pull,
         )
         report["fit_verdicts"] = verdicts
+        report["disk_space_checks"] = [
+            {"model": item["model"], **check}
+            for item in verdicts
+            for check in item.get("disk_space_checks", [])
+        ]
         compared = compare_results(plan, verdicts)
         report.update(compared)
-        destination = save_report(report)
         print(json.dumps(compared, indent=2))
+        if safety_exit:
+            print("Partial fit results:")
+            print(json.dumps(verdicts, indent=2))
+        try:
+            destination = save_report(report)
+        except RuntimeError as error:
+            if not safety_exit:
+                raise
+            print(f"Evidence report could not be saved: {error}", file=sys.stderr)
+            print("Safety stop. Use the partial results above and recover manually.")
+            return 3
         print(f"Evidence: {destination}")
         if safety_exit:
             print("Safety stop. Inspect evidence and recover the machine manually.")
