@@ -2,7 +2,7 @@
 
 > **Purpose:** The decision on issue intake, evaluation, acceptance, sealing and reopening.
 > **Read when:** changing how issues are evaluated, sealed or reopened.
-> **Owns:** issue-process policies: triggers, evaluation, outcomes, retry, edits after sealing and withdrawal. The implementation is in [`issue_process.py`](../../src/sdd4gh/domain/issue_process.py) and [`issue_process.py`](../../src/sdd4gh/services/issue_process.py).
+> **Owns:** issue-process policies: triggers, evaluation, outcomes, retry, edits after sealing and withdrawal. The contracts, domain and task implementation are in [`issue_process.py`](../../src/sdd4gh/contracts/issue_process.py), [`issue_process.py`](../../src/sdd4gh/domain/issue_process.py), and [`issue_evaluation.py`](../../src/sdd4gh/services/issue_evaluation.py).
 
 ## Status
 
@@ -26,9 +26,9 @@ ADR 0003 §4 is the authoritative policy for intake and sealing. This ADR does n
 ### 2. Triggers
 
 - No labels trigger evaluation. Labels are not used for readiness (ADR 0003 §4 allows labels only where native indicators cannot express a state).
-- Each edit to a not-yet-sealed issue description schedules evaluation for 20 hours after that edit. Each new edit replaces the scheduled time. The wait is a not-before time on an evaluation task, as defined in ADR 0004 §4.
-- Several edits within that window produce one evaluation of the latest description.
-- When the scheduled evaluation runs, it evaluates the description as it stands then.
+- Each edit to a not-yet-sealed issue title or description schedules evaluation for 20 hours after that edit. Each new edit replaces the scheduled time. The wait is a not-before time on an evaluation task, as defined in ADR 0004 §4.
+- Several edits within that window produce one evaluation of the latest title and description.
+- The task revision hash covers both the title and description. When the scheduled evaluation runs, it evaluates the latest title and description as they stand then.
 
 ### 3. Evaluation
 
@@ -41,6 +41,14 @@ Evaluation does not compare the issue with other issues. Issues are independent 
 
 The AI identifies the branch type from the change type and the description. The identification is an AI judgment and is subject to the decision gate of ADR 0003 §3, including its confidence threshold. A missing or unclear type is a clarification request, not a guess.
 
+Every evaluation also checks whether the issue title summarizes its description. A subjective confidence of at least 85% is sufficient to report that it fits. Below 85%, the analysis proposes a replacement title that preserves the existing style and approximate length. A title mismatch alone does not block acceptance.
+
+For each point whose interpretation confidence is below 95%, the analysis provides a specific question with that confidence and three plausible answers (A–C), each with an evidence-based subjective confidence estimate for how well it resolves the question and clarifies the requirements. Answers are ordered from highest to lowest confidence. Option D always invites the issue author to provide another answer. These estimates are not calibrated probabilities.
+
+If the highest-confidence answer for any question is below 95%, repeat the complete analysis using the preceding result as context. Five complete analysis attempts, including the first, are the maximum. If uncertainty remains after the fifth attempt, report the best available analysis and request clarification; do not accept or seal the issue. The analysis result is posted as a workflow-marked issue comment so it is excluded from subsequent intake.
+
+The analysis evaluator is injected and returns validated structured output. Each refinement receives the previous structured result as data. No evaluator implementation, model, or provider is selected by this ADR.
+
 ### 4. Outcomes
 
 **Passes the decision gate:** the issue is accepted and sealed automatically, with no further human approval (ADR 0003 §4):
@@ -50,9 +58,9 @@ The AI identifies the branch type from the change type and the description. The 
 3. The development branch is created and linked through GitHub's native development link. The branch name format follows [`docs/workflow.md`](../workflow.md): `<type>/<short-description>`, based on `main`.
 4. SDD is handed off as a task.
 
-The order of effects and their recovery are defined by ADR 0004 §7 and the implementation specification.
+The analysis result is posted as an issue comment before acceptance effects. The order of effects and their recovery are defined by ADR 0004 §7 and the implementation specification.
 
-**Does not pass the decision gate, or the requirements are unclear or inconsistent:** the issue stays pending. A comment explains the specific reason and requests clarification. The workflow then waits for a new description edit. Each new description revision is evaluated once, identified by its content hash. There is no round limit, no reminder, and no automatic closure.
+**Does not pass the decision gate, or the requirements are unclear or inconsistent:** the issue stays pending. The analysis comment explains the specific reason and requests clarification. The workflow then waits for a new description edit. Each new description revision is evaluated once, identified by its content hash. There is no limit on user clarification rounds, no reminder, and no automatic closure; the five-attempt limit applies only to refining one analysis.
 
 There is no separate "declined" state. A pending issue that the user does not change remains pending.
 
@@ -117,19 +125,20 @@ stateDiagram-v2
 
 - Evaluation latency is 20 hours after the last edit, even for a clearly complete issue. This is accepted for the MVP.
 - The clarity and consistency criteria depend on a small local model and need careful definition (ADR 0003 consequences).
+- Subjective confidence estimates are not calibrated correctness guarantees; repeated analysis is bounded at five attempts.
 - Repeated clarification requests can leave an issue pending indefinitely if the user does not edit it.
 
 ## Follow-up implementation specification
 
 Before implementation, define:
 
-1. Observable clarity and consistency criteria, the issue template fields, and the exact evaluated text recorded in the decision record.
+1. Remaining observable clarity and consistency criteria, the issue template fields, and the exact evaluated text recorded in the decision record, consistent with the structured analysis contract in §3.
 2. The change type mapping to branch prefixes and the branch name format, `<type>/<short-description>` (per [`docs/workflow.md`](../workflow.md)), based on `main`.
-3. The text and marker format of the comments for: clarification requests, sealing, sealed-edit notices, reopened-issue notices, and ambiguous development links.
+3. The text and marker format of the analysis, clarification, sealing, sealed-edit, reopened-issue, and ambiguous-development-link comments.
 4. Detection of linked branches and PRs, and the rules that make a link ambiguous.
 5. The retry request syntax and the authorization rule for who may post it (ADR 0006 §5).
 6. The order of acceptance effects and their reconciliation (ADR 0004 §7).
-7. Acceptance scenarios: a clean pass, a gate failure followed by a fix, repeated edits within the window, edits after sealing, a reopened issue, an ambiguous link, and retry after exhaustion.
+7. Acceptance scenarios: a clean pass, title mismatch, clarification analysis reaching the confidence threshold, five attempts exhausted, a gate failure followed by a fix, repeated edits within the window, edits after sealing, a reopened issue, an ambiguous link, and retry after exhaustion.
 
 No orchestration framework, model, or polling mechanism is selected by this ADR.
 

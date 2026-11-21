@@ -1,5 +1,7 @@
 """Unit tests for issue process contracts (ADR 0005)."""
 
+import pytest
+
 from sdd4gh.contracts.issue_process import (
     EVALUATION_FAIL,
     EVALUATION_INCONSISTENT,
@@ -9,9 +11,13 @@ from sdd4gh.contracts.issue_process import (
     TERMINAL_ISSUE_STATES,
     DecisionRecord,
     Issue,
+    IssueAnalysis,
+    IssueClarificationOption,
+    IssueClarificationQuestion,
     IssueDecision,
     IssueEvaluation,
     IssueIdentity,
+    IssueSummaryCheck,
 )
 
 
@@ -72,6 +78,79 @@ class TestIssueEvaluation:
             input_type="description",
         )
         assert IssueEvaluation.from_dict(evaluation.to_dict()) == evaluation
+
+    def test_analysis_roundtrip(self):
+        analysis = IssueAnalysis(
+            summary_check=IssueSummaryCheck(confidence=0.84, suggested_title="Clear title"),
+            clarification_questions=(
+                IssueClarificationQuestion(
+                    question="Which behavior is intended?",
+                    interpretation_confidence=0.90,
+                    options=(
+                        IssueClarificationOption("Choice A", 0.95),
+                        IssueClarificationOption("Choice B", 0.85),
+                        IssueClarificationOption("Choice C", 0.60),
+                    ),
+                ),
+            ),
+        )
+        evaluation = IssueEvaluation(
+            result=EVALUATION_FAIL,
+            confidence=0.9,
+            reason="unclear",
+            clarity_pass=False,
+            consistency_pass=True,
+            analysis=analysis,
+            analysis_attempts=5,
+        )
+
+        assert IssueEvaluation.from_dict(evaluation.to_dict()) == evaluation
+
+    def test_analysis_refinement_thresholds(self):
+        fits = IssueAnalysis(summary_check=IssueSummaryCheck(confidence=0.85))
+        needs_refinement = IssueAnalysis(
+            summary_check=IssueSummaryCheck(confidence=0.85),
+            clarification_questions=(
+                IssueClarificationQuestion(
+                    question="Which behavior is intended?",
+                    interpretation_confidence=0.90,
+                    options=(
+                        IssueClarificationOption("Choice A", 0.94),
+                        IssueClarificationOption("Choice B", 0.85),
+                        IssueClarificationOption("Choice C", 0.60),
+                    ),
+                ),
+            ),
+        )
+
+        assert not fits.needs_refinement
+        assert needs_refinement.needs_refinement
+
+    def test_summary_mismatch_requires_replacement(self):
+        with pytest.raises(ValueError, match="replacement title"):
+            IssueAnalysis(summary_check=IssueSummaryCheck(confidence=0.84))
+
+    def test_clarification_question_requires_subthreshold_confidence(self):
+        options = (
+            IssueClarificationOption("Answer A", 0.95),
+            IssueClarificationOption("Answer B", 0.85),
+            IssueClarificationOption("Answer C", 0.60),
+        )
+
+        with pytest.raises(ValueError, match="below 0.95"):
+            IssueClarificationQuestion(
+                question="Which behavior is intended?",
+                interpretation_confidence=0.95,
+                options=options,
+            )
+
+    def test_clarification_question_requires_three_options(self):
+        with pytest.raises(ValueError, match="exactly three"):
+            IssueClarificationQuestion(
+                question="Which behavior is intended?",
+                interpretation_confidence=0.90,
+                options=(IssueClarificationOption("Only answer", 0.95),),
+            )
 
 
 class TestDecisionRecord:

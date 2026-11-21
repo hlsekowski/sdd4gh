@@ -13,8 +13,12 @@ from sdd4gh.contracts.issue_process import (
     ISSUE_STATE_PENDING,
     ISSUE_STATE_SEALED,
     Issue,
+    IssueAnalysis,
+    IssueClarificationOption,
+    IssueClarificationQuestion,
     IssueEvaluation,
     IssueIdentity,
+    IssueSummaryCheck,
 )
 from sdd4gh.domain.issue_process import (
     check_ambiguous_links,
@@ -142,6 +146,29 @@ class TestDecideIssue:
         issue = _issue()
         evaluation = _evaluation(result="Fail", clarity_pass=False)
         decision = decide_issue(issue, evaluation, now=100.0)
+        assert decision.action == ACTION_REQUEST_CLARIFICATION
+        assert not decision.seal
+
+    def test_analysis_questions_prevent_acceptance(self):
+        issue = _issue()
+        evaluation = _evaluation()
+        evaluation.analysis = IssueAnalysis(
+            summary_check=IssueSummaryCheck(confidence=0.95),
+            clarification_questions=(
+                IssueClarificationQuestion(
+                    question="Which behavior is intended?",
+                    interpretation_confidence=0.90,
+                    options=(
+                        IssueClarificationOption("Choice A", 0.95),
+                        IssueClarificationOption("Choice B", 0.85),
+                        IssueClarificationOption("Choice C", 0.60),
+                    ),
+                ),
+            ),
+        )
+
+        decision = decide_issue(issue, evaluation, now=100.0)
+
         assert decision.action == ACTION_REQUEST_CLARIFICATION
         assert not decision.seal
 

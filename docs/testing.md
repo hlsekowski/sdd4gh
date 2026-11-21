@@ -187,6 +187,15 @@ def test_evaluate_issue_passes_clear_confident_request():
     assert evaluation.result == EVALUATION_PASS
 ```
 
+## Issue-analysis traceability
+
+The structured issue-analysis contract in ADR 0005 §3 is verified by
+[`test_issue_process_contract.py`](../tests/contracts/test_issue_process_contract.py).
+Refinement limits, ranked comment options, and revision handling are covered by
+[`test_issue_evaluation.py`](../tests/unit/services/test_issue_evaluation.py)
+and
+[`test_workflow_orchestrator.py`](../tests/unit/services/test_workflow_orchestrator.py).
+
 ---
 
 ## Related Files

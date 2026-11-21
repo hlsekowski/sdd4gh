@@ -2,10 +2,9 @@
 
 Mirrors docs/adr/0005-issue-process.md and docs/adr/0004-worker-task-model.md.
 A worker task kind that calls the existing issue_process domain, not a new
-policy. The evaluator is an injected port. On gate pass, enqueues the
-already-built effects: workflow-marked sealing comment, branch, development
-link, PR. On gate fail, enqueues one clarification comment and does not
-create a branch.
+policy. The injected evaluator returns a structured analysis, which is refined
+up to the configured attempt limit and posted as one workflow-marked comment.
+Only a passing decision proceeds to PR creation.
 """
 
 from __future__ import annotations
@@ -14,15 +13,17 @@ from sdd4gh.contracts.constants import WORKFLOW_COMMENT_MARKER
 from sdd4gh.contracts.issue_process import (
     ACTION_ACCEPT_AND_SEAL,
     ACTION_REQUEST_CLARIFICATION,
+    ISSUE_ANALYSIS_MAX_ATTEMPTS,
+    ISSUE_SUMMARY_FIT_THRESHOLD,
     Issue,
     IssueDecision,
     IssueEvaluation,
-    IssueIdentity,
 )
 from sdd4gh.contracts.task_model import Task
 from sdd4gh.domain.issue_process import decide_issue
-from sdd4gh.services.effect_log import EffectAdapter, EffectLog
+from sdd4gh.services.effect_log import EffectAdapter, EffectLog, EffectLogError
 from sdd4gh.services.execution_state import ExecutionStateService
+from sdd4gh.services.issue_process import issue_revision_hash
 from sdd4gh.services.pr_creation import PRCreation
 
 
@@ -36,7 +37,11 @@ class IssueEvaluator:
     Tests provide a deterministic fake. Production would call a model.
     """
 
-    def evaluate(self, issue: Issue) -> IssueEvaluation:
+    def evaluate(
+        self,
+        issue: Issue,
+        previous_analysis: IssueEvaluation | None = None,
+    ) -> IssueEvaluation:
         """Evaluate one issue and return the result."""
         raise NotImplementedError
 
@@ -63,23 +68,36 @@ class IssueEvaluationTask:
         self.effect_log = EffectLog(service, state_name, adapter)
         self.pr_creation = PRCreation(service, state_name, adapter)
 
-    def run(self, task: Task) -> str:
+    def run(self, task: Task, issue: Issue) -> str:
         """Run one issue-evaluation task attempt.
 
         Args:
-            task: The task to execute. Its identity carries the issue
-                number and repository.
+            task: The task to execute.
+            issue: The current issue revision supplied by the observer.
 
         Returns:
             An outcome string describing what happened.
         """
         self.service.load(self.state_name)
 
-        # Build an Issue from the task payload
-        issue = self._issue_from_task(task)
+        if (
+            not task.identity.target.isdigit()
+            or int(task.identity.target) != issue.identity.number
+            or task.identity.revision != issue_revision_hash(issue.title, issue.description)
+        ):
+            raise IssueEvaluationError("Task identity does not match the supplied issue revision")
 
-        # Evaluate using the injected evaluator
-        evaluation = self.evaluator.evaluate(issue)
+        evaluation: IssueEvaluation | None = None
+        for attempt in range(1, ISSUE_ANALYSIS_MAX_ATTEMPTS + 1):
+            evaluation = self.evaluator.evaluate(issue, evaluation)
+            if evaluation.analysis is None:
+                raise IssueEvaluationError("Issue evaluator did not return an analysis")
+            evaluation.analysis_attempts = attempt
+            if not evaluation.analysis.needs_refinement:
+                break
+
+        if evaluation is None:
+            raise IssueEvaluationError("Issue evaluator produced no result")
 
         # Decide using the issue_process domain
         decision = decide_issue(
@@ -88,25 +106,15 @@ class IssueEvaluationTask:
             now=task.not_before_time,
         )
 
+        if decision.action in {ACTION_ACCEPT_AND_SEAL, ACTION_REQUEST_CLARIFICATION}:
+            self._post_analysis_comment(issue, evaluation, decision, task)
+
         # Enqueue effects based on the decision
         if decision.action == ACTION_ACCEPT_AND_SEAL:
             return self._handle_accept(issue, evaluation, decision, task)
         if decision.action == ACTION_REQUEST_CLARIFICATION:
-            return self._handle_clarify(issue, evaluation, decision, task)
+            return f"clarify: {decision.reason}"
         return f"no action: {decision.reason}"
-
-    def _issue_from_task(self, task: Task) -> Issue:
-        """Build an Issue from a task's identity and payload."""
-        identity = task.identity
-        return Issue(
-            identity=IssueIdentity(
-                number=int(identity.target) if identity.target.isdigit() else 0,
-                repository=identity.work_item or "",
-            ),
-            title=identity.revision,
-            description=task.identity.kind,
-            description_hash="",
-        )
 
     def _task_key(self, task: Task) -> str:
         """Stable key for a task identity."""
@@ -114,6 +122,103 @@ class IssueEvaluationTask:
             f"{task.identity.kind}|{task.identity.work_item or ''}|"
             f"{task.identity.target}|{task.identity.revision}|{task.identity.generation}"
         )
+
+    def _post_analysis_comment(
+        self,
+        issue: Issue,
+        evaluation: IssueEvaluation,
+        decision: IssueDecision,
+        task: Task,
+    ) -> None:
+        """Post the structured analysis once for this issue revision."""
+        effect_id = f"issue_eval:{self._task_key(task)}:analysis"
+        body = self._format_analysis_comment(issue, evaluation, decision)
+        try:
+            self.effect_log.dispatch_if_needed(
+                effect_id=effect_id,
+                task_identity_key=self._task_key(task),
+                effect_step="post_analysis",
+                body=body,
+            )
+        except EffectLogError as exc:
+            raise IssueEvaluationError(f"Issue analysis comment failed: {exc}") from exc
+
+    @staticmethod
+    def _format_analysis_comment(
+        issue: Issue,
+        evaluation: IssueEvaluation,
+        decision: IssueDecision,
+    ) -> str:
+        """Render title assessment and ranked clarification choices."""
+        analysis = evaluation.analysis
+        if analysis is None:
+            raise IssueEvaluationError("Issue evaluator did not return an analysis")
+
+        summary_check = analysis.summary_check
+        summary_fits = summary_check.confidence >= ISSUE_SUMMARY_FIT_THRESHOLD
+        lines = [
+            WORKFLOW_COMMENT_MARKER,
+            "## Issue analysis",
+            "",
+            (
+                f"**Summary check ({summary_check.confidence:.0%} confidence):** "
+                f"the title {issue.title!r} {'fits' if summary_fits else 'does not fit'} "
+                "the description."
+            ),
+            (f"**Evaluation confidence:** {evaluation.confidence:.0%}. {evaluation.reason}"),
+        ]
+        if not summary_fits:
+            if not summary_check.suggested_title:
+                raise IssueEvaluationError(
+                    "Issue evaluator did not propose a replacement for a mismatched title"
+                )
+            lines.append(f"**Suggested title:** {summary_check.suggested_title}")
+
+        lines.extend(
+            [
+                "",
+                (
+                    f"**Analysis attempts:** {evaluation.analysis_attempts}/"
+                    f"{ISSUE_ANALYSIS_MAX_ATTEMPTS}."
+                ),
+            ]
+        )
+        if analysis.clarification_questions:
+            lines.extend(["", "### Clarifications"])
+            for index, question in enumerate(analysis.clarification_questions, start=1):
+                lines.extend(
+                    [
+                        "",
+                        (
+                            f"{index}. **Question ({question.interpretation_confidence:.0%} "
+                            f"interpretation confidence):** {question.question}"
+                        ),
+                    ]
+                )
+                ranked_options = sorted(
+                    enumerate(question.options),
+                    key=lambda item: (-item[1].confidence, item[0]),
+                )
+                for label_index, (_, option) in enumerate(ranked_options):
+                    label = chr(ord("A") + label_index)
+                    lines.append(
+                        f"   - **{label}.** {option.answer} ({option.confidence:.0%} confidence)"
+                    )
+                lines.append("   - **D.** Describe another option.")
+        else:
+            lines.extend(["", "No clarification questions were generated."])
+
+        lines.extend(
+            [
+                "",
+                (
+                    "Confidence estimates are evidence-based subjective judgments, "
+                    "not calibrated probabilities."
+                ),
+                f"**Decision:** {decision.action} — {decision.reason}.",
+            ]
+        )
+        return "\n".join(lines)
 
     def _handle_accept(
         self,
@@ -150,41 +255,3 @@ class IssueEvaluationTask:
             return "accept: PR already opened (replay)"
 
         return f"accept: PR #{pr_number} opened"
-
-    def _handle_clarify(
-        self,
-        issue: Issue,
-        evaluation: IssueEvaluation,
-        decision: IssueDecision,
-        task: Task,
-    ) -> str:
-        """Handle gate fail: enqueue one clarification comment, no branch."""
-        effect_id = f"issue_eval:{self._task_key(task)}:clarify"
-
-        body = (
-            f"{WORKFLOW_COMMENT_MARKER}\n"
-            f"**What happened:** Issue #{issue.identity.number} evaluation did not pass\n"
-            f"**Evidence:** {evaluation.reason}\n"
-            f"**Decision:** request clarification\n"
-            f"**Completed:** evaluation failed\n"
-            f"**Pending:** clarification from issue author\n"
-            f"**Automation state:** issue-evaluation task\n"
-            f"**Next step for you:** clarify the issue"
-        )
-
-        # Post clarification comment via the adapter
-        try:
-            self.adapter.post_comment(body)
-        except Exception as exc:
-            raise IssueEvaluationError(f"Clarification comment failed: {exc}") from exc
-
-        # Record the effect in the log
-        self.effect_log.record_intent(
-            effect_id=effect_id,
-            task_identity_key=self._task_key(task),
-            effect_step="post_clarification",
-            body=body,
-        )
-        self.effect_log.record_outcome(effect_id, "clarification_posted")
-
-        return f"clarify: {evaluation.reason}"

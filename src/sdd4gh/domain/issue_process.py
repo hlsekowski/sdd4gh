@@ -151,6 +151,13 @@ def decide_issue(
             ),
         )
 
+    if evaluation.analysis and evaluation.analysis.clarification_questions:
+        return IssueDecision(
+            ACTION_REQUEST_CLARIFICATION,
+            "issue analysis found unresolved requirements",
+            comment="Issue analysis found unresolved requirements; please choose an answer.",
+        )
+
     # Gate not passed: request clarification (ADR 0005 §4)
     if evaluation.result != EVALUATION_PASS:
         return IssueDecision(

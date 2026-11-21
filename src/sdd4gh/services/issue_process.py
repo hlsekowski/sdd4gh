@@ -6,6 +6,8 @@ evaluation, sealing, and handoff to SDD; performs no GitHub I/O.
 
 from __future__ import annotations
 
+import hashlib
+
 from sdd4gh.contracts.issue_process import (
     ACTION_ACCEPT_AND_SEAL,
     Issue,
@@ -86,8 +88,6 @@ def create_issue(
     Returns:
         The new issue.
     """
-    import hashlib
-
     description_hash = hashlib.sha256(description.encode("utf-8")).hexdigest()
 
     return Issue(
@@ -98,6 +98,12 @@ def create_issue(
         is_exception=is_exception,
         is_reopened=is_reopened,
     )
+
+
+def issue_revision_hash(title: str, description: str) -> str:
+    """Hash the title and description that together form an intake revision."""
+    content = f"{title}\0{description}".encode()
+    return hashlib.sha256(content).hexdigest()
 
 
 def accept_and_seal(
@@ -129,4 +135,5 @@ __all__ = [
     "accept_and_seal",
     "create_issue",
     "evaluate_and_decide",
+    "issue_revision_hash",
 ]
