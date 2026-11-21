@@ -196,6 +196,20 @@ Refinement limits, ranked comment options, and revision handling are covered by
 and
 [`test_workflow_orchestrator.py`](../tests/unit/services/test_workflow_orchestrator.py).
 
+## Local model-drift traceability
+
+The shared model policy schema and provider drift checks are implemented by
+[`check_ollama_model_drift.py`](../scripts/check_ollama_model_drift.py) and
+[`check_nvidia_model_drift.py`](../scripts/check_nvidia_model_drift.py).
+Mocked policy, registry, estimator, safety-threshold and opt-in behavior is
+covered by
+[`test_check_ollama_model_drift.py`](../tests/unit/scripts/test_check_ollama_model_drift.py)
+and
+[`test_check_nvidia_model_drift.py`](../tests/unit/scripts/test_check_nvidia_model_drift.py).
+The supervised local fit test is
+[`test_ollama_model_drift.py`](../tests/live/test_ollama_model_drift.py) and
+is excluded from default pytest and CI.
+
 ---
 
 ## Related Files

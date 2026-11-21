@@ -22,11 +22,29 @@ OpenCode performs the SDD coding-agent role. Its configurable provider endpoint 
 
 OpenCode can use the LiteLLM OpenAI-compatible endpoint (ADR 0012) without taking over workflow orchestration.
 
-Configured hosted models, including NVIDIA models, are subject to an opt-in
+Hosted models, including NVIDIA models, are subject to an opt-in
 developer-only drift check. The check compares the repository's
 `models_policy.json` functionality policy and NVIDIA model catalog with
 `opencode.json`, smoke-tests discovered and configured models, and reports
 candidate additions and removals. It never edits model configuration.
+
+Local Ollama models are subject to a separate opt-in developer-only drift
+check. Its default mode discovers official library models, estimates fit for
+the largest configured Ollama context, and prints a plan without loading any
+model. Explicit fit verification is restricted to a supervised, monitor-only
+run on the reference MacBook Air M4 with 16 GiB unified memory. All machine
+and process observation passes through one fixed allow-list; the checker may
+cancel only its own request and unload only a model it loaded. It cannot
+signal or modify other processes, alter system or Ollama settings, or pull
+models without explicit authorization. A monitor trip stops the run and
+records evidence; it never attempts to recover the machine automatically.
+Functionalities are shared at the top level of policy schema version 2, while
+provider-specific discovery and execution rules remain in provider sections.
+The implementation is [`scripts/check_ollama_model_drift.py`](../../scripts/check_ollama_model_drift.py);
+mocked regressions are in
+[`test_check_ollama_model_drift.py`](../../tests/unit/scripts/test_check_ollama_model_drift.py)
+and supervised fit verification is in
+[`test_ollama_model_drift.py`](../../tests/live/test_ollama_model_drift.py).
 
 ## Consequences
 
