@@ -27,6 +27,20 @@ Model calls default to zero cost: no paid API usage, subscriptions, or billable 
 3. **No accidental metered calls.** Provider policies deny all providers by default and allow only explicitly approved zero-cost providers. A failure or unknown model must not fall through to a paid or cloud provider.
 4. **Env override only.** Any override to a non-default provider must be set through environment variables, never in tracked files.
 
+## Model drift monitoring
+
+The repository may use an opt-in developer-only check to compare the NVIDIA
+catalog and live model availability with `models_policy.json` and
+`opencode.json`. It must:
+
+- use only the no-charge NVIDIA account/key and never enable paid usage;
+- make no standard CI or local pytest request;
+- retry configured models more than newly discovered candidates because
+  temporary catalog or rate-limit failures must not be mistaken for drift;
+- report candidate additions and removals, with candidate details, but never
+  mutate `opencode.json` automatically;
+- fail if either candidate list is non-empty.
+
 ## Provider configuration
 
 - Single config source: `opencode.json` at the repository root.

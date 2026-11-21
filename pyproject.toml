@@ -38,6 +38,10 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src", "."]
+addopts = "-m 'not live'"
+markers = [
+    "live: opt-in live-provider smoke tests excluded from standard runs",
+]
 
 [tool.mypy]
 strict = true

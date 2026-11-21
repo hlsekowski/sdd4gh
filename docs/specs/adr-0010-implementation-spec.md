@@ -49,6 +49,7 @@ OpenCode's shell scanner evaluates extracted subcommands and reports commands it
 - The optional NVIDIA provider uses `aisdk:@ai-sdk/openai-compatible`; its API key is read from `{file:~/.secrets/nvidia_key}` and is never committed.
 - Only `nvidia/nemotron-3.5-super-vl-120b-a12b` is retained as the optional NVIDIA model because the owner reported this model as verified. This does not claim that all agents, delegation, permission enforcement, or other models have been runtime-tested.
 - Agent-level `temperature` is omitted because V2 does not send it with requests. No model variant is introduced without a verified need.
+- Opt-in NVIDIA model-drift validation is developer-only and never part of standard pytest or CI. It loads `models_policy.json`, discovers models from NVIDIA's OpenAI-compatible catalog, optionally falls back to the NVIDIA build catalog, retries existing configured models more generously than candidates, and writes candidate add/remove lists to test output. It may not edit `opencode.json` or apply a candidate automatically.
 
 ## 4. Acceptance criteria and verification
 

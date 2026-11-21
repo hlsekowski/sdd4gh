@@ -22,6 +22,12 @@ OpenCode performs the SDD coding-agent role. Its configurable provider endpoint 
 
 OpenCode can use the LiteLLM OpenAI-compatible endpoint (ADR 0012) without taking over workflow orchestration.
 
+Configured hosted models, including NVIDIA models, are subject to an opt-in
+developer-only drift check. The check compares the repository's
+`models_policy.json` functionality policy and NVIDIA model catalog with
+`opencode.json`, smoke-tests discovered and configured models, and reports
+candidate additions and removals. It never edits model configuration.
+
 ## Consequences
 
 ### Positive
