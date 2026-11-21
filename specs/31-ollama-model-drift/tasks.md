@@ -8,4 +8,4 @@
 - [x] T6: Implement model probes, variant resolution, retries and verdicts
 - [x] T7: Add mocked unit tests, fixtures and opt-in live test
 - [x] T8: Document invocation, safety, and policy behavior
-- [ ] T9: Run all checks, push branch and open PR
+- [x] T9: Run all checks, push branch and open PR
