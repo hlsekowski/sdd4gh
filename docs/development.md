@@ -127,6 +127,18 @@ This makes two loopback Ollama model calls: one read-tool request and one
 Sentinel-to-review delegation request. It never selects or calls the optional
 NVIDIA provider.
 
+For an opt-in NVIDIA model-catalog and live smoke check, run:
+
+```bash
+pytest -m live tests/live/test_nvidia_model_drift.py
+```
+
+The same check is available directly as
+`python3 scripts/check_nvidia_model_drift.py`. It reads the optional free-tier
+credential from `~/.secrets/nvidia_key`, reports candidate additions and
+removals, and never updates `opencode.json`. A credential is required; standard
+pytest and CI do not run this live check.
+
 ### Runtime evidence
 
 The installed OpenCode CLI successfully loaded the project config and discovered
