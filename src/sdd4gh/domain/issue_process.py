@@ -6,7 +6,7 @@ decision gate, sealing, and reopening logic; performs no GitHub I/O.
 
 from __future__ import annotations
 
-from sdd4gh.contracts.constants import CONFIDENCE_SHOW_BELOW
+from sdd4gh.contracts.constants import CONFIDENCE_HIGH
 from sdd4gh.contracts.issue_process import (
     ACTION_ACCEPT_AND_SEAL,
     ACTION_EXCLUDE_REOPENED,
@@ -77,11 +77,9 @@ def evaluate_issue(
     elif not consistency_pass:
         result = EVALUATION_INCONSISTENT
         reason = "consistency criteria not met: conflicts with constitution, rules, spec, or ADRs"
-    elif confidence <= CONFIDENCE_SHOW_BELOW:
+    elif confidence <= CONFIDENCE_HIGH:
         result = EVALUATION_FAIL
-        reason = (
-            f"confidence {confidence} at or below decision gate threshold {CONFIDENCE_SHOW_BELOW}"
-        )
+        reason = f"confidence {confidence} at or below decision gate threshold {CONFIDENCE_HIGH}"
     else:
         result = EVALUATION_PASS
         reason = "issue passes clarity and consistency criteria"
@@ -149,6 +147,13 @@ def decide_issue(
             comment=(
                 "Ambiguous development links detected. The workflow stops until you resolve them."
             ),
+        )
+
+    if evaluation.analysis and evaluation.analysis.clarification_questions:
+        return IssueDecision(
+            ACTION_REQUEST_CLARIFICATION,
+            "issue analysis found unresolved requirements",
+            comment="Issue analysis found unresolved requirements; please choose an answer.",
         )
 
     # Gate not passed: request clarification (ADR 0005 §4)

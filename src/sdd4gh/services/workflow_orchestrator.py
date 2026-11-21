@@ -1,7 +1,8 @@
 """Workflow orchestrator service.
 
 Mirrors docs/adr/0003-local-development-workflow.md and
-docs/adr/0004-worker-task-model.md. Connects the Issue → SDD → PR
+docs/adr/0004-worker-task-model.md and docs/adr/0005-issue-process.md.
+Connects the Issue → SDD → PR
 vertical slice: discovers eligible issues, creates and claims tasks,
 runs the issue-evaluation task, and reports results. Uses stubs for
 external systems (GitHub, model) in tests.
@@ -19,6 +20,7 @@ from sdd4gh.services.issue_evaluation import (
     IssueEvaluationTask,
     IssueEvaluator,
 )
+from sdd4gh.services.issue_process import create_issue, issue_revision_hash
 from sdd4gh.services.task_queue import create_task
 from sdd4gh.services.task_runner import run_once
 
@@ -78,6 +80,12 @@ class WorkflowOrchestrator:
             An outcome string describing what happened.
         """
         state = self.service.load(self.state_name)
+        issue = create_issue(
+            number=issue_number,
+            repository=repository,
+            title=title,
+            description=description,
+        )
 
         # Create a task for issue evaluation
         task, skip_reason = create_task(
@@ -85,7 +93,7 @@ class WorkflowOrchestrator:
             kind=TASK_KIND_ISSUE_EVALUATION,
             work_item=str(issue_number),
             target=str(issue_number),
-            revision=title,
+            revision=issue_revision_hash(issue.title, issue.description),
             created_time=now,
             not_before_time=now,
             event_time=now,
@@ -103,7 +111,7 @@ class WorkflowOrchestrator:
             self.state_name,
             worker_id="worker-1",
             expiry_time=now + 300.0,
-            run_task=self.issue_evaluation.run,
+            run_task=lambda queued_task: self.issue_evaluation.run(queued_task, issue),
         )
 
         if result_task is None:

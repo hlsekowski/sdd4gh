@@ -1,4 +1,4 @@
-"""Unit tests for the workflow orchestrator service (ADR 0003, ADR 0004)."""
+"""Unit tests for the workflow orchestrator service (ADR 0003, ADR 0004, ADR 0005)."""
 
 import tempfile
 
@@ -6,7 +6,9 @@ from sdd4gh.contracts.issue_process import (
     EVALUATION_FAIL,
     EVALUATION_PASS,
     Issue,
+    IssueAnalysis,
     IssueEvaluation,
+    IssueSummaryCheck,
 )
 from sdd4gh.contracts.task_model import ExecutionState
 from sdd4gh.services.execution_state import ExecutionStateService
@@ -21,9 +23,17 @@ class FakeEvaluator(IssueEvaluator):
         self.result = result
         self.reason = reason
         self.called = 0
+        self.descriptions: list[str] = []
+        self.titles: list[str] = []
 
-    def evaluate(self, issue: Issue) -> IssueEvaluation:
+    def evaluate(
+        self,
+        issue: Issue,
+        previous_analysis: IssueEvaluation | None = None,
+    ) -> IssueEvaluation:
         self.called += 1
+        self.descriptions.append(issue.description)
+        self.titles.append(issue.title)
         return IssueEvaluation(
             result=self.result,
             confidence=0.99,
@@ -31,6 +41,7 @@ class FakeEvaluator(IssueEvaluator):
             clarity_pass=self.result == EVALUATION_PASS,
             consistency_pass=self.result == EVALUATION_PASS,
             change_type="feat",
+            analysis=IssueAnalysis(summary_check=IssueSummaryCheck(confidence=0.95)),
         )
 
 
@@ -92,8 +103,11 @@ class TestDiscoverAndEvaluate:
 
         assert "accept" in outcome.lower()
         assert evaluator.called == 1
+        assert evaluator.descriptions == ["A new feature"]
         assert adapter.pushed == ["feat/add-feature"]
         assert len(adapter.prs) == 1
+        assert len(adapter.posted) == 1
+        assert "**Summary check" in adapter.posted[0]
         assert "Closes #42" in adapter.prs[0]["body"]
 
     def test_gate_fail_creates_task_and_clarifies(self):
@@ -113,6 +127,7 @@ class TestDiscoverAndEvaluate:
 
         assert "clarify" in outcome.lower()
         assert evaluator.called == 1
+        assert evaluator.descriptions == ["Do something"]
         assert len(adapter.posted) == 1
         assert adapter.pushed == []
         assert adapter.prs == []
@@ -141,6 +156,57 @@ class TestDiscoverAndEvaluate:
         )
 
         assert "skipped" in outcome.lower()
+
+    def test_description_revision_is_part_of_task_identity(self):
+        service = _service()
+        adapter = FakeAdapter()
+        evaluator = FakeEvaluator(result=EVALUATION_FAIL, reason="unclear goal")
+        service.save("wf_state", ExecutionState())
+
+        orch = _orchestrator(service, adapter, evaluator)
+        first = orch.discover_and_evaluate(
+            issue_number=42,
+            repository="owner/repo",
+            title="Same title",
+            description="First description",
+            now=100.0,
+        )
+        second = orch.discover_and_evaluate(
+            issue_number=42,
+            repository="owner/repo",
+            title="Same title",
+            description="Updated description",
+            now=200.0,
+        )
+
+        assert "clarify" in first.lower()
+        assert "clarify" in second.lower()
+        assert evaluator.descriptions == ["First description", "Updated description"]
+
+    def test_title_revision_is_part_of_task_identity(self):
+        service = _service()
+        adapter = FakeAdapter()
+        evaluator = FakeEvaluator(result=EVALUATION_FAIL, reason="unclear goal")
+        service.save("wf_state", ExecutionState())
+
+        orch = _orchestrator(service, adapter, evaluator)
+        orch.discover_and_evaluate(
+            issue_number=42,
+            repository="owner/repo",
+            title="First title",
+            description="Same description",
+            now=100.0,
+        )
+        outcome = orch.discover_and_evaluate(
+            issue_number=42,
+            repository="owner/repo",
+            title="Updated title",
+            description="Same description",
+            now=200.0,
+        )
+
+        assert "clarify" in outcome.lower()
+        assert evaluator.titles == ["First title", "Updated title"]
 
     def test_state_persisted_after_evaluation(self):
         service = _service()

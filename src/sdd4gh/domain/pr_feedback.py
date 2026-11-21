@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from sdd4gh.contracts.constants import CONFIDENCE_SHOW_BELOW
+from sdd4gh.contracts.constants import CONFIDENCE_HIGH
 from sdd4gh.contracts.pr_process import EvaluationResult, FeedbackEvent
 
 # Actions the evaluation can produce, in the order ADR 0006 §1 decides them.
@@ -64,7 +64,7 @@ def evaluate_feedback(
             f"conflicts with a non-negotiable rule: {evaluation.reason}",
         )
 
-    if evaluation.result == "Ambiguous" or evaluation.confidence <= CONFIDENCE_SHOW_BELOW:
+    if evaluation.result == "Ambiguous" or evaluation.confidence <= CONFIDENCE_HIGH:
         return FeedbackDecision(
             ACTION_CLARIFY,
             f"unclear or below the decision gate (confidence {evaluation.confidence})",

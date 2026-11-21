@@ -24,7 +24,7 @@ See ADR 0003 for the general workflow this ADR specializes.
 
 Monitor new feedback across four surfaces: conversation comments, submitted reviews, inline review comments, and replies to inline comments. A user corrects or supersedes earlier feedback by posting a new comment or review, not by editing an existing one — edits to existing comments are not monitored.
 
-The evaluation result is one of a closed set: `ClearActionable`, `Ambiguous`, `ScopeChange`, `Conflict`, `NoAction`. The decision gate is the confidence threshold `CONFIDENCE_SHOW_BELOW`, applied strictly above.
+The evaluation result is one of a closed set: `ClearActionable`, `Ambiguous`, `ScopeChange`, `Conflict`, `NoAction`. The decision gate is the high-confidence threshold `CONFIDENCE_HIGH`, applied strictly above.
 
 ```mermaid
 flowchart TD
@@ -177,7 +177,7 @@ Every message must cover: what happened and the evidence for it, the decision ma
 
 - No paid services, no cloud infrastructure charges, no hardware upgrades (ADR 0003).
 - Must comply with Constitution C4 (thin providers) and C9 (dependency minimization), and rule NC3 (no vendor SDKs).
-- Decision gate for auto-invoking SDD: confidence strictly greater than the threshold defined by `CONFIDENCE_SHOW_BELOW` in `src/sdd4gh/contracts/constants.py`, per ADR 0003 §3.
+- Decision gate for auto-invoking SDD: confidence strictly greater than `CONFIDENCE_HIGH` in `src/sdd4gh/contracts/constants.py`, per ADR 0003 §3.
 - No automatic PR merging, under any circumstance. **Rule D7 (no automatic merging); retained here for decision context.**
 - Correction loops are bounded: `MAX_CORRECTION_ATTEMPTS_PER_BATCH` attempts per batch (defined in `src/sdd4gh/contracts/pr_process.py`), configurable.
 
@@ -202,7 +202,7 @@ As in ADR 0003, these decisions are sufficiently agreed for review without them.
 2. Attempt accounting when local verification fails before a push ever happens, and how feedback arriving during an active attempt or an exhausted batch is handled — the §2 diagram draws `ATTEMPT` as if it always reaches `OBSERVE` cleanly, which isn't guaranteed.
 3. Retry-request syntax, which feedback sources are eligible to trigger one under §5's authorization rules, and the exact workflow comment marker format referenced in §5.
 4. Safe local-synchronization semantics and resumable post-merge operations for the `PostMerge` state in §3.
-5. Maintainer review of the confidence-gate and attempt-cap values as configured in [`src/sdd4gh/contracts/constants.py`](../../src/sdd4gh/contracts/constants.py) (the same file already holding `CONFIDENCE_SHOW_BELOW`), once implemented.
+5. Maintainer review of the confidence-band and attempt-cap values as configured in [`src/sdd4gh/contracts/constants.py`](../../src/sdd4gh/contracts/constants.py), once implemented.
 6. Traceability entries added once this ADR is implemented, per [`docs/testing.md`](../testing.md) ("Spec section → code → tests"), one entry per §1–§5.
 ## Related
 

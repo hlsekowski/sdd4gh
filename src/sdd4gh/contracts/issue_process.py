@@ -9,6 +9,11 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import Any
 
+from sdd4gh.contracts.constants import CONFIDENCE_HIGH, CONFIDENCE_MEDIUM
+
+# Issue-analysis limits and thresholds (ADR 0005 §3).
+ISSUE_ANALYSIS_MAX_ATTEMPTS = 5
+
 # --- Issue states (ADR 0005 lifecycle) ---
 
 ISSUE_STATE_PENDING = "Pending"
@@ -145,6 +150,124 @@ class Issue:
         return self.state == ISSUE_STATE_EVALUATING
 
 
+@dataclass(frozen=True)
+class IssueClarificationOption:
+    """A candidate answer and its subjective confidence (ADR 0005 §3)."""
+
+    answer: str
+    confidence: float
+
+    def __post_init__(self) -> None:
+        if not 0.0 <= self.confidence <= 1.0:
+            raise ValueError("answer confidence must be between 0 and 1")
+        if not self.answer.strip():
+            raise ValueError("candidate answer must not be empty")
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> IssueClarificationOption:
+        return cls(answer=str(data["answer"]), confidence=float(data["confidence"]))
+
+
+@dataclass(frozen=True)
+class IssueClarificationQuestion:
+    """One unresolved point with three ranked candidate answers."""
+
+    question: str
+    interpretation_confidence: float
+    options: tuple[IssueClarificationOption, ...]
+
+    def __post_init__(self) -> None:
+        if not self.question.strip():
+            raise ValueError("clarification question must not be empty")
+        if not 0.0 <= self.interpretation_confidence < CONFIDENCE_HIGH:
+            raise ValueError(
+                f"clarification interpretation confidence must be below {CONFIDENCE_HIGH:.0%}"
+            )
+        if len(self.options) != 3:
+            raise ValueError("each clarification question must have exactly three options")
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "question": self.question,
+            "interpretation_confidence": self.interpretation_confidence,
+            "options": [option.to_dict() for option in self.options],
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> IssueClarificationQuestion:
+        return cls(
+            question=str(data["question"]),
+            interpretation_confidence=float(data["interpretation_confidence"]),
+            options=tuple(IssueClarificationOption.from_dict(item) for item in data["options"]),
+        )
+
+
+@dataclass(frozen=True)
+class IssueSummaryCheck:
+    """Confidence that the issue title summarizes its description."""
+
+    confidence: float
+    suggested_title: str | None = None
+
+    def __post_init__(self) -> None:
+        if not 0.0 <= self.confidence <= 1.0:
+            raise ValueError("summary confidence must be between 0 and 1")
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> IssueSummaryCheck:
+        return cls(
+            confidence=float(data["confidence"]),
+            suggested_title=data.get("suggested_title"),
+        )
+
+
+@dataclass(frozen=True)
+class IssueAnalysis:
+    """Structured summary and clarification analysis for an issue."""
+
+    summary_check: IssueSummaryCheck
+    clarification_questions: tuple[IssueClarificationQuestion, ...] = ()
+
+    def __post_init__(self) -> None:
+        if (
+            self.summary_check.confidence < CONFIDENCE_MEDIUM
+            and not (self.summary_check.suggested_title or "").strip()
+        ):
+            raise ValueError("a replacement title is required when the summary does not fit")
+
+    @property
+    def needs_refinement(self) -> bool:
+        """Whether another analysis attempt may improve a low-confidence result."""
+        return self.summary_check.confidence < CONFIDENCE_MEDIUM or any(
+            max(option.confidence for option in question.options) < CONFIDENCE_HIGH
+            for question in self.clarification_questions
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "summary_check": self.summary_check.to_dict(),
+            "clarification_questions": [
+                question.to_dict() for question in self.clarification_questions
+            ],
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> IssueAnalysis:
+        return cls(
+            summary_check=IssueSummaryCheck.from_dict(data["summary_check"]),
+            clarification_questions=tuple(
+                IssueClarificationQuestion.from_dict(item)
+                for item in data.get("clarification_questions", [])
+            ),
+        )
+
+
 @dataclass
 class IssueEvaluation:
     """The result of evaluating one issue (ADR 0005 §3).
@@ -176,9 +299,19 @@ class IssueEvaluation:
     # Exact input revision evaluated (ADR 0003 follow-up item 1)
     input_revision: str | None = None
     input_type: str | None = None  # "description" or "comment"
+    analysis: IssueAnalysis | None = None
+    analysis_attempts: int = 1
+
+    def __post_init__(self) -> None:
+        if not 1 <= self.analysis_attempts <= ISSUE_ANALYSIS_MAX_ATTEMPTS:
+            raise ValueError(
+                f"analysis_attempts must be between 1 and {ISSUE_ANALYSIS_MAX_ATTEMPTS}"
+            )
 
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        data = asdict(self)
+        data["analysis"] = self.analysis.to_dict() if self.analysis is not None else None
+        return data
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> IssueEvaluation:
@@ -200,6 +333,10 @@ class IssueEvaluation:
             consistent_with_adrs=bool(data.get("consistent_with_adrs", True)),
             input_revision=data.get("input_revision"),
             input_type=data.get("input_type"),
+            analysis=IssueAnalysis.from_dict(data["analysis"])
+            if data.get("analysis") is not None
+            else None,
+            analysis_attempts=int(data.get("analysis_attempts", 1)),
         )
 
 
