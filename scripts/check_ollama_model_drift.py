@@ -359,6 +359,24 @@ class ModelLinks(HTMLParser):
             self.models.add(match.group(1))
 
 
+class ModelTags(HTMLParser):
+    def __init__(self, model: str) -> None:
+        super().__init__()
+        self.model = model
+        self.tags: set[str] = set()
+
+    def handle_starttag(self, _tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        href = dict(attrs).get("href")
+        if not isinstance(href, str):
+            return
+        match = re.fullmatch(
+            rf"/library/{re.escape(self.model)}:([a-zA-Z0-9._-]+)",
+            href,
+        )
+        if match:
+            self.tags.add(match.group(1))
+
+
 def ollama_search_url(search_url: str, cursor: int) -> str:
     separator = "&" if "?" in search_url else "?"
     return f"{search_url}{separator}page={cursor}"
@@ -408,45 +426,32 @@ def parse_registry_manifest(payload: object, model: str, tag: str) -> tuple[int,
     return size, payload
 
 
-def parse_registry_tags(payload: object, model: str) -> set[str]:
-    tags = payload.get("tags") if isinstance(payload, dict) else None
-    if not isinstance(tags, list) or not all(
-        isinstance(tag, str) and re.fullmatch(r"[a-zA-Z0-9._-]+", tag) for tag in tags
-    ):
-        raise RuntimeError(f"registry tags for {model} are malformed")
-    return set(tags)
-
-
-def registry_tags(registry_url: str, model: str, timeout: float, page_size: int) -> set[str]:
-    next_url = f"{registry_url.rstrip('/')}/{model}/tags/list?n={page_size}"
-    tags: set[str] = set()
-    visited: set[str] = set()
-    while next_url:
-        if next_url in visited:
-            raise RuntimeError(f"registry tags for {model} repeated a pagination link")
-        visited.add(next_url)
-        parsed = urlparse(next_url)
-        connection_type = HTTPSConnection if parsed.scheme == "https" else HTTPConnection
-        connection = connection_type(parsed.hostname, parsed.port, timeout=timeout)
-        try:
-            connection.request("GET", parsed.path + (f"?{parsed.query}" if parsed.query else ""))
-            response = connection.getresponse()
-            if response.status < 200 or response.status >= 300:
-                raise RuntimeError(f"registry tags for {model} returned HTTP {response.status}")
-            payload = json.loads(response.read().decode())
-            tags.update(parse_registry_tags(payload, model))
-            link = response.getheader("Link", "")
-            match = re.search(r"<([^>]+)>;\s*rel=\"?next\"?", link)
-            next_url = urljoin(next_url, match.group(1)) if match else ""
-            if next_url:
-                next_parsed = urlparse(next_url)
-                if next_parsed.scheme != "https" or next_parsed.hostname != "registry.ollama.ai":
-                    raise RuntimeError("registry pagination left the official Ollama host")
-        except (OSError, TimeoutError, json.JSONDecodeError) as error:
-            raise RuntimeError(f"registry tags for {model} failed: {error}") from error
-        finally:
-            connection.close()
-    return tags
+def library_tags(
+    model: str,
+    *,
+    timeout: float,
+    max_redirects: int,
+    max_tags: int,
+) -> set[str]:
+    if not re.fullmatch(r"[a-zA-Z0-9._-]+", model):
+        raise ValueError(f"invalid Ollama library model name: {model}")
+    if isinstance(max_tags, bool) or not isinstance(max_tags, int) or max_tags <= 0:
+        raise ValueError("Ollama per-family tag limit must be a positive integer")
+    parser = ModelTags(model)
+    parser.feed(
+        http_text(
+            f"https://ollama.com/library/{model}/tags",
+            timeout=timeout,
+            max_redirects=max_redirects,
+        )
+    )
+    if not parser.tags:
+        raise SkipCheck(f"Ollama library tag page returned no tags for {model}")
+    if len(parser.tags) > max_tags:
+        raise SkipCheck(
+            f"Ollama library tag page for {model} exceeds the policy tag limit ({max_tags})"
+        )
+    return parser.tags
 
 
 def discover_models(
@@ -458,12 +463,16 @@ def discover_models(
     search_url = discovery.get("search_url")
     registry_url = discovery.get("registry_url")
     maximum = discovery.get("max_families")
+    max_tags = discovery.get("max_tags_per_family")
     timeout = discovery.get("timeout_seconds")
     max_redirects = discovery.get("max_redirects")
     if (
         not isinstance(search_url, str)
         or not isinstance(registry_url, str)
         or not isinstance(maximum, int)
+        or isinstance(max_tags, bool)
+        or not isinstance(max_tags, int)
+        or max_tags <= 0
         or not isinstance(timeout, (int, float))
         or isinstance(max_redirects, bool)
         or not isinstance(max_redirects, int)
@@ -515,11 +524,11 @@ def discover_models(
     for model in sorted(names)[:maximum]:
         if "/" in model or model in ignored or not supported_functionality(model):
             continue
-        tag_names = registry_tags(
-            registry_url,
+        tag_names = library_tags(
             model,
-            float(timeout),
-            discovery["page_size"],
+            timeout=float(timeout),
+            max_redirects=max_redirects,
+            max_tags=max_tags,
         )
         if not tag_names:
             raise SkipCheck(f"Ollama registry returned no tags for discovered model {model}")

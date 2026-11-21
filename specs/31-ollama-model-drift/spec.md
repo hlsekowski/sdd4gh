@@ -14,11 +14,13 @@ or Ollama configuration.
    policy defines its required capabilities, exclusions, discovery, machine,
    fit and safety settings.
 2. Discover only bounded official Ollama library models matching the requested
-   tool capability. Include installed models, exact registry weight sizes,
-   exclude cloud, remote, MLX and community models, and honor the explicit
-   ignore list. Follow a policy-bounded number of HTTPS redirects only when
-   they remain on the official `ollama.com` host. A discovery error is a `skip`,
-   never an empty successful discovery.
+   tool capability. Enumerate model tags from each official library tag page;
+   obtain exact weight sizes from registry manifests without downloading model
+   layers. Exclude cloud, remote, MLX and community models, and honor the
+   explicit ignore list. Follow a policy-bounded number of HTTPS redirects
+   only when they remain on the official `ollama.com` host. If a family
+   exceeds the policy tag bound or discovery fails, return `skip`, never an
+   incomplete or empty successful discovery.
 3. Read machine RAM, chip, macOS version, power state, and GPU memory budget
    without privilege. Resolve the budget in this order: Ollama-reported budget,
    Metal recommended working-set size, policy override, then the policy

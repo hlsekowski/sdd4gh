@@ -224,10 +224,8 @@ def test_swapped_memory_parser_converts_units():
 def test_saved_library_and_registry_fixtures_parse_official_models():
     parser = CHECKER.ModelLinks()
     parser.feed((FIXTURES_DIR / "library_search.html").read_text())
-    tags = CHECKER.parse_registry_tags(
-        json.loads((FIXTURES_DIR / "registry_tags.json").read_text()),
-        "gemma4",
-    )
+    tags = CHECKER.ModelTags("gemma4")
+    tags.feed((FIXTURES_DIR / "library_tags.html").read_text())
     weight_size, _manifest = CHECKER.parse_registry_manifest(
         json.loads((FIXTURES_DIR / "manifest.json").read_text()),
         "gemma4",
@@ -235,8 +233,68 @@ def test_saved_library_and_registry_fixtures_parse_official_models():
     )
 
     assert parser.models == {"gemma4", "llama3"}
-    assert tags == {"12b", "12b-cloud", "27b"}
+    assert tags.tags == {"12b", "12b-cloud", "27b"}
     assert weight_size == 7 * CHECKER.GIB
+
+
+def test_library_tags_uses_official_tags_page_and_rejects_truncation(monkeypatch):
+    requested = []
+    html = (FIXTURES_DIR / "library_tags.html").read_text()
+
+    def fetch(url, *, timeout, max_redirects):
+        requested.append((url, timeout, max_redirects))
+        return html
+
+    monkeypatch.setattr(CHECKER, "http_text", fetch)
+
+    tags = CHECKER.library_tags(
+        "gemma4",
+        timeout=10,
+        max_redirects=3,
+        max_tags=10,
+    )
+
+    assert tags == {"12b", "12b-cloud", "27b"}
+    assert requested == [("https://ollama.com/library/gemma4/tags", 10, 3)]
+
+    with pytest.raises(CHECKER.SkipCheck, match="exceeds the policy tag limit"):
+        CHECKER.library_tags(
+            "gemma4",
+            timeout=10,
+            max_redirects=3,
+            max_tags=2,
+        )
+
+
+def test_model_discovery_uses_library_tags_and_registry_weight_manifests(
+    monkeypatch,
+):
+    policy = CHECKER.load_policy()
+    tag_page = (FIXTURES_DIR / "library_tags.html").read_text()
+    manifest = json.loads((FIXTURES_DIR / "manifest.json").read_text())
+    manifest_requests = []
+
+    def fetch(url, *, timeout, max_redirects):
+        assert timeout == policy["ollama"]["discovery"]["timeout_seconds"]
+        assert max_redirects == policy["ollama"]["discovery"]["max_redirects"]
+        if "/search?" in url:
+            return '<a href="/library/gemma4">gemma4</a>'
+        if url == "https://ollama.com/library/gemma4/tags":
+            return tag_page
+        return "<html></html>"
+
+    def get_manifest(_registry_url, model, tag, _timeout):
+        manifest_requests.append((model, tag))
+        return CHECKER.GIB, manifest
+
+    monkeypatch.setattr(CHECKER, "http_text", fetch)
+    monkeypatch.setattr(CHECKER, "registry_manifest", get_manifest)
+    monkeypatch.setattr(CHECKER, "registry_config", lambda *_args, **_kwargs: {})
+
+    candidates = CHECKER.discover_models(policy["ollama"], policy["functionalities"])
+
+    assert set(candidates) == {"gemma4:12b", "gemma4:27b"}
+    assert manifest_requests == [("gemma4", "12b"), ("gemma4", "27b")]
 
 
 def test_catalog_get_follows_same_host_303_redirect(monkeypatch):
