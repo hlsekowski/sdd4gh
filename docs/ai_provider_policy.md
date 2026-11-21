@@ -29,17 +29,33 @@ Model calls default to zero cost: no paid API usage, subscriptions, or billable 
 
 ## Model drift monitoring
 
-The repository may use an opt-in developer-only check to compare the NVIDIA
-catalog and live model availability with `models_policy.json` and
-`opencode.json`. It must:
+The repository may use opt-in developer-only drift checks to compare provider
+catalogs and model availability with `models_policy.json` and `opencode.json`.
+The NVIDIA check may smoke-test its hosted models; the Ollama check defaults
+to planning only and has a separately supervised local fit-verification mode.
+Both checks must:
 
-- use only the no-charge NVIDIA account/key and never enable paid usage;
 - make no standard CI or local pytest request;
-- retry configured models more than newly discovered candidates because
-  temporary catalog or rate-limit failures must not be mistaken for drift;
 - report candidate additions and removals, with candidate details, but never
   mutate `opencode.json` automatically;
-- fail if either candidate list is non-empty.
+- fail for a verified non-empty candidate list. A skip or inconclusive result
+  is reported separately, not treated as a pass.
+
+The NVIDIA check must:
+
+- use only the no-charge NVIDIA account/key and never enable paid usage;
+- retry configured models more than newly discovered candidates because
+  temporary catalog or rate-limit failures must not be mistaken for drift.
+
+The Ollama fit-verification mode is monitor-only. It requires explicit
+operator consent and a clean preflight, records machine and model evidence,
+checks free space on the Ollama model-store filesystem before pulls and loads,
+and must stop safely on a monitored trip or low-disk condition. It may cancel
+only its own request and unload only a model it loaded. It must not change
+system, Ollama, or OpenCode configuration or interfere with other processes.
+See the [Ollama model-drift spec](../specs/31-ollama-model-drift/spec.md) and
+[disk-space spec](../specs/32-ollama-disk-space-monitoring/spec.md) for the
+full contracts.
 
 ## Provider configuration
 

@@ -1,45 +1,45 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
+  "functionalities": [
+    {
+      "id": "coding",
+      "description": "Tool-supported software engineering and coding",
+      "name_patterns": [
+        "*code*",
+        "*coder*",
+        "*dev*",
+        "*nemotron*"
+      ],
+      "smoke_prompt": "Write one valid Python function named add that returns the sum of two integers. Return only code."
+    },
+    {
+      "id": "cybersecurity",
+      "description": "Security analysis and defensive cybersecurity assistance",
+      "name_patterns": [
+        "*security*",
+        "*cyber*",
+        "*nemotron*"
+      ],
+      "smoke_prompt": "In one sentence, describe a defensive check for an exposed SSH service."
+    },
+    {
+      "id": "general-purpose",
+      "description": "General text assistance and instruction following",
+      "name_patterns": [
+        "*",
+        "!*-embedding*",
+        "!*-rerank*",
+        "!*vision*",
+        "!*audio*"
+      ],
+      "smoke_prompt": "Answer with exactly the word OK."
+    }
+  ],
   "nvidia": {
     "catalog_url": "https://integrate.api.nvidia.com/v1/models",
     "chat_url": "https://integrate.api.nvidia.com/v1/chat/completions",
     "build_catalog_url": "https://build.nvidia.com/models?filters=nimType%3Anim_type_preview",
     "api_key_file": "~/.secrets/nvidia_key",
-    "functionalities": [
-      {
-        "id": "coding",
-        "description": "Tool-supported software engineering and coding",
-        "name_patterns": [
-          "*code*",
-          "*coder*",
-          "*dev*",
-          "*nemotron*"
-        ],
-        "smoke_prompt": "Write one valid Python function named add that returns the sum of two integers. Return only code."
-      },
-      {
-        "id": "cybersecurity",
-        "description": "Security analysis and defensive cybersecurity assistance",
-        "name_patterns": [
-          "*security*",
-          "*cyber*",
-          "*nemotron*"
-        ],
-        "smoke_prompt": "In one sentence, describe a defensive check for an exposed SSH service."
-      },
-      {
-        "id": "general-purpose",
-        "description": "General text assistance and instruction following",
-        "name_patterns": [
-          "*",
-          "!*-embedding*",
-          "!*-rerank*",
-          "!*vision*",
-          "!*audio*"
-        ],
-        "smoke_prompt": "Answer with exactly the word OK."
-      }
-    ],
     "smoke": {
       "timeout_seconds": 60,
       "delay_seconds": 2,
@@ -47,6 +47,80 @@
       "candidate_attempts": 3,
       "max_tokens": 64,
       "temperature": 0
+    }
+  },
+  "ollama": {
+    "base_url": "http://localhost:11434",
+    "model_store_path": null,
+    "require_capabilities": ["tools"],
+    "exclude": {
+      "tag_suffixes": ["-cloud"],
+      "tag_markers": ["mlx"],
+      "remote": true
+    },
+    "ignore": [],
+    "discovery": {
+      "search_url": "https://ollama.com/search?c=tools",
+      "registry_url": "https://registry.ollama.ai/v2/library",
+      "max_families": 30,
+      "max_tags_per_family": 100,
+      "max_redirects": 3,
+      "timeout_seconds": 15
+    },
+    "machine": {
+      "profile": "macbook-air-m4-16gb",
+      "expected_chip": "Apple M4",
+      "expected_ram_gib": 16,
+      "gpu_budget_gib": null,
+      "gpu_budget_fallback_fraction": 0.66,
+      "os_reserve_gib": 5,
+      "safety_margin_gib": 1,
+      "runtime_overhead_gib": 1,
+      "kv_cache_type": "f16",
+      "context_tokens": null
+    },
+    "fit": {
+      "max_models_per_run": 3,
+      "max_seconds_per_model": 240,
+      "existing_attempts": 2,
+      "candidate_attempts": 1,
+      "num_predict": 128,
+      "keep_alive": "5m",
+      "min_decode_tps": 5,
+      "recovery_timeout_seconds": 120,
+      "max_squeeze_gib": 2,
+      "max_pull_gib": 10,
+      "pull_timeout_seconds": 900,
+      "verification_countdown_seconds": 10,
+      "probe_attempts": 2,
+      "deep_prefill_fraction": 0.5,
+      "cooldown_seconds": 10,
+      "request_timeout_seconds": 240
+    },
+    "safety": {
+      "pressure_baseline_seconds": 30,
+      "max_swap_used_mib": 1024,
+      "idle_baseline_seconds": 20,
+      "watch_set_min_rss_mib": 150,
+      "swap_growth_mib": {"warn": 256, "trip": 1024},
+      "timer_lag_ms": {"warn": 250, "trip": 1000, "consecutive": 3, "stall_seconds": 5},
+      "spawn_latency_ms": {"warn": 300, "trip": 1500, "consecutive": 2},
+      "ollama_unresponsive_seconds": 10,
+      "disk_free_percent": {"warn": 20, "stop": 15},
+      "pressure_sample_seconds": 0.25,
+      "host_probe_timeout_seconds": 10,
+      "server_log_tail_bytes": 200000,
+      "swap_sample_seconds": 1,
+      "canary_sample_seconds": 1,
+      "ollama_sample_seconds": 2,
+      "log_sample_seconds": 1,
+      "thermal_sample_seconds": 5,
+      "memory_pressure_levels": {
+        "normal": 1,
+        "warn": 2,
+        "preflight_max": 3,
+        "hard": 4
+      }
     }
   }
 }

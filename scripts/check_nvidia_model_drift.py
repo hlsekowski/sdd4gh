@@ -23,10 +23,12 @@ def load_policy(path: Path = POLICY_PATH) -> dict:
         policy = json.loads(path.read_text())
     except (OSError, json.JSONDecodeError) as error:
         raise RuntimeError(f"cannot load model policy {path}: {error}") from error
-    if policy.get("schema_version") != 1:
+    if policy.get("schema_version") != 2:
         raise RuntimeError("unsupported models_policy.json schema_version")
     if not isinstance(policy.get("nvidia"), dict):
         raise RuntimeError("models_policy.json has no nvidia policy")
+    if not isinstance(policy.get("functionalities"), list):
+        raise RuntimeError("models_policy.json has no shared functionalities")
     return policy
 
 
@@ -99,7 +101,7 @@ def matches_functionality(model_id: str, functionality: dict) -> bool:
 
 
 def matched_models(model_ids: set[str], policy: dict) -> set[str]:
-    functionalities = policy["nvidia"].get("functionalities")
+    functionalities = policy.get("functionalities")
     if not isinstance(functionalities, list):
         return set()
     matched: set[str] = set()
@@ -312,7 +314,7 @@ def main() -> int:
 
         smoke_passed: set[str] = set()
         prompt_by_model: dict[str, str] = {}
-        functionalities = nvidia_policy.get("functionalities", [])
+        functionalities = policy.get("functionalities", [])
         for model_id in matched:
             prompt = "Answer with exactly the word OK."
             for functionality in functionalities:

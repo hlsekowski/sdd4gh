@@ -139,6 +139,46 @@ credential from `~/.secrets/nvidia_key`, reports candidate additions and
 removals, and never updates `opencode.json`. A credential is required; standard
 pytest and CI do not run this live check.
 
+For local Ollama model drift, the default command discovers eligible library
+models, estimates memory fit at the configured OpenCode context, and prints a
+plan without loading a model:
+
+```bash
+python3 scripts/check_ollama_model_drift.py
+```
+
+Fit verification is opt-in and must be supervised. Before the first run, save
+work, connect AC power, close memory-heavy applications, and leave the machine
+idle. The run refuses Low Power Mode, non-loopback endpoints, pre-existing
+Ollama models, unsafe pressure/swap, or unhealthy responsiveness canaries.
+It may stop on a safety trip; any recovery (including stopping or restarting
+Ollama) is manual. Reports and monitoring timelines are stored under the
+ignored `.ollama-model-drift/` directory.
+
+Before each permitted pull or model load, fit verification checks available
+space on the Ollama model-store filesystem. It uses
+`ollama.model_store_path` when set, then `OLLAMA_MODELS`, then
+`~/.ollama/models`. If Ollama runs with a separate environment, set the policy
+override to its actual model-store directory. At or below 20% available space
+it warns and continues; at or below 15% it aborts with partial results.
+If the directory or filesystem cannot be measured, it fails closed. It never
+deletes files or tries to reclaim space. See the [issue #32 disk-space
+spec](../specs/32-ollama-disk-space-monitoring/spec.md).
+
+```bash
+SDD4GH_ALLOW_MODEL_LOAD=1 python3 scripts/check_ollama_model_drift.py --verify-fit
+SDD4GH_ALLOW_MODEL_LOAD=1 pytest -m live tests/live/test_ollama_model_drift.py
+```
+
+The supervised test requires Ollama on loopback and may load configured
+models. It is never part of default pytest or CI. Thresholds in
+`models_policy.json` are initial values and require supervised calibration;
+passing a run is not a guarantee that other workloads will be unaffected.
+Use `--only <model>` to limit verification, `--deep` to prefill about half of
+the configured context, and `--allow-pull` only when intentionally permitting
+an eligible pull within the policy size limit. Review the crash journal before
+using `--forget-journal`; no journal is cleared automatically.
+
 ### Runtime evidence
 
 The installed OpenCode CLI successfully loaded the project config and discovered

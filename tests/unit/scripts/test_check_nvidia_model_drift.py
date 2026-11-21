@@ -22,11 +22,10 @@ def load_checker():
 def test_load_policy_requires_supported_schema(tmp_path):
     checker = load_checker()
     policy_path = tmp_path / "models_policy.json"
-    policy_path.write_text(json.dumps({"schema_version": 1, "nvidia": {}}))
+    policy_path.write_text(json.dumps({"schema_version": 2, "nvidia": {}, "functionalities": []}))
+    assert checker.load_policy(policy_path)["schema_version"] == 2
 
-    assert checker.load_policy(policy_path)["schema_version"] == 1
-
-    policy_path.write_text(json.dumps({"schema_version": 2, "nvidia": {}}))
+    policy_path.write_text(json.dumps({"schema_version": 1, "nvidia": {}, "functionalities": []}))
     try:
         checker.load_policy(policy_path)
     except RuntimeError as error:

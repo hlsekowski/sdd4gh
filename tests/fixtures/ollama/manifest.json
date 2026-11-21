@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "config": {
+    "mediaType": "application/vnd.ollama.image.config.v1+json",
+    "digest": "sha256:example"
+  },
+  "layers": [
+    {
+      "mediaType": "application/vnd.ollama.image.model",
+      "size": 7516192768
+    },
+    {
+      "mediaType": "application/vnd.ollama.image.tensor",
+      "size": 2147483648
+    },
+    {
+      "mediaType": "application/vnd.ollama.image.template",
+      "size": 4096
+    }
+  ]
+}

@@ -9,6 +9,7 @@ build/
 data/sessions/*.json
 .DS_Store
 .specstory/
+.ollama-model-drift/
 .cursor/
 .vscode/
 tmp/
