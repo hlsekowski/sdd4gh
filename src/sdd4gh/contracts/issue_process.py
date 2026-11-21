@@ -9,10 +9,10 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import Any
 
+from sdd4gh.contracts.constants import CONFIDENCE_HIGH, CONFIDENCE_MEDIUM
+
 # Issue-analysis limits and thresholds (ADR 0005 §3).
 ISSUE_ANALYSIS_MAX_ATTEMPTS = 5
-ISSUE_ANSWER_CONFIDENCE_THRESHOLD = 0.95
-ISSUE_SUMMARY_FIT_THRESHOLD = 0.85
 
 # --- Issue states (ADR 0005 lifecycle) ---
 
@@ -182,8 +182,10 @@ class IssueClarificationQuestion:
     def __post_init__(self) -> None:
         if not self.question.strip():
             raise ValueError("clarification question must not be empty")
-        if not 0.0 <= self.interpretation_confidence < ISSUE_ANSWER_CONFIDENCE_THRESHOLD:
-            raise ValueError("clarification interpretation confidence must be below 0.95")
+        if not 0.0 <= self.interpretation_confidence < CONFIDENCE_HIGH:
+            raise ValueError(
+                f"clarification interpretation confidence must be below {CONFIDENCE_HIGH:.0%}"
+            )
         if len(self.options) != 3:
             raise ValueError("each clarification question must have exactly three options")
 
@@ -234,7 +236,7 @@ class IssueAnalysis:
 
     def __post_init__(self) -> None:
         if (
-            self.summary_check.confidence < ISSUE_SUMMARY_FIT_THRESHOLD
+            self.summary_check.confidence < CONFIDENCE_MEDIUM
             and not (self.summary_check.suggested_title or "").strip()
         ):
             raise ValueError("a replacement title is required when the summary does not fit")
@@ -242,9 +244,8 @@ class IssueAnalysis:
     @property
     def needs_refinement(self) -> bool:
         """Whether another analysis attempt may improve a low-confidence result."""
-        return self.summary_check.confidence < ISSUE_SUMMARY_FIT_THRESHOLD or any(
-            max(option.confidence for option in question.options)
-            < ISSUE_ANSWER_CONFIDENCE_THRESHOLD
+        return self.summary_check.confidence < CONFIDENCE_MEDIUM or any(
+            max(option.confidence for option in question.options) < CONFIDENCE_HIGH
             for question in self.clarification_questions
         )
 

@@ -1,6 +1,6 @@
 """Unit tests for the issue process domain logic (ADR 0005)."""
 
-from sdd4gh.contracts.constants import CONFIDENCE_SHOW_BELOW
+from sdd4gh.contracts.constants import CONFIDENCE_HIGH
 from sdd4gh.contracts.issue_process import (
     ACTION_ACCEPT_AND_SEAL,
     ACTION_EXCLUDE_REOPENED,
@@ -114,7 +114,7 @@ class TestEvaluateIssue:
         evaluation = evaluate_issue(
             description="desc",
             change_type="feat",
-            confidence=CONFIDENCE_SHOW_BELOW,
+            confidence=CONFIDENCE_HIGH,
             clarity_pass=True,
             consistency_pass=True,
         )
@@ -125,7 +125,7 @@ class TestEvaluateIssue:
         evaluation = evaluate_issue(
             description="desc",
             change_type="feat",
-            confidence=CONFIDENCE_SHOW_BELOW + 0.01,
+            confidence=CONFIDENCE_HIGH + 0.01,
             clarity_pass=True,
             consistency_pass=True,
         )

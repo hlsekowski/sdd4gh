@@ -6,9 +6,14 @@ rather than duplicating, so both sides agree on one definition.
 
 from __future__ import annotations
 
-# Decision-gate threshold: model confidence must be strictly above this
-# value for an automated judgment to be authorized (ADR 0003 §3).
-CONFIDENCE_SHOW_BELOW = 0.95
+# Shared confidence bands. The decision gate requires confidence strictly
+# above CONFIDENCE_HIGH (ADR 0003 §3); CONFIDENCE_MEDIUM is used for
+# non-authorizing assessments such as title-summary fit (ADR 0005 §3).
+CONFIDENCE_HIGH = 0.95
+CONFIDENCE_MEDIUM = 0.85
+
+# Backwards-compatible name for the decision-gate threshold.
+CONFIDENCE_SHOW_BELOW = CONFIDENCE_HIGH
 
 # Closed set of PR feedback evaluation results (ADR 0006 §1).
 EVALUATION_RESULTS = frozenset(
@@ -26,6 +31,8 @@ def is_workflow_comment(body: str) -> bool:
 
 
 __all__ = [
+    "CONFIDENCE_HIGH",
+    "CONFIDENCE_MEDIUM",
     "CONFIDENCE_SHOW_BELOW",
     "EVALUATION_RESULTS",
     "WORKFLOW_COMMENT_MARKER",

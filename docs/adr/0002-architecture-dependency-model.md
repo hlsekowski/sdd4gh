@@ -51,7 +51,7 @@ Two contract modules are imported by more than one layer. They stay in
 
 | Module | Importers | Why it is a contract |
 |---|---|---|
-| `contracts/constants.py` | `contracts/pr_process`, `domain/issue_process`, `domain/pr_feedback`, `services/github_observation` | `CONFIDENCE_SHOW_BELOW`, `EVALUATION_RESULTS`, `WORKFLOW_COMMENT_MARKER` are closed vocabularies published for a consuming application |
+| `contracts/constants.py` | `contracts/pr_process`, `domain/issue_process`, `domain/pr_feedback`, `services/github_observation` | `CONFIDENCE_HIGH`, `CONFIDENCE_MEDIUM`, `EVALUATION_RESULTS`, and `WORKFLOW_COMMENT_MARKER` are shared values published for a consuming application |
 | `contracts/ports.py` | `services/pr_feedback` | `ModelClientProtocol` is the injection port for an OpenAI-compatible client; the application supplies the implementation |
 
 `contracts/ports.py` is named `ports`, not `types`, because a module named

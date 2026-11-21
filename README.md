@@ -30,7 +30,9 @@ from sdd4gh.services.workflow_orchestrator import WorkflowOrchestrator
 
 ## Shared symbols
 
-[`CONFIDENCE_SHOW_BELOW`](src/sdd4gh/contracts/constants.py),
+[`CONFIDENCE_HIGH`](src/sdd4gh/contracts/constants.py),
+[`CONFIDENCE_MEDIUM`](src/sdd4gh/contracts/constants.py),
+[`CONFIDENCE_SHOW_BELOW`](src/sdd4gh/contracts/constants.py) (compatibility alias),
 [`EVALUATION_RESULTS`](src/sdd4gh/contracts/constants.py),
 [`WORKFLOW_COMMENT_MARKER`](src/sdd4gh/contracts/constants.py) and
 [`ModelClientProtocol`](src/sdd4gh/contracts/ports.py) are published for a

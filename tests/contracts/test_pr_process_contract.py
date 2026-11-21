@@ -1,6 +1,10 @@
 """Contract tests for the PR Process (ADR 0006)."""
 
-from sdd4gh.contracts.constants import CONFIDENCE_SHOW_BELOW
+from sdd4gh.contracts.constants import (
+    CONFIDENCE_HIGH,
+    CONFIDENCE_MEDIUM,
+    CONFIDENCE_SHOW_BELOW,
+)
 from sdd4gh.contracts.pr_process import (
     CHECK_STATUSES,
     CORRECTION_ATTEMPT_STEPS,
@@ -120,8 +124,10 @@ class TestEvaluationResult:
         result = EvaluationResult(result="ClearActionable", confidence=0.98, reason="clear")
         assert EvaluationResult.from_dict(result.to_dict()) == result
 
-    def test_confidence_uses_the_shared_threshold(self):
-        assert CONFIDENCE_SHOW_BELOW == 0.95
+    def test_confidence_uses_shared_bands_and_retains_legacy_threshold(self):
+        assert CONFIDENCE_HIGH == 0.95
+        assert CONFIDENCE_MEDIUM == 0.85
+        assert CONFIDENCE_SHOW_BELOW == CONFIDENCE_HIGH
 
 
 class TestCheckResult:

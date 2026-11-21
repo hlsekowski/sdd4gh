@@ -5,6 +5,7 @@ Notable project changes are recorded under `Unreleased` and updated for each pul
 ## Unreleased
 
 - Added bounded issue-intake analysis with ranked clarification options, title-fit checks, and idempotent issue comments.
+- Centralized shared confidence bands for issue analysis and decision gates.
 - Added an explicit opt-in NVIDIA model drift check that reports add/remove candidates without modifying OpenCode configuration.
 - Added reproducible OpenCode runtime model-resolution and opt-in local smoke validation.
 - Added least-privilege OpenCode agent permissions with shell, edit, and delegation regressions.

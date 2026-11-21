@@ -9,12 +9,11 @@ Only a passing decision proceeds to PR creation.
 
 from __future__ import annotations
 
-from sdd4gh.contracts.constants import WORKFLOW_COMMENT_MARKER
+from sdd4gh.contracts.constants import CONFIDENCE_MEDIUM, WORKFLOW_COMMENT_MARKER
 from sdd4gh.contracts.issue_process import (
     ACTION_ACCEPT_AND_SEAL,
     ACTION_REQUEST_CLARIFICATION,
     ISSUE_ANALYSIS_MAX_ATTEMPTS,
-    ISSUE_SUMMARY_FIT_THRESHOLD,
     Issue,
     IssueDecision,
     IssueEvaluation,
@@ -155,7 +154,7 @@ class IssueEvaluationTask:
             raise IssueEvaluationError("Issue evaluator did not return an analysis")
 
         summary_check = analysis.summary_check
-        summary_fits = summary_check.confidence >= ISSUE_SUMMARY_FIT_THRESHOLD
+        summary_fits = summary_check.confidence >= CONFIDENCE_MEDIUM
         lines = [
             WORKFLOW_COMMENT_MARKER,
             "## Issue analysis",
