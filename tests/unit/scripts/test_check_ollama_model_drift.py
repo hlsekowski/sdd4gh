@@ -234,7 +234,7 @@ def test_saved_library_and_registry_fixtures_parse_official_models():
 
     assert parser.models == {"gemma4", "llama3"}
     assert tags.tags == {"12b", "12b-cloud", "27b"}
-    assert weight_size == 7 * CHECKER.GIB
+    assert weight_size == 9 * CHECKER.GIB
 
 
 def test_library_tags_uses_official_tags_page_and_rejects_truncation(monkeypatch):

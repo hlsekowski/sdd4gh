@@ -29,6 +29,10 @@ CONFIG_PATH = REPO_ROOT / "opencode.json"
 REPORT_DIR = REPO_ROOT / ".ollama-model-drift"
 GIB = 1024**3
 MIB = 1024**2
+WEIGHT_LAYER_MEDIA_TYPES = {
+    "application/vnd.ollama.image.model",
+    "application/vnd.ollama.image.tensor",
+}
 
 
 class SkipCheck(RuntimeError):
@@ -418,7 +422,7 @@ def parse_registry_manifest(payload: object, model: str, tag: str) -> tuple[int,
         layer["size"]
         for layer in layers
         if isinstance(layer, dict)
-        and layer.get("mediaType") == "application/vnd.ollama.image.model"
+        and layer.get("mediaType") in WEIGHT_LAYER_MEDIA_TYPES
         and isinstance(layer.get("size"), int)
     )
     if size <= 0:
